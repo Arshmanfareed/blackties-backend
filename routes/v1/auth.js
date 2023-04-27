@@ -2,12 +2,12 @@ const router = require('express').Router()
 const { authController } = require('../../controllers')
 const auth = require('../../middlewares/auth')
 
-// signup or signin by phone number
+// signup or signin by email
 /**
  * @swagger
- * /auth/signup/phone-number:
+ * /auth/signup:
  *   post:
- *     summary: signup by phone number
+ *     summary: signup by email
  *     consumes:
  *      - application/json
  *     produces:
@@ -19,20 +19,20 @@ const auth = require('../../middlewares/auth')
  *           schema:
  *             type: object
  *             required:
- *               - phoneNumber
+ *               - email
  *             properties:
- *               phoneNumber:
+ *               email:
  *                 type: string
  *     tags:
  *     - Auth
- *     operationId: signUpByPhoneNumber
+ *     operationId: signUpByEmail
  *     deprecated: false
  *     responses:
  *       '200':
  *         description: ''
  *         headers: {}
  */
-router.post('/signup/phone-number', authController.signUpOrSignInByEmail)
+router.post('/signup', authController.signUpOrSignInByEmail)
 
 // verify otp 
 /**
@@ -51,9 +51,9 @@ router.post('/signup/phone-number', authController.signUpOrSignInByEmail)
  *           schema:
  *             type: object
  *             required:
- *               - phoneNumber
+ *               - email
  *             properties:
- *               phoneNumber:
+ *               email:
  *                 type: string
  *               code:
  *                 type: integer
