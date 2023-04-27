@@ -1,0 +1,5 @@
+node_modules/
+nohup.out
+.env
+package-lock.json
+public/
