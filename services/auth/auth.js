@@ -31,19 +31,6 @@ module.exports = {
     let user = await db.User.findOne({
       where: { email, deletedAt: { [Op.eq]: null } },
       attributes: { exclude: ['password'] },
-      // include: [
-      //   {
-      //     model: db.Profile
-      //   },
-      //   {
-      //     model: db.UserMedia,
-      //     required: false,
-      //     attributes: ['id', 'url', 'thumbUrl', 'type', 'sequence'],
-      //     where: {
-      //       status: true
-      //     }
-      //   },
-      // ]
     })
     if (!user) {
       throw new Error('User does not exist.')
@@ -65,8 +52,6 @@ module.exports = {
       // generate JWT
       user = user.toJSON()
       const dataForToken = { ...user }
-      // delete dataForToken['Profile']
-      // delete dataForToken['UserMedia']
       return { ...user, JWTToken: generateJWT(dataForToken) }
     } else {
       throw Error('Invalid code.')
@@ -74,5 +59,21 @@ module.exports = {
   },
   logout: async (userId) => {
     return db.User.update({ fcmToken: null }, { where: { id: userId } })
+  },
+  createProfile: async (body) => {
+    const { email, username, password, sex, dateOfBirth, height, weight, country, city, nationality, religiosity, education, skinColor, ethnicity } = body
+    let userExistByUsername = await db.User.findOne({ where: { username } })
+    if (userExistByUsername) {
+      throw new Error("Username already taken please choose a different username")
+    }
+    let userExist = await db.User.findOne({ where: { email } })
+    const hashedPassword = password + ""
+    if (!userExist) {
+      userExist = await db.User.create({ email, username, password: hashedPassword, status: status.INACTIVE })
+    } else {
+      await db.User.update({ username, password: hashedPassword }, { where: { id: userExist.id } })
+    }
+    const profileCreated = await db.Profile.create({ userId: userExist.id, sex, dateOfBirth, height, weight, country, city, nationality, religiosity, education, skinColor, ethnicity })
+    return { userCreated: userExist, profileCreated }
   }
 }

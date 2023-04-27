@@ -26,6 +26,19 @@ module.exports = {
     // send OTP on Email
     // await sendSMS(phoneNo, otp)
   },
+  createProfile: async (req, res) => {
+    // validation
+    const { body } = req
+    const { error } = authValidations.validateCreateProfile(body)
+    if (error) {
+      return responseFunctions._400(res, error.details[0].message)
+    }
+    const [err, data] = await to(authService.createProfile(body))
+    if (err) {
+      return responseFunctions._400(res, err.message)
+    }
+    return responseFunctions._201( res, data, 'Profile created successfully')
+  },
   verifyCode: async (req, res) => {
     // validation
     const { body } = req

@@ -17,85 +17,44 @@ module.exports = {
           as: 'userId',
         },
       },
+      sex: {
+        type: Sequelize.STRING,
+      },
+      dateOfBirth: {
+        type: Sequelize.DATEONLY,
+      },
       height: {
         type: Sequelize.DOUBLE,
       },
-      dob: {
-        type: Sequelize.DATE,
+      weight: {
+        type: Sequelize.DOUBLE,
       },
-      tagline: {
+      longitude: {
+        type: Sequelize.DECIMAL,
+      },
+      latitude: {
+        type: Sequelize.DECIMAL,
+      },
+      country: {
         type: Sequelize.STRING,
       },
-      zodiacSign: {
+      city: {
         type: Sequelize.STRING,
       },
-      age: {
-        type: Sequelize.INTEGER,
-      },
-      gender: {
+      nationality: {
         type: Sequelize.STRING,
       },
-      familyOrigin: {
-        type: Sequelize.STRING,
-      },
-      community: {
-        type: Sequelize.STRING,
-      },
-      religion: {
-        type: Sequelize.STRING,
-      },
-      denomination: {
-        type: Sequelize.STRING,
-      },
-      practiceLevel: {
-        type: Sequelize.STRING,
-      },
-      iPray: {
-        type: Sequelize.STRING,
-      },
-      iDrink: {
+      religiosity: {
         type: Sequelize.STRING,
       },
       education: {
         type: Sequelize.STRING,
       },
-      school: {
+      skinColor: {
         type: Sequelize.STRING,
       },
-      occupation: {
+      ethnicity: {
         type: Sequelize.STRING,
-      },
-      marriageTimeline: {
-        type: Sequelize.STRING,
-      },
-      maritalHistory: {
-        type: Sequelize.STRING,
-      },
-      haveKids: {
-        type: Sequelize.BOOLEAN,
-      },
-      wantKids: {
-        type: Sequelize.BOOLEAN,
-      },
-      willingToRelocate: {
-        type: Sequelize.BOOLEAN,
-      },
-      countryCode: {
-        type: Sequelize.STRING,
-      },
-      personalityType: {
-        type: Sequelize.STRING,
-      },
-      vibes: {
-        type: Sequelize.ARRAY(DataTypes.STRING),
-      },
-      noOfProfilesRemaining: {
-        type: Sequelize.INTEGER,
-        default: process.env.NO_OF_PROFILES_FOR_FREE
-      },
-      totalNoOfProfiles: {
-        type: Sequelize.INTEGER,
-        default: process.env.NO_OF_PROFILES_FOR_FREE
       },
       createdAt: {
         allowNull: false,

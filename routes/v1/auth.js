@@ -68,6 +68,61 @@ router.post('/signup', authController.signUpOrSignInByEmail)
  */
 router.post('/verify-code', authController.verifyCode)
 
+/**
+ * @swagger
+ * /auth/profile:
+ *   post:
+ *     summary: Create profile
+ *     consumes:
+ *      - application/json
+ *     produces:
+ *      - application/json
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *               username:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *               sex:
+ *                 type: string
+ *               dateOfBirth:
+ *                 type: string
+ *               height:
+ *                 type: number
+ *               weight:
+ *                 type: number
+ *               country:
+ *                 type: string
+ *               city:
+ *                 type: string
+ *               nationality:
+ *                 type: string
+ *               religiosity:
+ *                 type: string
+ *               education:
+ *                 type: string
+ *               skinColor:
+ *                 type: string
+ *               ethnicity:
+ *                 type: string
+ *     tags:
+ *     - Auth
+ *     operationId: createProfile
+ *     deprecated: false
+ *     responses:
+ *       '200':
+ *         description: ''
+ *         headers: {}
+ */
+router.post('/profile', authController.createProfile)
+
 // Logout 
 /**
  * @swagger
