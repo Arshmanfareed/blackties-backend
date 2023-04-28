@@ -112,6 +112,8 @@ router.post('/verify-code', authController.verifyCode)
  *                 type: string
  *               ethnicity:
  *                 type: string
+ *               maritalStatus:
+ *                 type: string
  *     tags:
  *     - Auth
  *     operationId: createProfile

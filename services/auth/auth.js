@@ -61,7 +61,7 @@ module.exports = {
     return db.User.update({ fcmToken: null }, { where: { id: userId } })
   },
   createProfile: async (body) => {
-    const { email, username, password, sex, dateOfBirth, height, weight, country, city, nationality, religiosity, education, skinColor, ethnicity } = body
+    const { email, username, password, sex, dateOfBirth, height, weight, country, city, nationality, religiosity, education, skinColor, ethnicity, maritalStatus } = body
     let userExistByUsername = await db.User.findOne({ where: { username } })
     if (userExistByUsername) {
       throw new Error("Username already taken please choose a different username")
@@ -73,7 +73,7 @@ module.exports = {
     } else {
       await db.User.update({ username, password: hashedPassword }, { where: { id: userExist.id } })
     }
-    const profileCreated = await db.Profile.create({ userId: userExist.id, sex, dateOfBirth, height, weight, country, city, nationality, religiosity, education, skinColor, ethnicity })
+    const profileCreated = await db.Profile.create({ userId: userExist.id, sex, dateOfBirth, height, weight, country, city, nationality, religiosity, education, skinColor, ethnicity, maritalStatus })
     return { userCreated: userExist, profileCreated }
   }
 }

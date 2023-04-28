@@ -55,6 +55,9 @@ module.exports = {
       ethnicity: Joi.string().required().label('Ethnicity').messages({
         'any.required': `{#label} is Required`,
       }),
+      maritalStatus: Joi.string().required().label('Marital Status').messages({
+        'any.required': `{#label} is Required`,
+      }),
       username: Joi.string().required().label('Username').messages({
         'any.required': `{#label} is Required`,
       }),
