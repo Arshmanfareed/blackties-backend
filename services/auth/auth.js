@@ -1,10 +1,10 @@
 const db = require('../../models')
 const { roles, status } = require('../../config/constants')
 const moment = require('moment')
-const { generateJWT } = require('../../utils/generate-jwt')
 const { Op } = require('sequelize')
 const bcryptjs = require("bcryptjs")
 const sendMail = require('../../utils/send-mail')
+const { generateJWT } = require('../../utils/generate-jwt')
 
 module.exports = {
   signUpOrSignInByEmail: async (body) => {
@@ -88,5 +88,24 @@ module.exports = {
       await t.rollback()
       throw new Error(error.message)
     }
-  }
+  },
+  login: async (body) => {
+    const { email, password } = body
+    let user = await db.User.findOne({ where: { email } })
+    if (!user) {
+      throw new Error('Incorrect email or password')
+    }
+    const isCorrectPassword = await bcryptjs.compare(password, user.password)
+    if (!isCorrectPassword) {
+      throw new Error('Incorrect email or password')
+    }
+    if (user.status === status.INACTIVE) {
+      throw new Error('Your account is inactive')
+    }
+    user = JSON.parse(JSON.stringify(user))
+    delete user['password']
+    const authToken = generateJWT(user)
+    user['authToken'] = authToken
+    return user
+  },
 }

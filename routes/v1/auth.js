@@ -124,6 +124,40 @@ router.post('/verify-code', authController.verifyCode)
  *         headers: {}
  */
 router.post('/profile', authController.createProfile)
+ 
+/**
+ * @swagger
+ * /auth/login:
+ *   post:
+ *     summary: Login
+ *     consumes:
+ *      - application/json
+ *     produces:
+ *      - application/json
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *               - password
+ *             properties:
+ *               email:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *     tags:
+ *     - Auth
+ *     operationId: login
+ *     deprecated: false
+ *     responses:
+ *       '200':
+ *         description: ''
+ *         headers: {}
+ */
+router.post('/login', authController.login)
 
 // Logout 
 /**

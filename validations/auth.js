@@ -20,6 +20,17 @@ module.exports = {
     })
     return schema.validate(obj, { allowUnknown: true })
   },
+  validateLogin: function (obj) {
+    const schema = Joi.object({
+      email: Joi.string().email().required().label('Email').messages({
+        'any.required': `{#label} is Required`,
+      }),
+      password: Joi.string().required().label('Password').messages({
+        'any.required': `{#label} is Required`,
+      }),
+    })
+    return schema.validate(obj, { allowUnknown: true })
+  },
   validateCreateProfile: function (obj) {
     const schema = Joi.object({
       sex: Joi.string().required().label('Sex').messages({

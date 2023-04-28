@@ -52,6 +52,19 @@ module.exports = {
     }
     return responseFunctions._200(res, data, 'OTP verified successfully')
   },
+  login: async (req, res) => {
+    // validation
+    const { body } = req
+    const { error } = authValidations.validateLogin(body)
+    if (error) {
+      return responseFunctions._400(res, error.details[0].message)
+    }
+    const [err, data] = await to(authService.login(body))
+    if (err) {
+      return responseFunctions._400(res, err.message)
+    }
+    return responseFunctions._200(res, data, 'Login successfully')
+  },
   logout: async (req, res) => {
     const { id } = req.user
     const [err, data] = await to(authService.logout(id))
