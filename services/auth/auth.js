@@ -3,6 +3,8 @@ const { roles, status } = require('../../config/constants')
 const moment = require('moment')
 const { generateJWT } = require('../../utils/generate-jwt')
 const { Op } = require('sequelize')
+const bcryptjs = require("bcryptjs")
+const sendMail = require('../../utils/send-mail')
 
 module.exports = {
   signUpOrSignInByEmail: async (body) => {
@@ -61,19 +63,30 @@ module.exports = {
     return db.User.update({ fcmToken: null }, { where: { id: userId } })
   },
   createProfile: async (body) => {
-    const { email, username, password, sex, dateOfBirth, height, weight, country, city, nationality, religiosity, education, skinColor, ethnicity, maritalStatus } = body
-    let userExistByUsername = await db.User.findOne({ where: { username } })
-    if (userExistByUsername) {
-      throw new Error("Username already taken please choose a different username")
+    const t = await db.sequelize.transaction()
+    try {
+      const { email, username, password, sex, dateOfBirth, height, weight, country, city, nationality, religiosity, education, skinColor, ethnicity, maritalStatus } = body
+      let userExistByEmailOrUsername = await db.User.findOne({ where: { [Op.or]: [{ email }, { username }] } })
+      if (userExistByEmailOrUsername) {
+        throw new Error("User already exist with this email or username")
+      }
+      // let userExist = await db.User.findOne({ where: { email } })
+      const salt = await bcryptjs.genSalt(10);
+      // const hashed = await bcrypt.hash(newPassword, salt);
+      const hashedPassword = await bcryptjs.hash(password, salt)
+      // if (!userExist) {
+      // } else {
+      //   await db.User.update({ username, password: hashedPassword }, { where: { id: userExist.id } })
+      // }
+      const userCreated = await db.User.create({ email, username, password: hashedPassword, status: status.INACTIVE }, { transaction: t })
+      const profileCreated = await db.Profile.create({ userId: userCreated.id, sex, dateOfBirth, height, weight, country, city, nationality, religiosity, education, skinColor, ethnicity, maritalStatus }, { transaction: t })
+      // send OTP or verification link
+      // sendMail(email, "Email Verification Link", "Please click on this link.")
+      await t.commit()
+      return { userCreated, profileCreated }
+    } catch (error) {
+      await t.rollback()
+      throw new Error(error.message)
     }
-    let userExist = await db.User.findOne({ where: { email } })
-    const hashedPassword = password + ""
-    if (!userExist) {
-      userExist = await db.User.create({ email, username, password: hashedPassword, status: status.INACTIVE })
-    } else {
-      await db.User.update({ username, password: hashedPassword }, { where: { id: userExist.id } })
-    }
-    const profileCreated = await db.Profile.create({ userId: userExist.id, sex, dateOfBirth, height, weight, country, city, nationality, religiosity, education, skinColor, ethnicity, maritalStatus })
-    return { userCreated: userExist, profileCreated }
   }
 }
