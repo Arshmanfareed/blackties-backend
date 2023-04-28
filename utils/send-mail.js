@@ -1,5 +1,12 @@
 const nodemailer = require('nodemailer')
-const { MAIL_SERVICE, MAIL_HOST, MAIL_PORT, MAIL_AUTH_USER, MAIL_AUTH_PASSWORD, MAIL_FROM } = process.env
+const {
+  MAIL_SERVICE,
+  MAIL_HOST,
+  MAIL_PORT,
+  MAIL_AUTH_USER,
+  MAIL_AUTH_PASSWORD,
+  MAIL_FROM,
+} = process.env
 
 module.exports = (recipient, subject, body) => {
   try {
@@ -10,24 +17,24 @@ module.exports = (recipient, subject, body) => {
       secure: false,
       auth: {
         user: MAIL_AUTH_USER,
-        pass: MAIL_AUTH_PASSWORD
+        pass: MAIL_AUTH_PASSWORD,
       },
       tls: {
-        rejectUnauthorized: false
-      }
-    });
+        rejectUnauthorized: false,
+      },
+    })
     let message = {
       from: MAIL_FROM,
       to: recipient,
       subject,
-      text: body
-    };
+      text: body,
+    }
     transporter.sendMail(message, (err, info) => {
       if (err) {
-        console.log('Mail error occurred: ' + err.message);
+        console.log('Mail error occurred: ' + err.message)
       }
     })
   } catch (error) {
-    console.log("Error sending mail: ", error)
+    console.log('Error sending mail: ', error)
   }
 }

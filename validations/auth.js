@@ -89,9 +89,13 @@ module.exports = {
       email: Joi.string().required().label('Email').messages({
         'any.required': `{#label} is Required`,
       }),
-      platform: Joi.string().required().valid('google', 'facebook', 'apple').label('Platform').messages({
-        'any.required': `{#label} is Required`,
-      }),
+      platform: Joi.string()
+        .required()
+        .valid('google', 'facebook', 'apple')
+        .label('Platform')
+        .messages({
+          'any.required': `{#label} is Required`,
+        }),
     })
     return schema.validate(obj, { allowUnknown: true })
   },

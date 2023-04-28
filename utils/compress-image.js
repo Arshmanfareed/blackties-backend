@@ -1,15 +1,14 @@
 const sharp = require('sharp')
 
-
 module.exports.compressImage = async (sourcePath, targetPath, extension) => {
-  let Gifsicle = await import('gifsicle-wrapper');
+  let Gifsicle = await import('gifsicle-wrapper')
   Gifsicle = Gifsicle.default
   try {
     switch (extension) {
       case '.gif':
         await Gifsicle(sourcePath)
           .optimize({ level: Gifsicle.level.O3, lossiness: 30 })
-          .toFile(targetPath);
+          .toFile(targetPath)
         break
       case '.png':
         await sharp(sourcePath).png({ quality: 30 }).toFile(targetPath)
@@ -19,7 +18,7 @@ module.exports.compressImage = async (sourcePath, targetPath, extension) => {
         break
     }
   } catch (error) {
-    console.log(error);
+    console.log(error)
     console.log('Error in compressing Image: ', error.message)
   }
 }

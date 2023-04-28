@@ -37,7 +37,7 @@ module.exports = {
     if (err) {
       return responseFunctions._400(res, err.message)
     }
-    return responseFunctions._201( res, data, 'Profile created successfully')
+    return responseFunctions._201(res, data, 'Profile created successfully')
   },
   verifyCode: async (req, res) => {
     // validation

@@ -11,7 +11,10 @@ const options = {
     },
     servers: [
       {
-        url: process.env.STAGE == 'local' ? process.env.BASE_URL_LOCAL : process.env.BASE_URL_DEV,
+        url:
+          process.env.STAGE == 'local'
+            ? process.env.BASE_URL_LOCAL
+            : process.env.BASE_URL_DEV,
       },
     ],
   },

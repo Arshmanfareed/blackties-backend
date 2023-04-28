@@ -1,5 +1,5 @@
 // we will register all cron jobs here in this file
-const cron = require('node-cron');
+const cron = require('node-cron')
 
 // const { expireSpotlights, reassignNoOfDailyProfileLimit, sendBirthdayNotification } = require('./helpers')
 

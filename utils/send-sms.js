@@ -2,10 +2,10 @@
 require('dotenv').config({ path: '../.env' })
 
 const { TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, FROM_PHONE_NO } = process.env
-const client = require('twilio')(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN);
+const client = require('twilio')(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
 
 exports.sendSMS = (phoneNumber, code) => {
-  console.log(`sending otp ${code} on phone number ${phoneNumber}`);
+  console.log(`sending otp ${code} on phone number ${phoneNumber}`)
   try {
     // Download the helper library from https://www.twilio.com/docs/node/install
     // Find your Account SID and Auth Token at twilio.com/console
@@ -15,9 +15,9 @@ exports.sendSMS = (phoneNumber, code) => {
       .create({
         body: `Your Mahaba verification code is ${code}`,
         from: FROM_PHONE_NO,
-        to: phoneNumber
+        to: phoneNumber,
       })
-      .then(message => console.log(message.sid));
+      .then((message) => console.log(message.sid))
 
     // const params = {
     //   Message: `Your Mahaba verification code is ${code}`,
