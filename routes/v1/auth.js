@@ -124,7 +124,9 @@ router.post('/verify-code', authController.verifyCode)
  *         headers: {}
  */
 router.post('/profile', authController.createProfile)
- 
+
+router.get('/account-activation/:userId/:code', authController.activateAccount)
+
 /**
  * @swagger
  * /auth/login:

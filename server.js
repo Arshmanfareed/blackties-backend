@@ -11,7 +11,7 @@ const swaggerUI = require('swagger-ui-express')
 const { swaggerDocs } = require('./swaggerDoc/swagger-doc')
 const authRoutes = require('./routes/v1/auth')
 const basicAuth = require('express-basic-auth')
-
+const path = require('path')
 // require("./cron-job")
 
 app.use(cors({
@@ -26,8 +26,9 @@ app.use(
   })
 )
 app.use(express.json())
+app.use('/public', express.static(path.join(__dirname, 'public')));
 
-app.get('/hello')
+// app.get('/hello')
 
 // Routes
 app.use('/api-docs', basicAuth({ users: { [process.env.SWAGGER_USER_NAME]: process.env.SWAGGER_USER_PASSWORD }, challenge: true, }), swaggerUI.serve, swaggerUI.setup(swaggerDocs))

@@ -3,6 +3,7 @@ const { to, throwError } = require('../../utils/error-handler')
 const responseFunctions = require('../../utils/responses')
 const { sendSMS } = require('../../utils/send-sms')
 const { authValidations } = require('../../validations')
+const fs = require('fs')
 
 module.exports = {
   signUpOrSignInByEmail: async (req, res) => {
@@ -72,5 +73,16 @@ module.exports = {
       return responseFunctions._400(res, err.message)
     }
     return responseFunctions._200(res, data, 'Logout successfully')
+  },
+  activateAccount: async (req, res) => {
+    const { userId, code } = req.params
+    const [err, data] = await to(authService.activateAccount(userId, code))
+    if (err) {
+      return responseFunctions._400(res, err.message)
+    }
+    let pageName = data ? 'accountActivation.html' : 'linkExpire.html';
+    fs.readFile(__dirname + `/../../public/pages/${pageName}`, 'utf8', (err, text) => {
+      return res.send(text);
+    });
   },
 }

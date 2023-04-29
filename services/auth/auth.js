@@ -5,6 +5,7 @@ const { Op } = require('sequelize')
 const bcryptjs = require("bcryptjs")
 const sendMail = require('../../utils/send-mail')
 const { generateJWT } = require('../../utils/generate-jwt')
+const helpers = require('../../helpers')
 
 module.exports = {
   signUpOrSignInByEmail: async (body) => {
@@ -65,24 +66,19 @@ module.exports = {
   createProfile: async (body) => {
     const t = await db.sequelize.transaction()
     try {
+      const verificationCode = Math.floor(100000 + Math.random() * 900000)
       const { email, username, password, sex, dateOfBirth, height, weight, country, city, nationality, religiosity, education, skinColor, ethnicity, maritalStatus } = body
       let userExistByEmailOrUsername = await db.User.findOne({ where: { [Op.or]: [{ email }, { username }] } })
       if (userExistByEmailOrUsername) {
         throw new Error("User already exist with this email or username")
       }
-      // let userExist = await db.User.findOne({ where: { email } })
       const salt = await bcryptjs.genSalt(10);
-      // const hashed = await bcrypt.hash(newPassword, salt);
       const hashedPassword = await bcryptjs.hash(password, salt)
-      // if (!userExist) {
-      // } else {
-      //   await db.User.update({ username, password: hashedPassword }, { where: { id: userExist.id } })
-      // }
-      const userCreated = await db.User.create({ email, username, password: hashedPassword, status: status.INACTIVE }, { transaction: t })
+      const userCreated = await db.User.create({ email, username, password: hashedPassword, status: status.INACTIVE, otp: verificationCode }, { transaction: t })
       const profileCreated = await db.Profile.create({ userId: userCreated.id, sex, dateOfBirth, height, weight, country, city, nationality, religiosity, education, skinColor, ethnicity, maritalStatus }, { transaction: t })
-      // send OTP or verification link
-      // sendMail(email, "Email Verification Link", "Please click on this link.")
       await t.commit()
+      // send OTP or verification link
+      helpers.sendAccountActivationLink(email, userCreated.id, verificationCode)
       return { userCreated, profileCreated }
     } catch (error) {
       await t.rollback()
@@ -107,5 +103,14 @@ module.exports = {
     const authToken = generateJWT(user)
     user['authToken'] = authToken
     return user
+  },
+  activateAccount: async (userId, code) => {
+    if (!userId || !code) return false
+    const user = await db.User.findOne({ where: { id: userId } })
+    if (user && user.otp == Number(code)) {
+      await db.User.update({ otp: null, status: status.ACTIVE }, { where: { id: userId } })
+      return true
+    }
+    return false
   },
 }
