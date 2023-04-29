@@ -59,6 +59,81 @@ module.exports = {
       maritalStatus: {
         type: Sequelize.STRING,
       },
+      occupationField: {
+        type: Sequelize.STRING,
+      },
+      occupationFunction: {
+        type: Sequelize.STRING,
+      },
+      countryOfEducation: {
+        type: Sequelize.STRING,
+      },
+      speciality: {
+        type: Sequelize.STRING,
+      },
+      financialStatus: {
+        type: Sequelize.STRING,
+      },
+      healthStatus: {
+        type: Sequelize.STRING,
+      },
+      children: {
+        type: Sequelize.STRING,
+      },
+      fatherCountryOfOrigin: {
+        type: Sequelize.STRING,
+      },
+      motherCountryOfOrigin: {
+        type: Sequelize.STRING,
+      },
+      tribe: {
+        type: Sequelize.STRING,
+      },
+      sect: {
+        type: Sequelize.STRING,
+      },
+      frequencyOfPrayers: {
+        type: Sequelize.STRING,
+      },
+      beard: {
+        type: Sequelize.STRING,
+      },
+      reading: {
+        type: Sequelize.STRING,
+      },
+      family: {
+        type: Sequelize.STRING,
+      },
+      smoking: {
+        type: Sequelize.STRING,
+      },
+      physicalActivity: {
+        type: Sequelize.STRING,
+      },
+      readyToRelocate: {
+        type: Sequelize.STRING,
+      },
+      willingnessToMarry: {
+        type: Sequelize.STRING,
+      },
+      familyPlans: {
+        type: Sequelize.STRING,
+      },
+      eyesColor: {
+        type: Sequelize.STRING,
+      },
+      hairLength: {
+        type: Sequelize.STRING,
+      },
+      hairType: {
+        type: Sequelize.STRING,
+      },
+      hairColor: {
+        type: Sequelize.STRING,
+      },
+      beauty: {
+        type: Sequelize.STRING,
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,
