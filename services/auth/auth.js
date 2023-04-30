@@ -74,7 +74,7 @@ module.exports = {
       }
       const salt = await bcryptjs.genSalt(10);
       const hashedPassword = await bcryptjs.hash(password, salt)
-      const userCreated = await db.User.create({ email, username, password: hashedPassword, status: status.INACTIVE, otp: verificationCode }, { transaction: t })
+      const userCreated = await db.User.create({ email, username, password: hashedPassword, status: status.UNVERIFIED, otp: verificationCode }, { transaction: t })
       const profileCreated = await db.Profile.create({ userId: userCreated.id, sex, dateOfBirth, height, weight, country, city, nationality, religiosity, education, skinColor, ethnicity, maritalStatus }, { transaction: t })
       await t.commit()
       // send OTP or verification link
@@ -95,9 +95,9 @@ module.exports = {
     if (!isCorrectPassword) {
       throw new Error('Incorrect email or password')
     }
-    if (user.status === status.INACTIVE) {
-      throw new Error('Your account is inactive')
-    }
+    // if (user.status === status.INACTIVE) {
+    //   throw new Error('Your account is inactive')
+    // }
     user = JSON.parse(JSON.stringify(user))
     delete user['password']
     const authToken = generateJWT(user)

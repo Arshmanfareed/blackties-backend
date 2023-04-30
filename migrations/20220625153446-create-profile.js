@@ -134,6 +134,9 @@ module.exports = {
       beauty: {
         type: Sequelize.STRING,
       },
+      personalityType: {
+        type: Sequelize.STRING,
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,

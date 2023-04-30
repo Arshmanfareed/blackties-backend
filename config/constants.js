@@ -9,6 +9,7 @@ module.exports = {
     BANNED: 'BANNED',
     COMPLETED: 'COMPLETED',
     FAILED: 'FAILED',
+    UNVERIFIED: 'UNVERIFIED',
   },
   apiPrefix: '/dev/mahaba/api/v1',
 }
