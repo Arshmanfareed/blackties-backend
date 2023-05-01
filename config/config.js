@@ -2,17 +2,19 @@ require('dotenv').config()
 module.exports = {
   development: {
     username: process.env.DB_USER,
-    password: process.env.PASSWORD_DEV,
+    password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
     host: process.env.DB_HOST,
     dialect: 'mysql',
+    port: process.env.DB_PORT,
   },
   staging: {
     username: process.env.DB_USER,
-    password: process.env.PASSWORD_DEV,
+    password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
     host: process.env.DB_HOST,
     dialect: 'mysql',
+    port: process.env.DB_PORT,
     dialectOptions: {
       ssl: {
         require: true,
@@ -20,11 +22,18 @@ module.exports = {
       },
     },
   },
-  production: {
+  staging: {
     username: process.env.DB_USER,
-    password: process.env.PASSWORD_PROD,
+    password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
-    host: 'localhost',
+    host: process.env.DB_HOST,
     dialect: 'mysql',
+    port: process.env.DB_PORT,
+    dialectOptions: {
+      ssl: {
+        require: true,
+        rejectUnauthorized: false,
+      },
+    },
   },
 }

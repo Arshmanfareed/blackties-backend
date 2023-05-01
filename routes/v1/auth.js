@@ -129,6 +129,26 @@ router.get('/account-activation/:userId/:code', authController.activateAccount)
 
 /**
  * @swagger
+ * /auth/health-check:
+ *   get:
+ *     summary: health check for server is working or not
+ *     consumes:
+ *      - application/json
+ *     produces:
+ *      - application/json
+ *     tags:
+ *     - Auth
+ *     operationId: healthCheck
+ *     deprecated: false
+ *     responses:
+ *       '200':
+ *         description: ''
+ *         headers: {}
+ */
+router.get('/health-check', (req, res) => { return res.status(200).send({ success: true, message: "Working" }) })
+
+/**
+ * @swagger
  * /auth/login:
  *   post:
  *     summary: Login
