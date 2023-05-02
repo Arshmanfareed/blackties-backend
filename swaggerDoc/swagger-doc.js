@@ -18,7 +18,7 @@ const options = {
       },
     ],
   },
-  apis: ['./routes/v1/auth.js'],
+  apis: ['./routes/v1/auth.js', './routes/v1/profile.js'],
 }
 
 module.exports.swaggerDocs = swaggerJsDoc(options)

@@ -11,5 +11,9 @@ module.exports = {
     FAILED: 'FAILED',
     UNVERIFIED: 'UNVERIFIED',
   },
+  gender: {
+    MALE: 'Male',
+    FEMALE: 'Female',
+  },
   apiPrefix: '/dev/mahaba/api/v1',
 }

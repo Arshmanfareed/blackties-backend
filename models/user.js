@@ -12,6 +12,10 @@ module.exports = (sequelize, DataTypes) => {
       User.hasOne(models.Profile, {
         foreignKey: 'userId',
       })
+
+      User.hasMany(models.UserLanguage, {
+        foreignKey: 'userId',
+      })
     }
   }
   User.init(
@@ -25,7 +29,7 @@ module.exports = (sequelize, DataTypes) => {
       otp: DataTypes.INTEGER,
       otpExpiry: DataTypes.DATE,
       status: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.STRING,
         defaultValue: 'ACTIVE',
       },
       deletedAt: DataTypes.DATE,
