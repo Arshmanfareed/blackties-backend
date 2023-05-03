@@ -11,4 +11,12 @@ module.exports = {
     }
     return responseFunctions._200(res, data, 'Data fetched successfully')
   },
+  getMyProfile: async (req, res) => {
+    const { id: userId } = req.user
+    const [err, data] = await to(profileService.getUserProfile(userId))
+    if (err) {
+      return responseFunctions._400(res, err.message)
+    }
+    return responseFunctions._200(res, data, 'Data fetched successfully')
+  },
 }
