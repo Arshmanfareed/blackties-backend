@@ -21,6 +21,8 @@ const { profileController } = require('../../controllers')
  *                 type: string
  *               sortBy:
  *                 type: string
+ *               sortOrder:
+ *                 type: string
  *               age:
  *                 type: array
  *                 items:
