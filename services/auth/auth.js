@@ -75,7 +75,10 @@ module.exports = {
       const salt = await bcryptjs.genSalt(10);
       const hashedPassword = await bcryptjs.hash(password, salt)
       const userCreated = await db.User.create({ email, username, password: hashedPassword, status: status.UNVERIFIED, otp: verificationCode }, { transaction: t })
-      const profileCreated = await db.Profile.create({ userId: userCreated.id, sex, dateOfBirth, height, weight, country, city, nationality, religiosity, education, skinColor, ethnicity, maritalStatus }, { transaction: t })
+      const { id: userId } = userCreated
+      const profileCreated = await db.Profile.create({ userId, sex, dateOfBirth, height, weight, country, city, nationality, religiosity, education, skinColor, ethnicity, maritalStatus }, { transaction: t })
+      await db.Wallet.create({ userId, amount: 0 }, { transaction: t })
+      await db.UserSetting.create({ userId, isNotificationEnabled: true, isPremium: false }, { transaction: t })
       await t.commit()
       // send OTP or verification link
       helpers.sendAccountActivationLink(email, userCreated.id, verificationCode)
