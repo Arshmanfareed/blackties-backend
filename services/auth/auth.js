@@ -8,27 +8,6 @@ const { generateJWT } = require('../../utils/generate-jwt')
 const helpers = require('../../helpers')
 
 module.exports = {
-  signUpOrSignInByEmail: async (body) => {
-    const { email } = body
-    const verificationCode = Math.floor(100000 + Math.random() * 900000)
-    const userExist = await db.User.findOne({ where: { email, deletedAt: { [Op.eq]: null } } })
-    if (userExist) {
-      await db.User.update({ otp: verificationCode, otpExpiry: Date.now() }, { where: { id: userExist.id } })
-      return db.User.findOne({ where: { id: userExist.id } });
-    } else {
-      try {
-        return db.User.create({
-          email,
-          otp: verificationCode,
-          otpExpiry: new Date(),
-          role: roles.USER,
-          status: status.INACTIVE,
-        })
-      } catch (error) {
-        throw new Error(error.message)
-      }
-    }
-  },
   verifyCode: async (body) => {
     const { email, code } = body
     let user = await db.User.findOne({
@@ -63,7 +42,7 @@ module.exports = {
   logout: async (userId) => {
     return db.User.update({ fcmToken: null }, { where: { id: userId } })
   },
-  createProfile: async (body) => {
+  signUp: async (body) => {
     const t = await db.sequelize.transaction()
     try {
       const verificationCode = Math.floor(100000 + Math.random() * 900000)

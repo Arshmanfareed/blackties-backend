@@ -2,37 +2,6 @@ const router = require('express').Router()
 const { authController } = require('../../controllers')
 const auth = require('../../middlewares/auth')
 
-// signup or signin by email
-/**
- * @swagger
- * /auth/signup:
- *   post:
- *     summary: signup by email
- *     consumes:
- *      - application/json
- *     produces:
- *      - application/json
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - email
- *             properties:
- *               email:
- *                 type: string
- *     tags:
- *     - Auth
- *     operationId: signUpByEmail
- *     deprecated: false
- *     responses:
- *       '200':
- *         description: ''
- *         headers: {}
- */
-router.post('/signup', authController.signUpOrSignInByEmail)
 
 // verify otp 
 /**
@@ -70,9 +39,9 @@ router.post('/verify-code', authController.verifyCode)
 
 /**
  * @swagger
- * /auth/profile:
+ * /auth/signup:
  *   post:
- *     summary: Create profile
+ *     summary: Signup and Create profile
  *     consumes:
  *      - application/json
  *     produces:
@@ -116,14 +85,14 @@ router.post('/verify-code', authController.verifyCode)
  *                 type: string
  *     tags:
  *     - Auth
- *     operationId: createProfile
+ *     operationId: signUp
  *     deprecated: false
  *     responses:
  *       '200':
  *         description: ''
  *         headers: {}
  */
-router.post('/profile', authController.createProfile)
+router.post('/signup', authController.signUp)
 
 router.get('/account-activation/:userId/:code', authController.activateAccount)
 

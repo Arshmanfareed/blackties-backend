@@ -1,40 +1,18 @@
 const authService = require('../../services/auth/auth')
-const { to, throwError } = require('../../utils/error-handler')
+const { to } = require('../../utils/error-handler')
 const responseFunctions = require('../../utils/responses')
-const { sendSMS } = require('../../utils/send-sms')
 const { authValidations } = require('../../validations')
 const fs = require('fs')
 
 module.exports = {
-  signUpOrSignInByEmail: async (req, res) => {
-    // validation
-    const { body } = req
-    const { error } = authValidations.validatesignUpOrSignInByEmail(body)
-    if (error) {
-      return responseFunctions._400(res, error.details[0].message)
-    }
-    const [err, data] = await to(authService.signUpOrSignInByEmail(body))
-    if (err) {
-      return responseFunctions._400(res, err.message)
-    }
-    const { id, email, status, otp } = data
-    // sending verification code
-    responseFunctions._201(
-      res,
-      { id, email, status, otp },
-      'OTP send successfully'
-    )
-    // send OTP on Email
-    // await sendSMS(phoneNo, otp)
-  },
-  createProfile: async (req, res) => {
+  signUp: async (req, res) => {
     // validation
     const { body } = req
     const { error } = authValidations.validateCreateProfile(body)
     if (error) {
       return responseFunctions._400(res, error.details[0].message)
     }
-    const [err, data] = await to(authService.createProfile(body))
+    const [err, data] = await to(authService.signUp(body))
     if (err) {
       return responseFunctions._400(res, err.message)
     }
@@ -80,9 +58,7 @@ module.exports = {
     if (err) {
       return responseFunctions._400(res, err.message)
     }
-    let pageName = data ? 'accountActivation.html' : 'linkExpire.html';
-    fs.readFile(__dirname + `/../../public/pages/${pageName}`, 'utf8', (err, text) => {
-      return res.send(text);
-    });
+    const pageUrl = data ? process.env.ACCOUNT_ACTIVATION_SUCCESS : process.env.ACCOUNT_ACTIVATION_FAILURE;
+    return res.redirect(pageUrl)
   },
 }
