@@ -8,7 +8,7 @@ module.exports.verifyPayment = (body) => {
     productId,
     packageName,
     secret: process.env.APPLE_SECRET_KEY, // Apple secret key
-    subscription: true,	// optional, if google play subscription
+    subscription: true, // optional, if google play subscription
     keyObject: serviceAccount, // required, if google
     excludeOldTransactions: true, //Apple supports returning only the most recent transaction for auto-renewable subscriptions via their exclude-old-transactions option
   }
@@ -17,11 +17,11 @@ module.exports.verifyPayment = (body) => {
       // invalid receipt or payment not verified
       if (err !== null) {
         // invalid receipt or not verified by iap
-        console.log("Error in Subscription: ", err);
+        console.log('Error in Subscription: ', err)
         reject(err)
       }
       // receipt verified when no error
       resolve(response)
     })
-  });
+  })
 }

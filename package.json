@@ -26,6 +26,7 @@
     "multer-s3-transform": "^2.10.3",
     "mysql2": "^3.2.4",
     "node-cron": "^3.0.2",
+    "nodemailer": "^6.9.1",
     "pm2": "^5.2.0",
     "sequelize": "^6.21.0",
     "sharp": "^0.31.1",

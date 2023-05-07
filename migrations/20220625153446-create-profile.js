@@ -17,85 +17,125 @@ module.exports = {
           as: 'userId',
         },
       },
+      sex: {
+        type: Sequelize.STRING,
+      },
+      dateOfBirth: {
+        type: Sequelize.DATEONLY,
+      },
       height: {
         type: Sequelize.DOUBLE,
       },
-      dob: {
-        type: Sequelize.DATE,
+      weight: {
+        type: Sequelize.DOUBLE,
       },
-      tagline: {
+      longitude: {
+        type: Sequelize.DECIMAL,
+      },
+      latitude: {
+        type: Sequelize.DECIMAL,
+      },
+      country: {
         type: Sequelize.STRING,
       },
-      zodiacSign: {
+      city: {
         type: Sequelize.STRING,
       },
-      age: {
-        type: Sequelize.INTEGER,
-      },
-      gender: {
+      nationality: {
         type: Sequelize.STRING,
       },
-      familyOrigin: {
-        type: Sequelize.STRING,
-      },
-      community: {
-        type: Sequelize.STRING,
-      },
-      religion: {
-        type: Sequelize.STRING,
-      },
-      denomination: {
-        type: Sequelize.STRING,
-      },
-      practiceLevel: {
-        type: Sequelize.STRING,
-      },
-      iPray: {
-        type: Sequelize.STRING,
-      },
-      iDrink: {
+      religiosity: {
         type: Sequelize.STRING,
       },
       education: {
         type: Sequelize.STRING,
       },
-      school: {
+      skinColor: {
         type: Sequelize.STRING,
       },
-      occupation: {
+      ethnicity: {
         type: Sequelize.STRING,
       },
-      marriageTimeline: {
+      maritalStatus: {
         type: Sequelize.STRING,
       },
-      maritalHistory: {
+      occupationField: {
         type: Sequelize.STRING,
       },
-      haveKids: {
-        type: Sequelize.BOOLEAN,
+      occupationFunction: {
+        type: Sequelize.STRING,
       },
-      wantKids: {
-        type: Sequelize.BOOLEAN,
+      countryOfEducation: {
+        type: Sequelize.STRING,
       },
-      willingToRelocate: {
-        type: Sequelize.BOOLEAN,
+      speciality: {
+        type: Sequelize.STRING,
       },
-      countryCode: {
+      financialStatus: {
+        type: Sequelize.STRING,
+      },
+      healthStatus: {
+        type: Sequelize.STRING,
+      },
+      children: {
+        type: Sequelize.STRING,
+      },
+      fatherCountryOfOrigin: {
+        type: Sequelize.STRING,
+      },
+      motherCountryOfOrigin: {
+        type: Sequelize.STRING,
+      },
+      tribe: {
+        type: Sequelize.STRING,
+      },
+      sect: {
+        type: Sequelize.STRING,
+      },
+      frequencyOfPrayers: {
+        type: Sequelize.STRING,
+      },
+      beard: {
+        type: Sequelize.STRING,
+      },
+      reading: {
+        type: Sequelize.STRING,
+      },
+      family: {
+        type: Sequelize.STRING,
+      },
+      smoking: {
+        type: Sequelize.STRING,
+      },
+      physicalActivity: {
+        type: Sequelize.STRING,
+      },
+      readyToRelocate: {
+        type: Sequelize.STRING,
+      },
+      willingnessToMarry: {
+        type: Sequelize.STRING,
+      },
+      familyPlans: {
+        type: Sequelize.STRING,
+      },
+      eyesColor: {
+        type: Sequelize.STRING,
+      },
+      hairLength: {
+        type: Sequelize.STRING,
+      },
+      hairType: {
+        type: Sequelize.STRING,
+      },
+      hairColor: {
+        type: Sequelize.STRING,
+      },
+      beauty: {
         type: Sequelize.STRING,
       },
       personalityType: {
         type: Sequelize.STRING,
-      },
-      vibes: {
-        type: Sequelize.ARRAY(DataTypes.STRING),
-      },
-      noOfProfilesRemaining: {
-        type: Sequelize.INTEGER,
-        default: process.env.NO_OF_PROFILES_FOR_FREE
-      },
-      totalNoOfProfiles: {
-        type: Sequelize.INTEGER,
-        default: process.env.NO_OF_PROFILES_FOR_FREE
       },
       createdAt: {
         allowNull: false,

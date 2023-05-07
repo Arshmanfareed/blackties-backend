@@ -17,34 +17,10 @@ module.exports = {
       email: {
         type: Sequelize.STRING,
       },
-      firstName: {
-        type: Sequelize.STRING,
-      },
-      lastName: {
-        type: Sequelize.STRING,
-      },
-      phoneNo: {
+      username: {
         type: Sequelize.STRING,
       },
       password: {
-        type: Sequelize.STRING,
-      },
-      longitude: {
-        type: Sequelize.DECIMAL,
-      },
-      latitude: {
-        type: Sequelize.DECIMAL,
-      },
-      city: {
-        type: Sequelize.STRING,
-      },
-      country: {
-        type: Sequelize.STRING,
-      },
-      address: {
-        type: Sequelize.STRING,
-      },
-      profileImageUrl: {
         type: Sequelize.STRING,
       },
       platform: {
@@ -62,11 +38,8 @@ module.exports = {
       status: {
         allowNull: false,
         type: Sequelize.ENUM,
-        values: ['ACTIVE', 'INACTIVE', 'BANNED', 'COMPLETED', 'FAILED'],
+        values: ['ACTIVE', 'INACTIVE', 'BANNED', 'COMPLETED', 'FAILED', 'UNVERIFIED',],
         default: 'ACTIVE',
-      },
-      needToReverify: {
-        type: Sequelize.BOOLEAN,
       },
       createdAt: {
         allowNull: false,

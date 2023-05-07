@@ -11,11 +11,14 @@ const options = {
     },
     servers: [
       {
-        url: process.env.STAGE == 'local' ? process.env.BASE_URL_LOCAL : process.env.BASE_URL_DEV,
+        url:
+          process.env.STAGE == 'local'
+            ? process.env.BASE_URL_LOCAL
+            : process.env.BASE_URL_DEV,
       },
     ],
   },
-  apis: ['./routes/v1/auth.js'],
+  apis: ['./routes/v1/auth.js', './routes/v1/profile.js'],
 }
 
 module.exports.swaggerDocs = swaggerJsDoc(options)

@@ -12,32 +12,24 @@ module.exports = (sequelize, DataTypes) => {
       User.hasOne(models.Profile, {
         foreignKey: 'userId',
       })
+
+      User.hasMany(models.UserLanguage, {
+        foreignKey: 'userId',
+      })
     }
   }
   User.init(
     {
       role: DataTypes.INTEGER,
       email: DataTypes.STRING,
-      firstName: DataTypes.STRING,
-      lastName: DataTypes.STRING,
-      phoneNo: DataTypes.STRING,
+      username: DataTypes.STRING,
       password: DataTypes.STRING,
-      longitude: DataTypes.DECIMAL,
-      latitude: DataTypes.DECIMAL,
-      city: DataTypes.STRING,
-      country: DataTypes.STRING,
-      address: DataTypes.STRING,
-      profileImageUrl: DataTypes.STRING,
       platform: DataTypes.STRING,
       fcmToken: DataTypes.STRING,
       otp: DataTypes.INTEGER,
       otpExpiry: DataTypes.DATE,
-      needToReverify: {
-        type: DataTypes.BOOLEAN,
-        defaultValue: false,
-      },
       status: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.STRING,
         defaultValue: 'ACTIVE',
       },
       deletedAt: DataTypes.DATE,
