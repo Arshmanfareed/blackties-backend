@@ -53,4 +53,17 @@ module.exports = {
       ]
     })
   },
+  getUserProfile: async (userId) => {
+    return db.User.findOne({
+      where: { id: userId },
+      include: [
+        {
+          model: db.Profile
+        },
+        {
+          model: db.UserLanguage
+        }
+      ]
+    })
+  }
 }

@@ -1,5 +1,6 @@
 const router = require('express').Router()
 const { profileController } = require('../../controllers')
+const auth = require('../../middlewares/auth')
 
 /**
  * @swagger
@@ -100,5 +101,31 @@ const { profileController } = require('../../controllers')
  *         headers: {}
  */
 router.post('/', profileController.listAllProfiles)
+
+/**
+ * @swagger
+ * /profile/me:
+ *   get:
+ *     summary: Get My Profile
+ *     consumes:
+ *      - application/json
+ *     produces:
+ *      - application/json
+ *     tags:
+ *     - Profile
+ *     parameters:
+ *     - name: x-auth-token
+ *       in: header
+ *       required: true
+ *       type: string
+ *       description: an authorization header
+ *     operationId: getMyProfile
+ *     deprecated: false
+ *     responses:
+ *       '200':
+ *         description: ''
+ *         headers: {}
+ */
+router.get('/me', auth, profileController.getMyProfile)
 
 module.exports = router
