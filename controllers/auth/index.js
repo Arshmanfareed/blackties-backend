@@ -44,6 +44,40 @@ module.exports = {
     }
     return responseFunctions._200(res, data, 'Login successfully')
   },
+  resetPassword: async (req, res) => {
+    const { body } = req
+    const { error } = authValidations.validateResetPassword(body)
+    if (error) {
+      return responseFunctions._400(res, error.details[0].message)
+    }
+    const { email } = body
+    const [err, data] = await to(authService.resetPassword(email))
+    if (err) {
+      return responseFunctions._400(res, err.message)
+    }
+    return responseFunctions._200(res, data, 'Reset password link has been sent to your email.')
+  },
+  verifyPasswordResetLink: async (req, res) => {
+    const { id } = req.user
+    const [err, data] = await to(authService.verifyPasswordResetLink(id))
+    if (err) {
+      return responseFunctions._400(res, err.message)
+    }
+    return responseFunctions._200(res, data, 'Data fetched successfully.')
+  },
+  changePassword: async (req, res) => {
+    const { id } = req.user
+    const { body } = req
+    const { error } = authValidations.validateChangePassword(body)
+    if (error) {
+      return responseFunctions._400(res, error.details[0].message)
+    }
+    const [err, data] = await to(authService.changePassword(body, id))
+    if (err) {
+      return responseFunctions._400(res, err.message)
+    }
+    return responseFunctions._200(res, data, 'Password changed successfully.')
+  },
   logout: async (req, res) => {
     const { id } = req.user
     const [err, data] = await to(authService.logout(id))

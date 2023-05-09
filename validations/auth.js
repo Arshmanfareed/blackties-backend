@@ -99,4 +99,21 @@ module.exports = {
     })
     return schema.validate(obj, { allowUnknown: true })
   },
+  validateResetPassword: function (obj) {
+    const schema = Joi.object({
+      email: Joi.string().email().required().label('Email').messages({
+        'any.required': `{#label} is Required`,
+      }),
+    })
+    return schema.validate(obj, { allowUnknown: true })
+  },
+  validateChangePassword: function (obj) {
+    const schema = Joi.object({
+      password: Joi.string().min(8).max(50).required().label('Password').messages({
+        'any.required': `{#label} is Required`,
+      }),
+    })
+    return schema.validate(obj, { allowUnknown: true })
+  },
 }
+

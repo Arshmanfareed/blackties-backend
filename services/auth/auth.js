@@ -95,4 +95,39 @@ module.exports = {
     }
     return false
   },
+  resetPassword: async (email) => {
+    const user = await db.User.findOne({ where: { email }, attributes: { exclude: ['password'] } })
+    if (!user) throw new Error('User does not Exist.')
+    const jwtToken = generateJWT(user.toJSON())
+    await db.PasswordReset.destroy({ where: { userId: user.id } })
+    await db.PasswordReset.create({ userId: user.id })
+    const resetPasswordLink = process.env.RESET_PASSWORD_PAGE + '?token=' + jwtToken
+    const emailBody = `
+      Please click on this link to reset your password  ${resetPasswordLink}
+    `
+    sendMail(email, "Password Reset Link", emailBody)
+    return true
+  },
+  verifyPasswordResetLink: async (userId) => {
+    const passwordResetLink = await db.PasswordReset.findOne({ where: { userId } })
+    let isValidLink = false
+    if (passwordResetLink) {
+      //  link is only valid for 3 days (checking link creation date)
+      const linkCreationDate = moment(passwordResetLink.createdAt)
+      const dateNow = moment(Date.now())
+      const DiffInDays = dateNow.diff(linkCreationDate, 'days')
+      if (DiffInDays <= 3) {
+        isValidLink = true
+      }
+    }
+    return isValidLink
+  },
+  changePassword: async (body, userId) => {
+    const { password } = body
+    const salt = await bcryptjs.genSalt(10)
+    const hashedPassword = await bcryptjs.hash(password, salt)
+    await db.User.update({ password: hashedPassword }, { where: { id: userId } })
+    await db.PasswordReset.destroy({ where: { userId } })
+    return true
+  },
 }
