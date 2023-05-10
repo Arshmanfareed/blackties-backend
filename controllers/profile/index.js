@@ -19,4 +19,13 @@ module.exports = {
     }
     return responseFunctions._200(res, data, 'Data fetched successfully')
   },
+  updateProfile: async (req, res) => {
+    const { id: userId } = req.user
+    const { body } = req
+    const [err, data] = await to(profileService.updateProfile(body, userId))
+    if (err) {
+      return responseFunctions._400(res, err.message)
+    }
+    return responseFunctions._200(res, data, 'Profile updated successfully')
+  },
 }

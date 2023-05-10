@@ -15,22 +15,22 @@ module.exports = {
         default: 'User',
       },
       email: {
-        type: Sequelize.STRING,
+        type: Sequelize.STRING(40),
       },
       username: {
-        type: Sequelize.STRING,
+        type: Sequelize.STRING(50),
       },
       password: {
-        type: Sequelize.STRING,
+        type: Sequelize.STRING(100),
       },
       platform: {
-        type: Sequelize.STRING,
+        type: Sequelize.STRING(20),
       },
       fcmToken: {
-        type: Sequelize.STRING,
+        type: Sequelize.STRING(200),
       },
       otp: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.INTEGER(6),
       },
       otpExpiry: {
         type: Sequelize.DATE,

@@ -65,5 +65,28 @@ module.exports = {
         }
       ]
     })
-  }
+  },
+  updateProfile: async (body, userId) => {
+    const t = await db.sequelize.transaction()
+    try {
+      const { userLanguages } = body
+      if (userLanguages) {
+        await db.UserLanguage.destroy({ where: { userId } })
+        if (userLanguages.length > 0) {
+          const langData = userLanguages.map(lang => { return { userId, language: lang } })
+          await db.UserLanguage.bulkCreate(langData, { transaction: t })
+        }
+        delete body['language']
+      }
+      if (Object.keys(body).length > 0) {
+        await db.Profile.update({ ...body }, { where: { userId }, transaction: t })
+      }
+      await t.commit()
+      return true
+    } catch (error) {
+      await t.rollback()
+      console.log(error)
+      return false
+    }
+  },
 }

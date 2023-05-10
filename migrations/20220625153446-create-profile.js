@@ -18,7 +18,7 @@ module.exports = {
         },
       },
       sex: {
-        type: Sequelize.STRING,
+        type: Sequelize.STRING(10),
       },
       dateOfBirth: {
         type: Sequelize.DATEONLY,
@@ -36,106 +36,127 @@ module.exports = {
         type: Sequelize.DECIMAL,
       },
       country: {
-        type: Sequelize.STRING,
+        type: Sequelize.STRING(30),
       },
       city: {
-        type: Sequelize.STRING,
+        type: Sequelize.STRING(30),
       },
       nationality: {
-        type: Sequelize.STRING,
+        type: Sequelize.STRING(30),
       },
       religiosity: {
-        type: Sequelize.STRING,
+        type: Sequelize.STRING(30),
       },
       education: {
-        type: Sequelize.STRING,
+        type: Sequelize.STRING(30),
       },
       skinColor: {
-        type: Sequelize.STRING,
+        type: Sequelize.STRING(30),
       },
       ethnicity: {
-        type: Sequelize.STRING,
+        type: Sequelize.STRING(30),
       },
       maritalStatus: {
-        type: Sequelize.STRING,
+        type: Sequelize.STRING(30),
+      },
+      occupationStatus: {
+        type: Sequelize.STRING(50),
       },
       occupationField: {
-        type: Sequelize.STRING,
+        type: Sequelize.STRING(150),
       },
       occupationFunction: {
-        type: Sequelize.STRING,
+        type: Sequelize.STRING(150),
       },
       countryOfEducation: {
-        type: Sequelize.STRING,
+        type: Sequelize.STRING(30),
       },
       speciality: {
-        type: Sequelize.STRING,
+        type: Sequelize.STRING(50),
       },
       financialStatus: {
-        type: Sequelize.STRING,
+        type: Sequelize.STRING(30),
       },
       healthStatus: {
-        type: Sequelize.STRING,
+        type: Sequelize.STRING(30),
       },
       children: {
-        type: Sequelize.STRING,
+        type: Sequelize.STRING(30),
       },
       fatherCountryOfOrigin: {
-        type: Sequelize.STRING,
+        type: Sequelize.STRING(30),
       },
       motherCountryOfOrigin: {
-        type: Sequelize.STRING,
+        type: Sequelize.STRING(30),
       },
       tribe: {
-        type: Sequelize.STRING,
+        type: Sequelize.STRING(50),
       },
       sect: {
-        type: Sequelize.STRING,
+        type: Sequelize.STRING(20),
       },
       frequencyOfPrayers: {
-        type: Sequelize.STRING,
+        type: Sequelize.STRING(30),
       },
       beard: {
-        type: Sequelize.STRING,
+        type: Sequelize.STRING(20),
       },
       reading: {
-        type: Sequelize.STRING,
+        type: Sequelize.STRING(150),
       },
       family: {
-        type: Sequelize.STRING,
+        type: Sequelize.STRING(50),
       },
       smoking: {
-        type: Sequelize.STRING,
+        type: Sequelize.STRING(50),
       },
       physicalActivity: {
-        type: Sequelize.STRING,
+        type: Sequelize.STRING(50),
       },
       readyToRelocate: {
-        type: Sequelize.STRING,
+        type: Sequelize.STRING(50),
       },
       willingnessToMarry: {
-        type: Sequelize.STRING,
+        type: Sequelize.STRING(50),
       },
       familyPlans: {
-        type: Sequelize.STRING,
+        type: Sequelize.STRING(150),
       },
       eyesColor: {
-        type: Sequelize.STRING,
+        type: Sequelize.STRING(50),
       },
       hairLength: {
-        type: Sequelize.STRING,
+        type: Sequelize.STRING(50),
       },
       hairType: {
-        type: Sequelize.STRING,
+        type: Sequelize.STRING(50),
       },
       hairColor: {
-        type: Sequelize.STRING,
+        type: Sequelize.STRING(50),
       },
       beauty: {
-        type: Sequelize.STRING,
+        type: Sequelize.STRING(50),
       },
       personalityType: {
-        type: Sequelize.STRING,
+        type: Sequelize.STRING(50),
+      },
+      traits: {
+        type: Sequelize.STRING(500),
+      },
+      noAFanOf: {
+        type: Sequelize.STRING(500),
+      },
+      letsTalkAbout: {
+        type: Sequelize.STRING(500),
+      },
+      hobbies: {
+        type: Sequelize.STRING(500),
+      },
+      movies: {
+        type: Sequelize.STRING(500),
+      },
+      sports: {
+        type: Sequelize.STRING(500),
       },
       createdAt: {
         allowNull: false,
