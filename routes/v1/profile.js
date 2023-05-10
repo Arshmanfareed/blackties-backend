@@ -128,4 +128,142 @@ router.post('/', profileController.listAllProfiles)
  */
 router.get('/me', auth, profileController.getMyProfile)
 
+/**
+ * @swagger
+ * /profile:
+ *   patch:
+ *     summary: Update user profile (Basic, Essentials, Origin, Lifestyle, Physical Appearance, Personal)
+ *     consumes:
+ *      - application/json
+ *     produces:
+ *      - application/json
+ *     tags:
+ *     - Profile
+ *     parameters:
+ *     - name: x-auth-token
+ *       in: header
+ *       required: false
+ *       type: string
+ *       description: an authorization header
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               dateOfBirth:
+ *                 type: string
+ *                 format: date
+ *               country:
+ *                 type: string
+ *               city:
+ *                 type: string
+ *               nationality:
+ *                 type: string
+ *               height:
+ *                 type: integer
+ *                 format: int32
+ *               weight:
+ *                 type: integer
+ *                 format: int32
+ *               occupationStatus:
+ *                 type: string
+ *               occupationField:
+ *                 type: string
+ *               occupationFunction:
+ *                 type: string
+ *               education:
+ *                 type: string
+ *               speciality:
+ *                 type: string
+ *               countryOfEducation:
+ *                 type: string
+ *               financialStatus:
+ *                 type: string
+ *               maritalStatus:
+ *                 type: string
+ *               healthStatus:
+ *                 type: string
+ *               children:
+ *                 type: string
+ *               userLanguages:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *               fatherCountryOfOrigin:
+ *                 type: string
+ *               motherCountryOfOrigin:
+ *                 type: string
+ *               ethnicity:
+ *                 type: string
+ *               tribe:
+ *                 type: string
+ *               religiosity:
+ *                 type: string
+ *               sect:
+ *                 type: string
+ *               frequencyOfPrayers:
+ *                 type: string
+ *               beard:
+ *                 type: string
+ *               reading:
+ *                 type: string
+ *               family:
+ *                 type: string
+ *               smoking:
+ *                 type: string
+ *               physicalActivity:
+ *                 type: string
+ *               readyToRelocate:
+ *                 type: string
+ *               willingnessToMarry:
+ *                 type: string
+ *               familyPlans:
+ *                 type: string
+ *               beauty:
+ *                 type: string
+ *               skinColor:
+ *                 type: string
+ *               eyesColor:
+ *                 type: string
+ *               hairLength:
+ *                 type: string
+ *               hairType:
+ *                 type: string
+ *               hairColor:
+ *                 type: string
+ *               traits:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *               noAFanOf:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *               letsTalkAbout:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *               hobbies:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *               movies:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *               sports:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *     operationId: updateProfile
+ *     deprecated: false
+ *     responses:
+ *       '200':
+ *         description: ''
+ *         headers: {}
+ */
+router.patch('/', auth, profileController.updateProfile)
+
 module.exports = router

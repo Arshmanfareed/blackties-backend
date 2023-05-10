@@ -31,6 +31,7 @@ module.exports = (sequelize, DataTypes) => {
       skinColor: DataTypes.STRING,
       ethnicity: DataTypes.STRING,
       maritalStatus: DataTypes.STRING,
+      occupationStatus: DataTypes.STRING, 
       occupationField: DataTypes.STRING,
       occupationFunction: DataTypes.STRING,
       countryOfEducation: DataTypes.STRING,

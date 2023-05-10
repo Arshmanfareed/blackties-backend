@@ -59,8 +59,11 @@ module.exports = {
       maritalStatus: {
         type: Sequelize.STRING(30),
       },
+      occupationStatus: {
+        type: Sequelize.STRING(50),
+      },
       occupationField: {
-        type: Sequelize.STRING(30),
+        type: Sequelize.STRING(150),
       },
       occupationFunction: {
         type: Sequelize.STRING(150),
