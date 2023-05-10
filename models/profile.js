@@ -57,6 +57,12 @@ module.exports = (sequelize, DataTypes) => {
       hairColor: DataTypes.STRING,
       beauty: DataTypes.STRING,
       personalityType: DataTypes.STRING,
+      traits: DataTypes.STRING,
+      noAFanOf: DataTypes.STRING,
+      letsTalkAbout: DataTypes.STRING,
+      hobbies: DataTypes.STRING,
+      movies: DataTypes.STRING,
+      sports: DataTypes.STRING,
     },
     {
       sequelize,

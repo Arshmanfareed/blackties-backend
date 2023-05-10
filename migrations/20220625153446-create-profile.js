@@ -137,6 +137,24 @@ module.exports = {
       personalityType: {
         type: Sequelize.STRING,
       },
+      traits: {
+        type: Sequelize.STRING,
+      },
+      noAFanOf: {
+        type: Sequelize.STRING,
+      },
+      letsTalkAbout: {
+        type: Sequelize.STRING,
+      },
+      hobbies: {
+        type: Sequelize.STRING,
+      },
+      movies: {
+        type: Sequelize.STRING,
+      },
+      sports: {
+        type: Sequelize.STRING,
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,
