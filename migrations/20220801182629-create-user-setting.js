@@ -25,7 +25,7 @@ module.exports = {
         type: Sequelize.BOOLEAN
       },
       membership: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING(30)
       },
       createdAt: {
         allowNull: false,
