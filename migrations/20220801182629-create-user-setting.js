@@ -27,6 +27,9 @@ module.exports = {
       membership: {
         type: Sequelize.STRING(30)
       },
+      language: {
+        type: Sequelize.STRING(30)
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE
