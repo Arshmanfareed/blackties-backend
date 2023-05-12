@@ -89,4 +89,13 @@ module.exports = {
       return false
     }
   },
+  saveOrUnsaveProfile: async (userId, savedUserId) => {
+    const isAlreadySaved = await db.SavedProfile.findOne({ where: { userId, savedUserId } })
+    if (!isAlreadySaved) {
+      await db.SavedProfile.create({ userId, savedUserId })
+      return true
+    }
+    await db.SavedProfile.destroy({ where: { userId, savedUserId } })
+    return false
+  },
 }

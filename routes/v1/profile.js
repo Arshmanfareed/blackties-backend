@@ -266,4 +266,35 @@ router.get('/me', auth, profileController.getMyProfile)
  */
 router.patch('/', auth, profileController.updateProfile)
 
+/**
+ * @swagger
+ * /profile/{id}/save/toggle:
+ *   post:
+ *     summary: Save or unsave profile of other user for later (mark as favourite or unfavourite by pressing heart)
+ *     consumes:
+ *      - application/json
+ *     produces:
+ *      - application/json
+ *     tags:
+ *     - Profile
+ *     parameters:
+ *     - name: x-auth-token
+ *       in: header
+ *       required: true
+ *       type: string
+ *       description: an authorization header
+ *     - name: id
+ *       in: path
+ *       required: true
+ *       type: string
+ *       description: Id of the user to save
+ *     operationId: saveProfile
+ *     deprecated: false
+ *     responses:
+ *       '200':
+ *         description: ''
+ *         headers: {}
+ */
+router.post('/:id/save/toggle', auth, profileController.saveOrUnsaveProfile)
+
 module.exports = router
