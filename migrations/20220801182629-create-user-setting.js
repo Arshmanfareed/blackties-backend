@@ -24,6 +24,12 @@ module.exports = {
       isPremium: {
         type: Sequelize.BOOLEAN
       },
+      isEmailVerified: {
+        type: Sequelize.BOOLEAN
+      },
+      isPhoneVerified: {
+        type: Sequelize.BOOLEAN
+      },
       membership: {
         type: Sequelize.STRING(30)
       },
