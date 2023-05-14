@@ -83,6 +83,8 @@ router.post('/verify-code', authController.verifyCode)
  *                 type: string
  *               maritalStatus:
  *                 type: string
+ *               language:
+ *                 type: string
  *     tags:
  *     - Auth
  *     operationId: signUp
@@ -233,6 +235,8 @@ router.get('/validate-reset-password-link', auth, authController.verifyPasswordR
  *             required:
  *               - password
  *             properties:
+ *               oldPassword:
+ *                 type: string
  *               password:
  *                 type: string
  *     operationId: changePassword

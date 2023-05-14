@@ -1,7 +1,8 @@
 'use strict';
+
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('UserSettings', {
+    await queryInterface.createTable('SavedProfiles', {
       id: {
         allowNull: false,
         autoIncrement: true,
@@ -18,23 +19,15 @@ module.exports = {
           as: 'userId',
         },
       },
-      isNotificationEnabled: {
-        type: Sequelize.BOOLEAN
-      },
-      isPremium: {
-        type: Sequelize.BOOLEAN
-      },
-      isEmailVerified: {
-        type: Sequelize.BOOLEAN
-      },
-      isPhoneVerified: {
-        type: Sequelize.BOOLEAN
-      },
-      membership: {
-        type: Sequelize.STRING(30)
-      },
-      language: {
-        type: Sequelize.STRING(30)
+      savedUserId: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        onDelete: 'CASCADE',
+        references: {
+          model: 'Users',
+          key: 'id',
+          as: 'savedUserId',
+        },
       },
       createdAt: {
         allowNull: false,
@@ -47,6 +40,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('UserSettings');
+    await queryInterface.dropTable('SavedProfiles');
   }
 };

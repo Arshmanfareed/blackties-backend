@@ -75,7 +75,10 @@ module.exports = {
       email: Joi.string().required().label('Email').messages({
         'any.required': `{#label} is Required`,
       }),
-      password: Joi.string().required().label('Password').messages({
+      password: Joi.string().min(8).max(50).required().label('Password').messages({
+        'any.required': `{#label} is Required`,
+      }),
+      language: Joi.string().required().label('Language').messages({
         'any.required': `{#label} is Required`,
       }),
     })
@@ -109,6 +112,9 @@ module.exports = {
   },
   validateChangePassword: function (obj) {
     const schema = Joi.object({
+      oldPassword: Joi.string().min(1).max(50).allow(null, 'null', '').label('Old Password').messages({
+        'any.required': `{#label} is Required`,
+      }),
       password: Joi.string().min(8).max(50).required().label('Password').messages({
         'any.required': `{#label} is Required`,
       }),

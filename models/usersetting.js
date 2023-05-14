@@ -21,7 +21,18 @@ module.exports = (sequelize, DataTypes) => {
   UserSetting.init({
     userId: DataTypes.INTEGER,
     isNotificationEnabled: DataTypes.BOOLEAN,
-    isPremium: DataTypes.BOOLEAN,
+    isPremium: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+    },
+    isEmailVerified: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+    },
+    isPhoneVerified: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+    },
     membership: DataTypes.STRING,
   }, {
     sequelize,

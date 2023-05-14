@@ -46,18 +46,18 @@ module.exports = {
     const t = await db.sequelize.transaction()
     try {
       const verificationCode = Math.floor(100000 + Math.random() * 900000)
-      const { email, username, password, sex, dateOfBirth, height, weight, country, city, nationality, religiosity, education, skinColor, ethnicity, maritalStatus } = body
+      const { email, username, password, sex, dateOfBirth, height, weight, country, city, nationality, religiosity, education, skinColor, ethnicity, maritalStatus, language } = body
       let userExistByEmailOrUsername = await db.User.findOne({ where: { [Op.or]: [{ email }, { username }] } })
       if (userExistByEmailOrUsername) {
         throw new Error("User already exist with this email or username")
       }
       const salt = await bcryptjs.genSalt(10);
       const hashedPassword = await bcryptjs.hash(password, salt)
-      const userCreated = await db.User.create({ email, username, password: hashedPassword, status: status.UNVERIFIED, otp: verificationCode, otpExpiry: new Date() }, { transaction: t })
+      const userCreated = await db.User.create({ email, username, password: hashedPassword, status: status.UNVERIFIED, otp: verificationCode, otpExpiry: new Date(), language }, { transaction: t })
       const { id: userId } = userCreated
       const profileCreated = await db.Profile.create({ userId, sex, dateOfBirth, height, weight, country, city, nationality, religiosity, education, skinColor, ethnicity, maritalStatus }, { transaction: t })
       await db.Wallet.create({ userId, amount: 0 }, { transaction: t })
-      await db.UserSetting.create({ userId, isNotificationEnabled: true, isPremium: false }, { transaction: t })
+      await db.UserSetting.create({ userId, isNotificationEnabled: true, isPremium: false, membership: "REGULAR" }, { transaction: t })
       await t.commit()
       // send OTP or verification link
       helpers.sendAccountActivationLink(email, userCreated.id, verificationCode)
@@ -123,7 +123,18 @@ module.exports = {
     return isValidLink
   },
   changePassword: async (body, userId) => {
-    const { password } = body
+    const { oldPassword, password } = body
+    if (oldPassword && oldPassword !== '' && oldPassword !== null) { //  if old password is comming from frontend its means user is chaning password inside app not reset 
+      // need to validate whether user inputted old password is correct or not
+      const user = await db.User.findOne({ where: { id: userId } })
+      if (!user) {
+        throw new Error('User not found.')
+      }
+      const isCorrectPassword = await bcryptjs.compare(oldPassword, user.password)
+      if (!isCorrectPassword) {
+        throw new Error('You\'ve entered incorrect old password')
+      }
+    }
     const salt = await bcryptjs.genSalt(10)
     const hashedPassword = await bcryptjs.hash(password, salt)
     await db.User.update({ password: hashedPassword }, { where: { id: userId } })

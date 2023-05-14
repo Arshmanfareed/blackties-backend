@@ -33,6 +33,10 @@ module.exports = (sequelize, DataTypes) => {
         defaultValue: 'ACTIVE',
       },
       deletedAt: DataTypes.DATE,
+      language: {
+        type: DataTypes.STRING,
+        defaultValue: 'en'
+      },
     },
     {
       sequelize,
