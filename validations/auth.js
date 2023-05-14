@@ -78,6 +78,9 @@ module.exports = {
       password: Joi.string().required().label('Password').messages({
         'any.required': `{#label} is Required`,
       }),
+      language: Joi.string().required().label('Language').messages({
+        'any.required': `{#label} is Required`,
+      }),
     })
     return schema.validate(obj, { allowUnknown: true })
   },

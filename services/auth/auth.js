@@ -46,14 +46,14 @@ module.exports = {
     const t = await db.sequelize.transaction()
     try {
       const verificationCode = Math.floor(100000 + Math.random() * 900000)
-      const { email, username, password, sex, dateOfBirth, height, weight, country, city, nationality, religiosity, education, skinColor, ethnicity, maritalStatus } = body
+      const { email, username, password, sex, dateOfBirth, height, weight, country, city, nationality, religiosity, education, skinColor, ethnicity, maritalStatus, language } = body
       let userExistByEmailOrUsername = await db.User.findOne({ where: { [Op.or]: [{ email }, { username }] } })
       if (userExistByEmailOrUsername) {
         throw new Error("User already exist with this email or username")
       }
       const salt = await bcryptjs.genSalt(10);
       const hashedPassword = await bcryptjs.hash(password, salt)
-      const userCreated = await db.User.create({ email, username, password: hashedPassword, status: status.UNVERIFIED, otp: verificationCode, otpExpiry: new Date() }, { transaction: t })
+      const userCreated = await db.User.create({ email, username, password: hashedPassword, status: status.UNVERIFIED, otp: verificationCode, otpExpiry: new Date(), language }, { transaction: t })
       const { id: userId } = userCreated
       const profileCreated = await db.Profile.create({ userId, sex, dateOfBirth, height, weight, country, city, nationality, religiosity, education, skinColor, ethnicity, maritalStatus }, { transaction: t })
       await db.Wallet.create({ userId, amount: 0 }, { transaction: t })

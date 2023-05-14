@@ -83,6 +83,8 @@ router.post('/verify-code', authController.verifyCode)
  *                 type: string
  *               maritalStatus:
  *                 type: string
+ *               language:
+ *                 type: string
  *     tags:
  *     - Auth
  *     operationId: signUp
