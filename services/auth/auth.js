@@ -123,7 +123,18 @@ module.exports = {
     return isValidLink
   },
   changePassword: async (body, userId) => {
-    const { password } = body
+    const { oldPassword, password } = body
+    if (oldPassword && oldPassword !== '' && oldPassword !== null) { //  if old password is comming from frontend its means user is chaning password inside app not reset 
+      // need to validate whether user inputted old password is correct or not
+      const user = await db.User.findOne({ where: { id: userId } })
+      if (!user) {
+        throw new Error('User not found.')
+      }
+      const isCorrectPassword = await bcryptjs.compare(oldPassword, user.password)
+      if (!isCorrectPassword) {
+        throw new Error('You\'ve entered incorrect old password')
+      }
+    }
     const salt = await bcryptjs.genSalt(10)
     const hashedPassword = await bcryptjs.hash(password, salt)
     await db.User.update({ password: hashedPassword }, { where: { id: userId } })

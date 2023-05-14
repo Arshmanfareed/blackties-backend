@@ -235,6 +235,8 @@ router.get('/validate-reset-password-link', auth, authController.verifyPasswordR
  *             required:
  *               - password
  *             properties:
+ *               oldPassword:
+ *                 type: string
  *               password:
  *                 type: string
  *     operationId: changePassword
