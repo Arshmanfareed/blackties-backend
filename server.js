@@ -29,10 +29,6 @@ app.use(
 )
 app.use(express.json())
 app.use('/public', express.static(path.join(__dirname, 'public')));
-app.set('views', path.join(__dirname, 'templates'));
-app.set('view engine', 'ejs');
-
-// app.get('/hello')
 
 // Routes
 app.use('/api-docs', basicAuth({ users: { [process.env.SWAGGER_USER_NAME]: process.env.SWAGGER_USER_PASSWORD }, challenge: true, }), swaggerUI.serve, swaggerUI.setup(swaggerDocs))
