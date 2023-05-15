@@ -33,6 +33,7 @@
     "sequelize": "^6.21.0",
     "sharp": "^0.31.1",
     "socket.io": "^4.5.2",
+    "stripe": "^12.4.0",
     "swagger-jsdoc": "^6.2.1",
     "swagger-ui-express": "^4.4.0",
     "twilio": "^4.10.0",
