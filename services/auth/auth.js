@@ -3,9 +3,10 @@ const { roles, status } = require('../../config/constants')
 const moment = require('moment')
 const { Op } = require('sequelize')
 const bcryptjs = require("bcryptjs")
-const sendMail = require('../../utils/send-mail')
+const sendMail = require('../../utils/sendgrid-mail')
 const { generateJWT } = require('../../utils/generate-jwt')
 const helpers = require('../../helpers')
+const { translate } = require('../../utils/translation')
 
 module.exports = {
   verifyCode: async (body) => {
@@ -60,7 +61,7 @@ module.exports = {
       await db.UserSetting.create({ userId, isNotificationEnabled: true, isPremium: false, membership: "REGULAR" }, { transaction: t })
       await t.commit()
       // send OTP or verification link
-      helpers.sendAccountActivationLink(email, userCreated.id, verificationCode)
+      helpers.sendAccountActivationLink(email, userCreated.id, verificationCode, language)
       return { userCreated, profileCreated }
     } catch (error) {
       await t.rollback()
@@ -102,10 +103,16 @@ module.exports = {
     await db.PasswordReset.destroy({ where: { userId: user.id } })
     await db.PasswordReset.create({ userId: user.id })
     const resetPasswordLink = process.env.RESET_PASSWORD_PAGE + '?token=' + jwtToken
-    const emailBody = `
-      Please click on this link to reset your password  ${resetPasswordLink}
-    `
-    sendMail(email, "Password Reset Link", emailBody)
+    // const emailBody = `
+    //   Please click on this link to reset your password  ${resetPasswordLink}
+    // `
+    // sendMail(email, "Password Reset Link", emailBody)
+    const templatedId = process.env.PASSWORD_RESET_TEMPLATE_ID
+    const dynamicParams = {
+      message: translate('resetpasswordBody', user.language), // `Please click on this link to reset your password`,
+      link: resetPasswordLink
+    }
+    sendMail(templatedId, email, translate('resetpasswordSubject', user.language), dynamicParams)
     return true
   },
   verifyPasswordResetLink: async (userId) => {
