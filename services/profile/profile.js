@@ -110,5 +110,18 @@ module.exports = {
         }
       }
     })
-  }
+  },
+  getUsersWhoSavedMyProfile: async (userId) => {
+    return db.SavedProfile.findAll({
+      where: { savedUserId: userId },
+      include: {
+        model: db.User,
+        as: 'user',
+        attributes: ['id', 'email', 'username', 'language', 'createdAt'],
+        include: {
+          model: db.Profile
+        }
+      }
+    })
+  },
 }

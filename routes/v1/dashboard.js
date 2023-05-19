@@ -28,4 +28,30 @@ const auth = require('../../middlewares/auth')
  */
 router.post('/my-request/saved-profiles', auth, profileController.getMySavedProfiles)
 
+/**
+ * @swagger
+ * /dashboard/incoming-request/saved-profiles:
+ *   post:
+ *     summary: Users who saved my profile under (Incoming Request tab)
+ *     consumes:
+ *      - application/json
+ *     produces:
+ *      - application/json
+ *     parameters:
+ *     - name: x-auth-token
+ *       in: header
+ *       required: true
+ *       type: string
+ *       description: an authorization header
+ *     tags:
+ *     - Dashboard
+ *     operationId: getUsersWhoSavedMyProfile
+ *     deprecated: false
+ *     responses:
+ *       '200':
+ *         description: ''
+ *         headers: {}
+ */
+router.post('/incoming-request/saved-profiles', auth, profileController.getUsersWhoSavedMyProfile)
+
 module.exports = router
