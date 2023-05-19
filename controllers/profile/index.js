@@ -37,4 +37,12 @@ module.exports = {
     }
     return responseFunctions._200(res, data, data ? 'Profile saved successfully' : 'Profile unsaved successfully')
   },
+  getMySavedProfiles: async (req, res) => {
+    const { id: userId } = req.user
+    const [err, data] = await to(profileService.getMySavedProfiles(userId))
+    if (err) {
+      return responseFunctions._400(res, err.message)
+    }
+    return responseFunctions._200(res, data, 'Data fetched successfully')
+  },
 }
