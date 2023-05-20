@@ -14,6 +14,8 @@ const basicAuth = require('express-basic-auth')
 const path = require('path')
 const profileRoutes = require('./routes/v1/profile')
 const purchaseRoutes = require('./routes/v1/purchase')
+const dashboardRoutes = require('./routes/v1/dashboard')
+
 
 
 // require("./cron-job")
@@ -37,6 +39,7 @@ app.use('/api-docs', basicAuth({ users: { [process.env.SWAGGER_USER_NAME]: proce
 app.use(`${apiPrefix}/auth`, authRoutes)
 app.use(`${apiPrefix}/profile`, profileRoutes)
 app.use(`${apiPrefix}/purchase`, purchaseRoutes)
+app.use(`${apiPrefix}/dashboard`, dashboardRoutes)
 
 
 
