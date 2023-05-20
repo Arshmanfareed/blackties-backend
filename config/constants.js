@@ -15,5 +15,12 @@ module.exports = {
     MALE: 'Male',
     FEMALE: 'Female',
   },
+  paymentType: {
+    PURCHASE: 'PURCHASE',
+    SUBSCRIPTION: 'SUBSCRIPTION',
+  },
+  products:{ 
+    MONTHLY: 'price_1N9279EA1vEYaFqSjHrRvXNv'
+  },
   apiPrefix: '/dev/mahaba/api/v1',
 }

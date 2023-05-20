@@ -27,4 +27,13 @@ module.exports = {
     }
     return res.redirect(data)
   },
+  buyPremiumMembership: async (req, res) => {
+    const { body, headers, user } = req
+    const { id: userId } = user
+    const [err, data] = await to(purchaseService.buyPremiumMembership(body, headers.host, userId))
+    if (err) {
+      return responseFunctions._400(res, err.message)
+    }
+    return responseFunctions._200(res, data, 'Data fetched successfully')
+  },
 }
