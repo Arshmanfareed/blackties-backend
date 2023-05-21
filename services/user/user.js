@@ -14,4 +14,18 @@ module.exports = {
   unblockUser: async (blockerUserId, blockedUserId) => {
     return db.BlockedUser.destroy({ where: { blockerUserId, blockedUserId } })
   },
+  getListOfBlockedUsers: async (blockerUserId) => {
+    return db.BlockedUser.findAll({
+      where: { blockerUserId },
+      attributes: [],
+      include: {
+        model: db.User,
+        as: 'blockedUser',
+        attributes: ['id', 'email', 'username'],
+        include: {
+          model: db.Profile
+        }
+      }
+    })
+  },
 }

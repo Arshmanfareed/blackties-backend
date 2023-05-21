@@ -106,4 +106,29 @@ router.post('/:id/block', auth, userController.blockUser)
  */
 router.post('/:id/unblock', auth, userController.unblockUser)
 
+/**
+ * @swagger
+ * /user/block-list:
+ *   post:
+ *     summary: Get list of blocked users
+ *     consumes:
+ *      - application/json
+ *     produces:
+ *      - application/json
+ *     tags:
+ *     - User
+ *     parameters:
+ *     - name: x-auth-token
+ *       in: header
+ *       required: true
+ *       type: string
+ *       description: an authorization header
+ *     deprecated: false
+ *     responses:
+ *       '200':
+ *         description: ''
+ *         headers: {}
+ */
+router.post('/block-list', auth, userController.getListOfBlockedUsers)
+
 module.exports = router

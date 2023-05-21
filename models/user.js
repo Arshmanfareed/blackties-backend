@@ -16,6 +16,15 @@ module.exports = (sequelize, DataTypes) => {
       User.hasMany(models.UserLanguage, {
         foreignKey: 'userId',
       })
+
+      User.hasMany(models.BlockedUser, {
+        foreignKey: 'blockerUserId',
+      })
+
+      User.hasMany(models.BlockedUser, {
+        foreignKey: 'blockedUserId',
+      })
+
     }
   }
   User.init(
