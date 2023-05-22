@@ -4,7 +4,7 @@ const auth = require('../../middlewares/auth')
 
 /**
  * @swagger
- * /user/{id}/contact-details:
+ * /user/{id}/request/contact-details:
  *   post:
  *     summary: Request contact details from other user
  *     consumes:
@@ -31,7 +31,7 @@ const auth = require('../../middlewares/auth')
  *         description: ''
  *         headers: {}
  */
-router.post('/:id/contact-details', auth, userController.requestContactDetails)
+router.post('/:id/request/contact-details', auth, userController.requestContactDetails)
 
 /**
  * @swagger
@@ -130,5 +130,36 @@ router.post('/:id/unblock', auth, userController.unblockUser)
  *         headers: {}
  */
 router.post('/block-list', auth, userController.getListOfBlockedUsers)
+
+/**
+ * @swagger
+ * /user/{id}/request/picture:
+ *   post:
+ *     summary: Request picture from other user
+ *     consumes:
+ *      - application/json
+ *     produces:
+ *      - application/json
+ *     tags:
+ *     - User
+ *     parameters:
+ *     - name: x-auth-token
+ *       in: header
+ *       required: true
+ *       type: string
+ *       description: an authorization header
+ *     - name: id
+ *       in: path
+ *       required: true
+ *       type: string
+ *       description: Id of the user to which you are requesting picture
+ *     operationId: requestPicture
+ *     deprecated: false
+ *     responses:
+ *       '200':
+ *         description: ''
+ *         headers: {}
+ */
+router.post('/:id/request/picture', auth, userController.requestPicture)
 
 module.exports = router

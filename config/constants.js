@@ -15,5 +15,10 @@ module.exports = {
     MALE: 'Male',
     FEMALE: 'Female',
   },
+  requestStatus: {
+    PENDING: 'PENDING',
+    ACCEPTED: 'ACCEPTED',
+    REJECTED: 'REJECTED'
+  },
   apiPrefix: '/dev/mahaba/api/v1',
 }
