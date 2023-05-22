@@ -1,30 +1,22 @@
 const authService = require('../../services/auth/auth')
-const { to, throwError } = require('../../utils/error-handler')
+const { to } = require('../../utils/error-handler')
 const responseFunctions = require('../../utils/responses')
-const { sendSMS } = require('../../utils/send-sms')
 const { authValidations } = require('../../validations')
+const fs = require('fs')
 
 module.exports = {
-  signUpOrSignInByEmail: async (req, res) => {
+  signUp: async (req, res) => {
     // validation
     const { body } = req
-    const { error } = authValidations.validatesignUpOrSignInByEmail(body)
+    const { error } = authValidations.validateCreateProfile(body)
     if (error) {
       return responseFunctions._400(res, error.details[0].message)
     }
-    const [err, data] = await to(authService.signUpOrSignInByEmail(body))
+    const [err, data] = await to(authService.signUp(body))
     if (err) {
       return responseFunctions._400(res, err.message)
     }
-    const { id, email, status, otp } = data
-    // sending verification code
-    responseFunctions._201(
-      res,
-      { id, email, status, otp },
-      'OTP send successfully'
-    )
-    // send OTP on Email
-    // await sendSMS(phoneNo, otp)
+    return responseFunctions._201(res, data, 'Profile created successfully')
   },
   verifyCode: async (req, res) => {
     // validation
@@ -39,6 +31,53 @@ module.exports = {
     }
     return responseFunctions._200(res, data, 'OTP verified successfully')
   },
+  login: async (req, res) => {
+    // validation
+    const { body } = req
+    const { error } = authValidations.validateLogin(body)
+    if (error) {
+      return responseFunctions._400(res, error.details[0].message)
+    }
+    const [err, data] = await to(authService.login(body))
+    if (err) {
+      return responseFunctions._400(res, err.message)
+    }
+    return responseFunctions._200(res, data, 'Login successfully')
+  },
+  resetPassword: async (req, res) => {
+    const { body } = req
+    const { error } = authValidations.validateResetPassword(body)
+    if (error) {
+      return responseFunctions._400(res, error.details[0].message)
+    }
+    const { email } = body
+    const [err, data] = await to(authService.resetPassword(email))
+    if (err) {
+      return responseFunctions._400(res, err.message)
+    }
+    return responseFunctions._200(res, data, 'Reset password link has been sent to your email.')
+  },
+  verifyPasswordResetLink: async (req, res) => {
+    const { id } = req.user
+    const [err, data] = await to(authService.verifyPasswordResetLink(id))
+    if (err) {
+      return responseFunctions._400(res, err.message)
+    }
+    return responseFunctions._200(res, data, 'Data fetched successfully.')
+  },
+  changePassword: async (req, res) => {
+    const { id } = req.user
+    const { body } = req
+    const { error } = authValidations.validateChangePassword(body)
+    if (error) {
+      return responseFunctions._400(res, error.details[0].message)
+    }
+    const [err, data] = await to(authService.changePassword(body, id))
+    if (err) {
+      return responseFunctions._400(res, err.message)
+    }
+    return responseFunctions._200(res, data, 'Password changed successfully.')
+  },
   logout: async (req, res) => {
     const { id } = req.user
     const [err, data] = await to(authService.logout(id))
@@ -46,5 +85,14 @@ module.exports = {
       return responseFunctions._400(res, err.message)
     }
     return responseFunctions._200(res, data, 'Logout successfully')
+  },
+  activateAccount: async (req, res) => {
+    const { userId, code } = req.params
+    const [err, data] = await to(authService.activateAccount(userId, code))
+    if (err) {
+      return responseFunctions._400(res, err.message)
+    }
+    const pageUrl = data ? process.env.ACCOUNT_ACTIVATION_SUCCESS : process.env.ACCOUNT_ACTIVATION_FAILURE;
+    return res.redirect(pageUrl)
   },
 }

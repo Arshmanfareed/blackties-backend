@@ -15,46 +15,22 @@ module.exports = {
         default: 'User',
       },
       email: {
-        type: Sequelize.STRING,
+        type: Sequelize.STRING(40),
       },
-      firstName: {
-        type: Sequelize.STRING,
-      },
-      lastName: {
-        type: Sequelize.STRING,
-      },
-      phoneNo: {
-        type: Sequelize.STRING,
+      username: {
+        type: Sequelize.STRING(50),
       },
       password: {
-        type: Sequelize.STRING,
-      },
-      longitude: {
-        type: Sequelize.DECIMAL,
-      },
-      latitude: {
-        type: Sequelize.DECIMAL,
-      },
-      city: {
-        type: Sequelize.STRING,
-      },
-      country: {
-        type: Sequelize.STRING,
-      },
-      address: {
-        type: Sequelize.STRING,
-      },
-      profileImageUrl: {
-        type: Sequelize.STRING,
+        type: Sequelize.STRING(100),
       },
       platform: {
-        type: Sequelize.STRING,
+        type: Sequelize.STRING(20),
       },
       fcmToken: {
-        type: Sequelize.STRING,
+        type: Sequelize.STRING(200),
       },
       otp: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.INTEGER(6),
       },
       otpExpiry: {
         type: Sequelize.DATE,
@@ -62,11 +38,8 @@ module.exports = {
       status: {
         allowNull: false,
         type: Sequelize.ENUM,
-        values: ['ACTIVE', 'INACTIVE', 'BANNED', 'COMPLETED', 'FAILED'],
+        values: ['ACTIVE', 'INACTIVE', 'BANNED', 'COMPLETED', 'FAILED', 'UNVERIFIED',],
         default: 'ACTIVE',
-      },
-      needToReverify: {
-        type: Sequelize.BOOLEAN,
       },
       createdAt: {
         allowNull: false,

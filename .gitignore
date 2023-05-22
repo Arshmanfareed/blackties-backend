@@ -3,3 +3,4 @@ nohup.out
 .env
 package-lock.json
 public/
+test.*
