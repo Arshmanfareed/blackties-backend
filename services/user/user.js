@@ -30,13 +30,28 @@ module.exports = {
     })
   },
   requestPicture: async (requesterUserId, requesteeUserId) => {
-    const alreadyRequested = await db.PictureRequest.findOne({ where: { requesterUserId, requesteeUserId, status: requestStatus.PENDING } })
-    if (alreadyRequested) {
-      throw new Error("you've already requested picture to this user.")
+    const t = await db.sequelize.transaction()
+    try {
+      const alreadyRequested = await db.PictureRequest.findOne({ where: { requesterUserId, requesteeUserId, status: requestStatus.PENDING } })
+      if (alreadyRequested) {
+        throw new Error("you've already requested picture to this user.")
+      }
+      // create picture request
+      await db.PictureRequest.create({ requesterUserId, requesteeUserId, status: requestStatus.PENDING }, { transaction: t })
+      const requesterUser = await db.User.findOne({ where: { id: requesterUserId } })
+      // create notification and notifiy other user about request
+      await db.Notification.create({
+        userId: requesteeUserId,
+        resourceId: requesterUserId,
+        resourceType: 'USER',
+        description: `${requesterUser.username} has requested your picture`,
+        status: 0
+      }, { transaction: t })
+      await t.commit()
+      return true
+    } catch (error) {
+      await t.rollback()
+      throw new Error(error.message)
     }
-    // create picture request
-    await db.PictureRequest.create({ requesterUserId, requesteeUserId, status: requestStatus.PENDING  })
-    // create notification and notifiy other user about request
-    return true
   },
 }
