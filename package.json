@@ -39,6 +39,9 @@
     "twilio": "^4.10.0",
     "zodiac-signs": "^1.1.0"
   },
+  "engines": {
+    "node": "16.15.1"
+  },
   "devDependencies": {
     "eslint": "^8.18.0",
     "eslint-config-prettier": "^8.5.0",
