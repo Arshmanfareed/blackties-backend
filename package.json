@@ -40,7 +40,7 @@
     "zodiac-signs": "^1.1.0"
   },
   "engines": {
-    "node": "16.15.1"
+    "node": ">=16.15.1"
   },
   "devDependencies": {
     "eslint": "^8.18.0",
