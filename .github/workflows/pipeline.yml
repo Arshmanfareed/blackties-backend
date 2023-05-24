@@ -24,6 +24,12 @@ jobs:
         with:
           node-version: ${{ matrix.node }}
 
+      - name: Add git permisssions1
+        run: git update-index --chmod=+x .platform/confighooks/prebuild/00_npm_install.sh
+
+      - name: Add git permisssions2
+        run: git update-index --chmod=+x .platform/hooks/prebuild/00_npm_install.sh
+
       - name: Generate deployment package
         run: zip -r deploy.zip * .[^.]* -x "**node_modules**"
 
