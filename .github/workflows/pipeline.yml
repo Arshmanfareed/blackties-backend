@@ -48,6 +48,7 @@ jobs:
           application_name: ${{ secrets.APPLICATION_NAME }}
           environment_name: ${{ secrets.ENVIRONMENT_NAME }}
           region: me-south-1
+          existing_bucket_name: elasticbeanstalk-me-south-1-666564725736
           version_label: 'mahaba-api-${{ steps.format-time.outputs.replaced }}'
           deployment_package: deploy.zip
 
