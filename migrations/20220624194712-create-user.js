@@ -35,6 +35,9 @@ module.exports = {
       otpExpiry: {
         type: Sequelize.DATE,
       },
+      language: {
+        type: Sequelize.STRING(5),
+      },
       status: {
         allowNull: false,
         type: Sequelize.ENUM,
