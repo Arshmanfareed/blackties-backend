@@ -1,6 +1,7 @@
 const router = require('express').Router()
 const { userController } = require('../../controllers')
 const auth = require('../../middlewares/auth')
+const { uploadUserMedia } = require('../../utils/file-upload')
 
 /**
  * @swagger
@@ -161,5 +162,36 @@ router.post('/block-list', auth, userController.getListOfBlockedUsers)
  *         headers: {}
  */
 router.post('/:id/request/picture', auth, userController.requestPicture)
+
+/**
+ * @swagger
+ * /user/request/{id}/accept:
+ *   post:
+ *     summary: Accept picture request and upload a picture, Reject picture request, view a photo send by user to updated isViewed key
+ *     consumes:
+ *      - application/json
+ *     produces:
+ *      - application/json
+ *     tags:
+ *     - User
+ *     parameters:
+ *     - name: x-auth-token
+ *       in: header
+ *       required: true
+ *       type: string
+ *       description: an authorization header
+ *     - name: id
+ *       in: path
+ *       required: true
+ *       type: string
+ *       description: Id of the request
+ *     operationId: updatePictureRequest
+ *     deprecated: false
+ *     responses:
+ *       '200':
+ *         description: ''
+ *         headers: {}
+ */
+router.post('/request/:id', auth, uploadUserMedia.single('media'), userController.updatePictureRequest)
 
 module.exports = router

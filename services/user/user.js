@@ -54,4 +54,26 @@ module.exports = {
       throw new Error(error.message)
     }
   },
+  updatePictureRequest: async (requestId, dataToUpdate) => {
+    // update picture request
+    await db.PictureRequest.update(dataToUpdate, { where: { id: requestId } })
+    const updatedRequest = await db.PictureRequest.findOne({ where: { id: requestId } })
+    const requesteeUser = await db.User.findOne({ where: { id: updatedRequest.requesteeUserId } })
+    const notificationPayload = {
+      userId: updatedRequest.requesterUserId,
+      resourceId: updatedRequest.requesteeUserId,
+      resourceType: 'USER',
+      status: 0
+    }
+    if (dataToUpdate?.status === requestStatus.ACCEPTED) {
+      notificationPayload['description'] = `${requesteeUser.username} has sent you their picture`
+    } else if (dataToUpdate?.status === requestStatus.REJECTED) {
+      notificationPayload['description'] = `${requesteeUser.username} has declined your picture request`
+    } else {
+      return true
+    }
+    // create notification and notifiy user about request accept or reject status
+    await db.Notification.create(notificationPayload)
+    return true
+  },
 }

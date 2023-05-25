@@ -2,6 +2,7 @@ const userService = require('../../services/user/user')
 const { to } = require('../../utils/error-handler')
 const responseFunctions = require('../../utils/responses')
 const { userValidations } = require('../../validations')
+const { requestStatus } = require('../../config/constants')
 
 module.exports = {
   requestContactDetails: async (req, res) => {
@@ -54,5 +55,21 @@ module.exports = {
       return responseFunctions._400(res, err.message)
     }
     return responseFunctions._200(res, data, 'Request sent successfully')
+  },
+  updatePictureRequest: async (req, res) => {
+    const { file, body } = req
+    const { id: requestId } = req.params
+    const dataToUpdate = {
+      ...body
+    }
+    if (file) {
+      dataToUpdate['imageUrl'] = file.location
+      dataToUpdate['isViewed'] = false
+    }
+    const [err, data] = await to(userService.updatePictureRequest(requestId, dataToUpdate))
+    if (err) {
+      return responseFunctions._400(res, err.message)
+    }
+    return responseFunctions._200(res, data, 'Request updated successfully')
   },
 }
