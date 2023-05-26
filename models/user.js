@@ -25,6 +25,13 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'blockedUserId',
       })
 
+      User.hasMany(models.SavedProfile, {
+        foreignKey: 'userId',
+      })
+
+      User.hasMany(models.SavedProfile, {
+        foreignKey: 'savedUserId',
+      })
     }
   }
   User.init(

@@ -98,4 +98,30 @@ module.exports = {
     await db.SavedProfile.destroy({ where: { userId, savedUserId } })
     return false
   },
+  getMySavedProfiles: async (userId) => {
+    return db.SavedProfile.findAll({
+      where: { userId },
+      include: {
+        model: db.User,
+        as: 'savedUser',
+        attributes: ['id', 'email', 'username', 'language', 'createdAt'],
+        include: {
+          model: db.Profile
+        }
+      }
+    })
+  },
+  getUsersWhoSavedMyProfile: async (userId) => {
+    return db.SavedProfile.findAll({
+      where: { savedUserId: userId },
+      include: {
+        model: db.User,
+        as: 'user',
+        attributes: ['id', 'email', 'username', 'language', 'createdAt'],
+        include: {
+          model: db.Profile
+        }
+      }
+    })
+  },
 }

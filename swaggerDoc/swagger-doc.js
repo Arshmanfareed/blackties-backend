@@ -22,6 +22,8 @@ const options = {
     './routes/v1/auth.js',
     './routes/v1/profile.js',
     './routes/v1/user.js',
+    './routes/v1/purchase.js',
+    './routes/v1/dashboard.js',
   ],
 }
 

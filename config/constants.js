@@ -20,5 +20,9 @@ module.exports = {
     ACCEPTED: 'ACCEPTED',
     REJECTED: 'REJECTED'
   },
+  paymentType: {
+    PURCHASE: 'PURCHASE',
+    SUBSCRIPTION: 'SUBSCRIPTION',
+  },
   apiPrefix: '/dev/mahaba/api/v1',
 }
