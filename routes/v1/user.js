@@ -165,7 +165,7 @@ router.post('/:id/request/picture', auth, userController.requestPicture)
 
 /**
  * @swagger
- * /user/request/{id}/accept:
+ * /user/request/{id}:
  *   post:
  *     summary: Accept picture request and upload a picture, Reject picture request, view a photo send by user to updated isViewed key
  *     consumes:
@@ -174,6 +174,21 @@ router.post('/:id/request/picture', auth, userController.requestPicture)
  *      - application/json
  *     tags:
  *     - User
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               status:
+ *                 type: string
+ *               isViewed:
+ *                 type: boolean
+ *               media:  # Part 3 (an image)
+ *                 type: string
+ *                 required: true
+ *                 format: binary
  *     parameters:
  *     - name: x-auth-token
  *       in: header
