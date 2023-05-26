@@ -59,6 +59,13 @@ module.exports = {
   updatePictureRequest: async (req, res) => {
     const { file, body } = req
     const { id: requestId } = req.params
+    const { error } = userValidations.validateUpdatePictureRequest(body)
+    if (error) {
+      return responseFunctions._400(res, error.details[0].message)
+    }
+    if(body?.status === requestStatus.ACCEPTED && !file){
+      return responseFunctions._400(res, 'Image is required.')
+    }
     const dataToUpdate = {
       ...body
     }
