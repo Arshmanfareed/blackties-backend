@@ -209,4 +209,40 @@ router.post('/:id/request/picture', auth, userController.requestPicture)
  */
 router.post('/request/:id', auth, uploadUserMedia.single('media'), userController.updatePictureRequest)
 
+/**
+ * @swagger
+ * /user/notification:
+ *   get:
+ *     summary: Get list of notifications
+ *     consumes:
+ *      - application/json
+ *     produces:
+ *      - application/json
+ *     tags:
+ *     - User
+ *     parameters:
+ *     - name: x-auth-token
+ *       in: header
+ *       required: true
+ *       type: string
+ *       description: an authorization header
+ *     - name: limit
+ *       in: query
+ *       required: false
+ *       type: number
+ *       description: Limit
+ *     - name: offset
+ *       in: query
+ *       required: false
+ *       type: number
+ *       description: Offset
+ *     operationId: getUserNotifications
+ *     deprecated: false
+ *     responses:
+ *       '200':
+ *         description: ''
+ *         headers: {}
+ */
+router.get('/notification', auth, userController.getUserNotifications)
+
 module.exports = router

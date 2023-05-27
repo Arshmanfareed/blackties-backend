@@ -79,4 +79,13 @@ module.exports = {
     }
     return responseFunctions._200(res, data, 'Request updated successfully')
   },
+  getUserNotifications: async (req, res) => {
+    const { id: userId } = req.user
+    const { limit, offset } = req.query
+    const [err, data] = await to(userService.getUserNotifications(userId, Number(limit || 10), Number(offset || 0)))
+    if (err) {
+      return responseFunctions._400(res, err.message)
+    }
+    return responseFunctions._200(res, data, 'Data fetched successfully')
+  },
 }
