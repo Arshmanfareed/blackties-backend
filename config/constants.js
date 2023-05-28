@@ -15,12 +15,14 @@ module.exports = {
     MALE: 'Male',
     FEMALE: 'Female',
   },
+  requestStatus: {
+    PENDING: 'PENDING',
+    ACCEPTED: 'ACCEPTED',
+    REJECTED: 'REJECTED'
+  },
   paymentType: {
     PURCHASE: 'PURCHASE',
     SUBSCRIPTION: 'SUBSCRIPTION',
-  },
-  products:{ 
-    MONTHLY: 'price_1N9279EA1vEYaFqSjHrRvXNv'
   },
   apiPrefix: '/dev/mahaba/api/v1',
 }
