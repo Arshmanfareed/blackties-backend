@@ -81,8 +81,8 @@ module.exports = {
   },
   getUserNotifications: async (req, res) => {
     const { id: userId } = req.user
-    const { limit, offset } = req.query
-    const [err, data] = await to(userService.getUserNotifications(userId, Number(limit || 10), Number(offset || 0)))
+    const { limit, offset, status } = req.query
+    const [err, data] = await to(userService.getUserNotifications(userId, Number(limit || 10), Number(offset || 0), status))
     if (err) {
       return responseFunctions._400(res, err.message)
     }

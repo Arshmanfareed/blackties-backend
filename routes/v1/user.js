@@ -236,6 +236,11 @@ router.post('/request/:id', auth, uploadUserMedia.single('media'), userControlle
  *       required: false
  *       type: number
  *       description: Offset
+ *     - name: status
+ *       in: query
+ *       required: false
+ *       type: number
+ *       description: status for getting all notifications and unread notifications (value can be all or unread)
  *     operationId: getUserNotifications
  *     deprecated: false
  *     responses:

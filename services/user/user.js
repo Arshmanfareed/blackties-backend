@@ -76,12 +76,15 @@ module.exports = {
     await db.Notification.create(notificationPayload)
     return true
   },
-  getUserNotifications: async (userId, limit, offset) => {
+  getUserNotifications: async (userId, limit, offset, queryStatus) => {
     return db.Notification.findAndCountAll({
       limit,
       offset,
-      where: { userId },
+      where: {
+        userId,
+        status: queryStatus === 'unread' ? 0 : [0, 1]
+      },
       attributes: ['id', 'resourceId', 'resourceType', 'description', 'status', 'createdAt']
     })
-  }
+  },
 }
