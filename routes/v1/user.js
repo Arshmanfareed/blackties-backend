@@ -110,7 +110,7 @@ router.post('/:id/unblock', auth, userController.unblockUser)
 /**
  * @swagger
  * /user/block-list:
- *   post:
+ *   get:
  *     summary: Get list of blocked users
  *     consumes:
  *      - application/json
@@ -130,7 +130,7 @@ router.post('/:id/unblock', auth, userController.unblockUser)
  *         description: ''
  *         headers: {}
  */
-router.post('/block-list', auth, userController.getListOfBlockedUsers)
+router.get('/block-list', auth, userController.getListOfBlockedUsers)
 
 /**
  * @swagger
