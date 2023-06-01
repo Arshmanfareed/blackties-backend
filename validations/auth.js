@@ -33,7 +33,7 @@ module.exports = {
   },
   validateCreateProfile: function (obj) {
     const schema = Joi.object({
-      sex: Joi.string().required().label('Sex').messages({
+      sex: Joi.string().required().label('Sex').valid('Male', 'Female').messages({
         'any.required': `{#label} is Required`,
       }),
       dateOfBirth: Joi.string().required().label('Date Of Birth').messages({

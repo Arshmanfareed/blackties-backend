@@ -38,6 +38,9 @@ module.exports = {
       language: {
         type: Sequelize.STRING(5),
       },
+      code: {
+        type: Sequelize.STRING(50),
+      },
       status: {
         allowNull: false,
         type: Sequelize.ENUM,

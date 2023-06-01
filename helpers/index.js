@@ -11,7 +11,19 @@ const helperFunctions = {
       Please click on this link to activate your account ${activationLink}
     `
     sendMail(email, "Email Verification Link", emailBody)
-  }
+  },
+  generateUserCode: async (sex) => {
+    const lastUser = await db.User.count({
+      include: {
+        model: db.Profile,
+        where: {
+          sex
+        },
+      },
+    })
+    const userCode = sex == 'Male' ? 'M' + (Number(lastUser + 1)) : 'F' + (Number(lastUser + 1));
+    return userCode
+  },
 }
 
 module.exports = helperFunctions
