@@ -33,10 +33,10 @@ module.exports = {
         type: Sequelize.STRING(50)
       },
       message: {
-        type: Sequelize.INTEGER(300)
+        type: Sequelize.STRING(300)
       },
       status: {
-        type: Sequelize.INTEGER(1)
+        type: Sequelize.STRING(20)
       },
       createdAt: {
         allowNull: false,

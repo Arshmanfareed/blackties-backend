@@ -21,5 +21,16 @@ module.exports = {
     })
     return schema.validate(obj, { allowUnknown: true })
   },
+  validateRequestContactDetails: function (obj) {
+    const schema = Joi.object({
+      name: Joi.string().min(3).max(30).label('name').required().messages({
+        'any.required': `{#label} is Required`,
+      }),
+      message: Joi.string().min(3).max(100).label('message').required().messages({
+        'any.required': `{#label} is Required`,
+      }),
+    })
+    return schema.validate(obj, { allowUnknown: true })
+  },
 }
 

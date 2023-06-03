@@ -2,7 +2,46 @@ const { requestStatus } = require('../../config/constants')
 const db = require('../../models')
 
 module.exports = {
-  requestContactDetails: async (requesterUserId, requesteeUserId) => {
+  requestContactDetails: async (requesterUserId, requesteeUserId, body) => {
+    /*
+      You will not be able to request the contact details of another user, unless you cancel the present request
+      You will need to wait at least 24 hours to be able to cancel this request
+    */
+    const alreadyRequested = await db.ContactDetailsRequest.findOne({
+      where: {
+        requesterUserId,
+        // requesteeUserId,
+        status: ['PENDING', 'ACCEPTED'],
+      }
+    })
+    if (alreadyRequested) {
+      throw new Error('Request already exist.')
+    }
+    const { name, message } = body
+    const request = await db.ContactDetailsRequest.create({
+      requesterUserId,
+      requesteeUserId,
+      name,
+      message,
+      status: 'PENDING',
+    })
+    // generate notification
+    return request
+  },
+  respondToContactDetailsRequest: async () => {
+    /*
+      either accept or reject  
+    */
+    const { name, personToContact, nameOfContact, phoneNo, message, status } = body
+
+    // if accept a match is created between these two users
+    /*
+      Are you sure you want to match with this user?
+      Note: All other pending incoming requests will be cancelled
+    */
+    
+    // generate notification
+
     return false
   },
   blockUser: async (blockerUserId, blockedUserId, reason) => {

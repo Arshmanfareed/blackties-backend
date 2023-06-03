@@ -14,6 +14,19 @@ const { uploadUserMedia } = require('../../utils/file-upload')
  *      - application/json
  *     tags:
  *     - User
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - name
+ *             properties:
+ *               name:
+ *                 type: string
+ *               message:
+ *                 type: string
  *     parameters:
  *     - name: x-auth-token
  *       in: header
