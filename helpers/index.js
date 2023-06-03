@@ -24,6 +24,20 @@ const helperFunctions = {
     const userCode = sex == 'Male' ? 'M' + (Number(lastUser + 1)) : 'F' + (Number(lastUser + 1));
     return userCode
   },
+  createMatchIfNotExist: async (requesterUserId, requesteeUserId, t) => {
+    const matchExist = await db.Match.findOne({
+      where: {
+        [Op.or]: [
+          { userId: requesterUserId, otherUserId: requesteeUserId }, // either match b/w user1 or user2
+          { userId: requesteeUserId, otherUserId: requesterUserId } // or match b/w user2 or user1 
+        ]
+      }
+    })
+    if (!matchExist) {
+      await db.Match.create({ userId: requesterUserId, otherUserId: requesteeUserId, status: true }, { transaction: t })
+    }
+    return true
+  },
 }
 
 module.exports = helperFunctions

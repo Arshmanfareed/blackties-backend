@@ -1,4 +1,5 @@
 const { requestStatus } = require('../../config/constants')
+const helperFunctions = require('../../helpers')
 const db = require('../../models')
 
 module.exports = {
@@ -57,7 +58,8 @@ module.exports = {
         }, { transaction: t })
 
         // if accept a match is created between these two users
-        // await db.Match.create({},{transaction: t})
+        const { requesterUserId, requesteeUserId } = contactDetailsRequest
+        await helperFunctions.createMatchIfNotExist(requesterUserId, requesteeUserId, t)
       } else { // rejected 
         requestUpdatePayload['status'] = requestStatus.REJECTED
       }
