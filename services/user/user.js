@@ -11,7 +11,7 @@ module.exports = {
       where: {
         requesterUserId,
         // requesteeUserId,
-        status: ['PENDING', 'ACCEPTED'],
+        status: [requestStatus.PENDING, requestStatus.ACCEPTED],
       }
     })
     if (alreadyRequested) {
@@ -23,26 +23,53 @@ module.exports = {
       requesteeUserId,
       name,
       message,
-      status: 'PENDING',
+      status: requestStatus.PENDING,
     })
     // generate notification
     return request
   },
-  respondToContactDetailsRequest: async () => {
-    /*
-      either accept or reject  
-    */
-    const { name, personToContact, nameOfContact, phoneNo, message, status } = body
-
-    // if accept a match is created between these two users
-    /*
+  respondToContactDetailsRequest: async (requestId, body) => {
+    const t = await db.sequelize.transaction()
+    try {
+      const contactDetailsRequest = await db.ContactDetailsRequest.findOne({ where: { id: requestId } })
+      if (contactDetailsRequest.status !== requestStatus.PENDING) {
+        throw new Error("You've already responded to this request")
+      }
+      /*
+        either accept or reject  
+      */
+      const { name, personToContact, nameOfContact, phoneNo, message, status } = body
+      /*
       Are you sure you want to match with this user?
       Note: All other pending incoming requests will be cancelled
-    */
-    
-    // generate notification
+      */
+      const requestUpdatePayload = {}
+      if (status === requestStatus.ACCEPTED) { // accepted
+        requestUpdatePayload['status'] = requestStatus.ACCEPTED
+        await db.ContactDetails.create({
+          contactDetailsRequestId: requestId,
+          name,
+          personToContact,
+          nameOfContact,
+          phoneNo,
+          message,
+          status: true
+        }, { transaction: t })
 
-    return false
+        // if accept a match is created between these two users
+        // await db.Match.create({},{transaction: t})
+      } else { // rejected 
+        requestUpdatePayload['status'] = requestStatus.REJECTED
+      }
+      await db.ContactDetailsRequest.update(requestUpdatePayload, { where: { id: requestId }, transaction: t })
+      // generate notification
+      await t.commit()
+      return true
+    } catch (error) {
+      console.log(error)
+      await t.rollback()
+      throw new Error(error.message)
+    }
   },
   blockUser: async (blockerUserId, blockedUserId, reason) => {
     const alreadyBlocked = await db.BlockedUser.findOne({ where: { blockerUserId, blockedUserId } })
