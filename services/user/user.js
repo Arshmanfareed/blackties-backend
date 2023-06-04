@@ -8,26 +8,51 @@ module.exports = {
       You will not be able to request the contact details of another user, unless you cancel the present request
       You will need to wait at least 24 hours to be able to cancel this request
     */
-    const alreadyRequested = await db.ContactDetailsRequest.findOne({
-      where: {
-        requesterUserId,
-        // requesteeUserId,
-        status: [requestStatus.PENDING, requestStatus.ACCEPTED],
+    try {
+      const t = await db.sequelize.transaction()
+      const { requesterName, requesterMessage, name, personToContact, nameOfContact, phoneNo, message, isFromFemale } = body
+      const alreadyRequested = await db.ContactDetailsRequest.findOne({
+        where: {
+          requesterUserId,
+          // requesteeUserId,
+          status: [requestStatus.PENDING, requestStatus.ACCEPTED],
+        }
+      })
+      if (alreadyRequested) {
+        throw new Error('Request already exist.')
       }
-    })
-    if (alreadyRequested) {
-      throw new Error('Request already exist.')
+      const request = await db.ContactDetailsRequest.create({
+        requesterUserId,
+        requesteeUserId,
+        name: requesterName,
+        message: requesterMessage,
+        status: requestStatus.PENDING,
+      }, { transaction: t })
+      if (isFromFemale) {
+        /*
+          Please confirm you want to send your contact details of this user
+          Notes
+          Your contact details will not be shown to him unless he accepts your request.
+          You will not be able to send your contact details to another user, unless you cancel the present request.
+          You will need to wait at least 24 hours to be able to cancel this request.
+        */
+        await db.ContactDetails.create({
+          contactDetailsRequestId: request.id,
+          name,
+          personToContact,
+          nameOfContact,
+          phoneNo,
+          message,
+          status: false
+        }, { transaction: t })
+      }
+      // generate notification
+      await t.commit()
+      return request
+    } catch (error) {
+      await t.rollback()
+      throw new Error(error.message)
     }
-    const { name, message } = body
-    const request = await db.ContactDetailsRequest.create({
-      requesterUserId,
-      requesteeUserId,
-      name,
-      message,
-      status: requestStatus.PENDING,
-    })
-    // generate notification
-    return request
   },
   respondToContactDetailsRequest: async (requestId, body) => {
     const t = await db.sequelize.transaction()
@@ -39,26 +64,30 @@ module.exports = {
       /*
         either accept or reject  
       */
-      const { name, personToContact, nameOfContact, phoneNo, message, status } = body
+      const { name, personToContact, nameOfContact, phoneNo, message, status, isFemaleResponding } = body
       /*
-      Are you sure you want to match with this user?
-      Note: All other pending incoming requests will be cancelled
+        Are you sure you want to match with this user?
+        Note: All other pending incoming requests will be cancelled
       */
       const requestUpdatePayload = {}
       if (status === requestStatus.ACCEPTED) { // accepted
         requestUpdatePayload['status'] = requestStatus.ACCEPTED
-        await db.ContactDetails.create({
-          contactDetailsRequestId: requestId,
-          name,
-          personToContact,
-          nameOfContact,
-          phoneNo,
-          message,
-          status: true
-        }, { transaction: t })
-
+        if (isFemaleResponding) {
+          await db.ContactDetails.create({
+            contactDetailsRequestId: requestId,
+            name,
+            personToContact,
+            nameOfContact,
+            phoneNo,
+            message,
+            status: true
+          }, { transaction: t })
+        }
         // if accept a match is created between these two users
         const { requesterUserId, requesteeUserId } = contactDetailsRequest
+        if (!isFemaleResponding) {
+          await db.ContactDetails.update({ status: true }, { where: { contactDetailsRequestId: requestId } })
+        }
         await helperFunctions.createMatchIfNotExist(requesterUserId, requesteeUserId, t)
       } else { // rejected 
         requestUpdatePayload['status'] = requestStatus.REJECTED

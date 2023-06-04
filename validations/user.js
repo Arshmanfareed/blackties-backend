@@ -23,10 +23,28 @@ module.exports = {
   },
   validateRequestContactDetails: function (obj) {
     const schema = Joi.object({
-      name: Joi.string().min(3).max(30).label('name').required().messages({
+      requesterName: Joi.string().min(3).max(30).allow(null, '', 'null').label('requesterName').required().messages({
         'any.required': `{#label} is Required`,
       }),
-      message: Joi.string().min(3).max(100).label('message').required().messages({
+      requesterMessage: Joi.string().min(3).max(100).allow(null, '', 'null').label('requesterMessage').required().messages({
+        'any.required': `{#label} is Required`,
+      }),
+      name: Joi.string().min(3).max(30).label('name').allow(null, '', 'null').required().messages({
+        'any.required': `{#label} is Required`,
+      }),
+      personToContact: Joi.string().min(3).max(30).allow(null, '', 'null').label('Person To Contact').required().messages({
+        'any.required': `{#label} is Required`,
+      }),
+      nameOfContact: Joi.string().min(3).max(30).allow(null, '', 'null').label('Name Of Contact').required().messages({
+        'any.required': `{#label} is Required`,
+      }),
+      phoneNo: Joi.string().min(3).max(30).allow(null, '', 'null').label('phoneNo').required().messages({
+        'any.required': `{#label} is Required`,
+      }),
+      message: Joi.string().min(3).max(100).allow(null, '', 'null').label('message').required().messages({
+        'any.required': `{#label} is Required`,
+      }),
+      isFromFemale: Joi.boolean().label('isFromFemale').required().messages({
         'any.required': `{#label} is Required`,
       }),
     })
@@ -34,22 +52,25 @@ module.exports = {
   },
   validateRespondToRequestContactDetails: function (obj) {
     const schema = Joi.object({
-      name: Joi.string().min(3).max(30).label('name').required().messages({
+      name: Joi.string().min(3).max(30).label('name').allow(null, '', 'null').required().messages({
         'any.required': `{#label} is Required`,
       }),
-      personToContact: Joi.string().min(3).max(30).label('Person To Contact').required().messages({
+      personToContact: Joi.string().min(3).max(30).allow(null, '', 'null').label('Person To Contact').required().messages({
         'any.required': `{#label} is Required`,
       }),
-      nameOfContact: Joi.string().min(3).max(30).label('Name Of Contact').required().messages({
+      nameOfContact: Joi.string().min(3).max(30).allow(null, '', 'null').label('Name Of Contact').required().messages({
         'any.required': `{#label} is Required`,
       }),
-      phoneNo: Joi.string().min(3).max(30).label('phoneNo').required().messages({
+      phoneNo: Joi.string().min(3).max(30).allow(null, '', 'null').label('phoneNo').required().messages({
         'any.required': `{#label} is Required`,
       }),
       status: Joi.string().label('status').valid(requestStatus.ACCEPTED, requestStatus.REJECTED).required().messages({
         'any.required': `{#label} is Required`,
       }),
-      message: Joi.string().min(3).max(100).label('message').required().messages({
+      message: Joi.string().min(3).max(100).allow(null, '', 'null').label('message').required().messages({
+        'any.required': `{#label} is Required`,
+      }),
+      isFemaleResponding: Joi.boolean().label('isFromFemale').required().messages({
         'any.required': `{#label} is Required`,
       }),
     })

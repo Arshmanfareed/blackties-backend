@@ -23,10 +23,22 @@ const { uploadUserMedia } = require('../../utils/file-upload')
  *             required:
  *               - name
  *             properties:
+ *               requesterName:
+ *                 type: string
+ *               requesterMessage:
+ *                 type: string
  *               name:
  *                 type: string
  *               message:
  *                 type: string
+ *               personToContact:
+ *                 type: string
+ *               nameOfContact:
+ *                 type: string
+ *               phoneNo:
+ *                 type: string
+ *               isFromFemale:
+ *                 type: boolean
  *     parameters:
  *     - name: x-auth-token
  *       in: header
@@ -79,6 +91,8 @@ router.post('/:id/request/contact-details', auth, userController.requestContactD
  *                 type: string
  *               status:
  *                 type: string
+ *               isFemaleResponding:
+ *                 type: boolean
  *     parameters:
  *     - name: x-auth-token
  *       in: header
