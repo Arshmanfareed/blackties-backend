@@ -1,42 +1,41 @@
 'use strict';
-
+/** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('ContactDetailsRequests', {
+    await queryInterface.createTable('ContactDetails', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      requesterUserId: {
+      contactDetailsRequestId: {
         type: Sequelize.INTEGER,
         allowNull: false,
         onDelete: 'CASCADE',
         references: {
-          model: 'Users',
+          model: 'ContactDetailsRequests',
           key: 'id',
-          as: 'requesterUserId',
-        },
-      },
-      requesteeUserId: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-        onDelete: 'CASCADE',
-        references: {
-          model: 'Users',
-          key: 'id',
-          as: 'requesteeUserId',
+          as: 'contactDetailsRequestId',
         },
       },
       name: {
-        type: Sequelize.STRING(50)
+        type: Sequelize.STRING(30)
+      },
+      personToContact: {
+        type: Sequelize.STRING(20)
+      },
+      nameOfContact: {
+        type: Sequelize.STRING(30)
+      },
+      phoneNo: {
+        type: Sequelize.STRING(20)
       },
       message: {
-        type: Sequelize.STRING(300)
+        type: Sequelize.STRING(100)
       },
       status: {
-        type: Sequelize.STRING(20)
+        type: Sequelize.BOOLEAN
       },
       createdAt: {
         allowNull: false,
@@ -49,6 +48,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('ContactDetailsRequests');
+    await queryInterface.dropTable('ContactDetails');
   }
 };

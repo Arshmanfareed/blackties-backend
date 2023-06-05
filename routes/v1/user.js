@@ -14,6 +14,31 @@ const { uploadUserMedia } = require('../../utils/file-upload')
  *      - application/json
  *     tags:
  *     - User
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - name
+ *             properties:
+ *               requesterName:
+ *                 type: string
+ *               requesterMessage:
+ *                 type: string
+ *               name:
+ *                 type: string
+ *               message:
+ *                 type: string
+ *               personToContact:
+ *                 type: string
+ *               nameOfContact:
+ *                 type: string
+ *               phoneNo:
+ *                 type: string
+ *               isFromFemale:
+ *                 type: boolean
  *     parameters:
  *     - name: x-auth-token
  *       in: header
@@ -33,6 +58,60 @@ const { uploadUserMedia } = require('../../utils/file-upload')
  *         headers: {}
  */
 router.post('/:id/request/contact-details', auth, userController.requestContactDetails)
+
+/**
+ * @swagger
+ * /user/request/contact-details/{id}/respond:
+ *   post:
+ *     summary: Respond to the request of contact details (either accept or reject)
+ *     consumes:
+ *      - application/json
+ *     produces:
+ *      - application/json
+ *     tags:
+ *     - User
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - name
+ *             properties:
+ *               name:
+ *                 type: string
+ *               message:
+ *                 type: string
+ *               personToContact:
+ *                 type: string
+ *               nameOfContact:
+ *                 type: string
+ *               phoneNo:
+ *                 type: string
+ *               status:
+ *                 type: string
+ *               isFemaleResponding:
+ *                 type: boolean
+ *     parameters:
+ *     - name: x-auth-token
+ *       in: header
+ *       required: true
+ *       type: string
+ *       description: an authorization header
+ *     - name: id
+ *       in: path
+ *       required: true
+ *       type: string
+ *       description: Id of the request of contact details
+ *     operationId: respondToContactDetailsRequest
+ *     deprecated: false
+ *     responses:
+ *       '200':
+ *         description: ''
+ *         headers: {}
+ */
+router.post('/request/contact-details/:id/respond', auth, userController.respondToContactDetailsRequest)
 
 /**
  * @swagger

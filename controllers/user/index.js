@@ -8,11 +8,29 @@ module.exports = {
   requestContactDetails: async (req, res) => {
     const { id: requesteeUserId } = req.params
     const { id: requesterUserId } = req.user
-    const [err, data] = await to(userService.requestContactDetails(requesterUserId, requesteeUserId))
+    const { body } = req
+    const { error } = userValidations.validateRequestContactDetails(body)
+    if (error) {
+      return responseFunctions._400(res, error.details[0].message)
+    }
+    const [err, data] = await to(userService.requestContactDetails(requesterUserId, requesteeUserId, body))
     if (err) {
       return responseFunctions._400(res, err.message)
     }
     return responseFunctions._200(res, data, 'Request sent successfully')
+  },
+  respondToContactDetailsRequest: async (req, res) => {
+    const { id: requestId } = req.params
+    const { body } = req
+    const { error } = userValidations.validateRespondToRequestContactDetails(body)
+    if (error) {
+      return responseFunctions._400(res, error.details[0].message)
+    }
+    const [err, data] = await to(userService.respondToContactDetailsRequest(requestId, body))
+    if (err) {
+      return responseFunctions._400(res, err.message)
+    }
+    return responseFunctions._200(res, data, 'Responded on request successfully')
   },
   blockUser: async (req, res) => {
     const { user, params, body } = req
@@ -63,7 +81,7 @@ module.exports = {
     if (error) {
       return responseFunctions._400(res, error.details[0].message)
     }
-    if(body?.status === requestStatus.ACCEPTED && !file){
+    if (body?.status === requestStatus.ACCEPTED && !file) {
       return responseFunctions._400(res, 'Image is required.')
     }
     const dataToUpdate = {

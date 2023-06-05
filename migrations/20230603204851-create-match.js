@@ -1,42 +1,36 @@
 'use strict';
-
+/** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('ContactDetailsRequests', {
+    await queryInterface.createTable('Matches', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      requesterUserId: {
+      userId: {
         type: Sequelize.INTEGER,
         allowNull: false,
         onDelete: 'CASCADE',
         references: {
           model: 'Users',
           key: 'id',
-          as: 'requesterUserId',
+          as: 'userId',
         },
       },
-      requesteeUserId: {
+      otherUserId: {
         type: Sequelize.INTEGER,
         allowNull: false,
         onDelete: 'CASCADE',
         references: {
           model: 'Users',
           key: 'id',
-          as: 'requesteeUserId',
+          as: 'otherUserId',
         },
-      },
-      name: {
-        type: Sequelize.STRING(50)
-      },
-      message: {
-        type: Sequelize.STRING(300)
       },
       status: {
-        type: Sequelize.STRING(20)
+        type: Sequelize.BOOLEAN
       },
       createdAt: {
         allowNull: false,
@@ -49,6 +43,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('ContactDetailsRequests');
+    await queryInterface.dropTable('Matches');
   }
 };
