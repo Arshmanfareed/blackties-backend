@@ -32,6 +32,16 @@ module.exports = (sequelize, DataTypes) => {
       User.hasMany(models.SavedProfile, {
         foreignKey: 'savedUserId',
       })
+
+      User.hasMany(models.Match, {
+        as: 'user',
+        foreignKey: 'userId'
+      })
+
+      User.hasMany(models.Match, {
+        as: "otherUser",
+        foreignKey: 'otherUserId'
+      })
     }
   }
   User.init(

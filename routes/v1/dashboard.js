@@ -54,4 +54,31 @@ router.post('/my-request/saved-profiles', auth, profileController.getMySavedProf
  */
 router.post('/incoming-request/saved-profiles', auth, profileController.getUsersWhoSavedMyProfile)
 
+/**
+ * @swagger
+ * /dashboard/my-request/match:
+ *   post:
+ *     summary: Get profile that i have matched with
+ *     consumes:
+ *      - application/json
+ *     produces:
+ *      - application/json
+ *     parameters:
+ *     - name: x-auth-token
+ *       in: header
+ *       required: true
+ *       type: string
+ *       description: an authorization header
+ *     tags:
+ *     - Dashboard
+ *     operationId: getMyMatchesProfiles
+ *     deprecated: false
+ *     responses:
+ *       '200':
+ *         description: ''
+ *         headers: {}
+ */
+router.post('/my-request/match', auth, profileController.getMyMatchesProfiles)
+
+
 module.exports = router
