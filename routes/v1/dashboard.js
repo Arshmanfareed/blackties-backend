@@ -1,5 +1,5 @@
 const router = require('express').Router()
-const { profileController } = require('../../controllers')
+const { profileController, userController } = require('../../controllers')
 const auth = require('../../middlewares/auth')
 
 /**
@@ -80,5 +80,31 @@ router.post('/incoming-request/saved-profiles', auth, profileController.getUsers
  */
 router.post('/my-request/match', auth, profileController.getMyMatchesProfiles)
 
+
+/**
+ * @swagger
+ * /dashboard/my-request/contact-details:
+ *   post:
+ *     summary: Users who have been requested or sent contact details by user and who haven't rejected (if reject, user will not appear) (My Request tab)
+ *     consumes:
+ *      - application/json
+ *     produces:
+ *      - application/json
+ *     parameters:
+ *     - name: x-auth-token
+ *       in: header
+ *       required: true
+ *       type: string
+ *       description: an authorization header
+ *     tags:
+ *     - Dashboard
+ *     operationId: getMyRequestOfContactDetails
+ *     deprecated: false
+ *     responses:
+ *       '200':
+ *         description: ''
+ *         headers: {}
+ */
+router.post('/my-request/contact-details', auth, userController.getMyRequestOfContactDetails)
 
 module.exports = router

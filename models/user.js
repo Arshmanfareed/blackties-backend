@@ -42,6 +42,16 @@ module.exports = (sequelize, DataTypes) => {
         as: "otherUser",
         foreignKey: 'otherUserId'
       })
+
+      User.hasMany(models.ContactDetailsRequest, {
+        as: 'requesterUser',
+        foreignKey: 'requesterUserId'
+      })
+
+      User.hasMany(models.ContactDetailsRequest, {
+        as: "requesteeUser",
+        foreignKey: 'requesteeUserId'
+      })
     }
   }
   User.init(
