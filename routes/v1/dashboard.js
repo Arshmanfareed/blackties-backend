@@ -56,7 +56,7 @@ router.post('/incoming-request/saved-profiles', auth, profileController.getUsers
 
 /**
  * @swagger
- * /dashboard/my-request/match:
+ * /dashboard/match:
  *   post:
  *     summary: Get profile that i have matched with
  *     consumes:
@@ -78,7 +78,7 @@ router.post('/incoming-request/saved-profiles', auth, profileController.getUsers
  *         description: ''
  *         headers: {}
  */
-router.post('/my-request/match', auth, profileController.getMyMatchesProfiles)
+router.post('/match', auth, profileController.getMyMatchesProfiles)
 
 
 module.exports = router
