@@ -11,6 +11,15 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
+      ContactDetailsRequest.belongsTo(models.User, {
+        as: 'requesterUser',
+        foreignKey: 'requesterUserId'
+      })
+
+      ContactDetailsRequest.belongsTo(models.User, {
+        as: "requesteeUser",
+        foreignKey: 'requesteeUserId'
+      })
     }
   }
   ContactDetailsRequest.init({
@@ -18,7 +27,8 @@ module.exports = (sequelize, DataTypes) => {
     requesteeUserId: DataTypes.INTEGER,
     name: DataTypes.STRING,
     message: DataTypes.STRING,
-    status: DataTypes.STRING
+    status: DataTypes.STRING,
+    isFromFemale: DataTypes.BOOLEAN
   }, {
     sequelize,
     modelName: 'ContactDetailsRequest',

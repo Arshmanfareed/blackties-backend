@@ -124,4 +124,47 @@ module.exports = {
       }
     })
   },
+  getMyMatchesProfiles: async (userId) => {
+    let matchesProfiles = await db.Match.findAll({
+      where: {
+        [Op.or]: [
+          { userId },
+          { otherUserId: userId }
+        ]
+      },
+      include: [
+        {
+          model: db.User,
+          as: 'user',
+          attributes: ['id', 'username', 'email', 'createdAt', 'code'],
+          include: {
+            model: db.Profile
+          },
+        },
+        {
+          model: db.User,
+          as: 'otherUser',
+          attributes: ['id', 'username', 'email', 'createdAt', 'code'],
+          include: {
+            model: db.Profile
+          },
+        }
+      ]
+    })
+    matchesProfiles = JSON.parse(JSON.stringify(matchesProfiles))
+    matchesProfiles = matchesProfiles.map(match => {
+      if (match.userId === userId) {
+        return {
+          id: match.id,
+          user: match.otherUser
+        };
+      } else {
+        return {
+          id: match.id,
+          user: match.user
+        };
+      }
+    })
+    return matchesProfiles
+  },
 }
