@@ -12,8 +12,8 @@ module.exports = {
     UNVERIFIED: 'UNVERIFIED',
   },
   gender: {
-    MALE: 'Male',
-    FEMALE: 'Female',
+    MALE: 'male',
+    FEMALE: 'female',
   },
   requestStatus: {
     PENDING: 'PENDING',
