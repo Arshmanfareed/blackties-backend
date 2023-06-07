@@ -2,6 +2,7 @@ const { sequelize } = require('../models')
 const db = require('../models')
 const { Op, Sequelize, QueryTypes } = require('sequelize')
 const sendMail = require('../utils/send-mail')
+const { gender } = require('../config/constants')
 
 const helperFunctions = {
   sendAccountActivationLink: async (email, userId, activationCode) => {
@@ -21,7 +22,7 @@ const helperFunctions = {
         },
       },
     })
-    const userCode = sex == 'Male' ? 'M' + (Number(lastUser + 1)) : 'F' + (Number(lastUser + 1));
+    const userCode = sex == gender.MALE ? 'M' + (Number(lastUser + 1)) : 'F' + (Number(lastUser + 1));
     return userCode
   },
   createMatchIfNotExist: async (requesterUserId, requesteeUserId, t) => {

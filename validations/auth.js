@@ -1,4 +1,5 @@
 const Joi = require('joi')
+const { gender } = require('../config/constants')
 
 module.exports = {
   validateVerifyCode: function (obj) {
@@ -33,7 +34,7 @@ module.exports = {
   },
   validateCreateProfile: function (obj) {
     const schema = Joi.object({
-      sex: Joi.string().required().label('Sex').valid('Male', 'Female').messages({
+      sex: Joi.string().required().label('Sex').valid(gender.MALE, gender.FEMALE).messages({
         'any.required': `{#label} is Required`,
       }),
       dateOfBirth: Joi.string().required().label('Date Of Birth').messages({
