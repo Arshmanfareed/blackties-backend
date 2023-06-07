@@ -1,4 +1,4 @@
-const { requestStatus } = require('../../config/constants')
+const { requestStatus, gender } = require('../../config/constants')
 const helperFunctions = require('../../helpers')
 const db = require('../../models')
 const { Op } = require('sequelize')
@@ -28,6 +28,7 @@ module.exports = {
         name: requesterName,
         message: requesterMessage,
         status: requestStatus.PENDING,
+        isFromFemale,
       }, { transaction: t })
       if (isFromFemale) {
         /*
@@ -205,19 +206,24 @@ module.exports = {
     })
   },
   getIncomingRequestOfContactDetails: async (userId) => {
+    const user = await db.User.findOne({ where: { id: userId }, include: { model: db.Profile } })
+    const whereFilter = {
+      requesteeUserId: userId,
+      status: {
+        [Op.ne]: requestStatus.REJECTED
+      },
+    }
+    if (user.Profile.sex == gender.FEMALE) {
+      whereFilter['isFromFemale'] = false
+    } else {
+      whereFilter['isFromFemale'] = true
+    }
     return db.ContactDetailsRequest.findAll({
       attributes: ['id', 'status', 'requesterUserId', 'requesteeUserId'],
-      where: {
-        requesteeUserId: userId,
-        name: null,
-        message: null,
-        status: {
-          [Op.ne]: requestStatus.REJECTED
-        },
-      },
+      where: whereFilter,
       include: {
         model: db.User,
-        as: 'requesteeUser',
+        as: 'requesterUser',
         attributes: ['id', 'email', 'username', 'code'],
         include: {
           model: db.Profile

@@ -27,7 +27,8 @@ module.exports = (sequelize, DataTypes) => {
     requesteeUserId: DataTypes.INTEGER,
     name: DataTypes.STRING,
     message: DataTypes.STRING,
-    status: DataTypes.STRING
+    status: DataTypes.STRING,
+    isFromFemale: DataTypes.BOOLEAN
   }, {
     sequelize,
     modelName: 'ContactDetailsRequest',

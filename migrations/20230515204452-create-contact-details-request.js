@@ -38,6 +38,9 @@ module.exports = {
       status: {
         type: Sequelize.STRING(20)
       },
+      isFromFemale: {
+        type: Sequelize.BOOLEAN
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE
