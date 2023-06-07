@@ -204,4 +204,25 @@ module.exports = {
       }
     })
   },
+  getIncomingRequestOfContactDetails: async (userId) => {
+    return db.ContactDetailsRequest.findAll({
+      attributes: ['id', 'status', 'requesterUserId', 'requesteeUserId'],
+      where: {
+        requesteeUserId: userId,
+        name: null,
+        message: null,
+        status: {
+          [Op.ne]: requestStatus.REJECTED
+        },
+      },
+      include: {
+        model: db.User,
+        as: 'requesteeUser',
+        attributes: ['id', 'email', 'username', 'code'],
+        include: {
+          model: db.Profile
+        }
+      }
+    })
+  },
 }

@@ -80,7 +80,6 @@ router.post('/incoming-request/saved-profiles', auth, profileController.getUsers
  */
 router.post('/my-request/match', auth, profileController.getMyMatchesProfiles)
 
-
 /**
  * @swagger
  * /dashboard/my-request/contact-details:
@@ -106,5 +105,31 @@ router.post('/my-request/match', auth, profileController.getMyMatchesProfiles)
  *         headers: {}
  */
 router.post('/my-request/contact-details', auth, userController.getMyRequestOfContactDetails)
+
+/**
+ * @swagger
+ * /dashboard/incoming-request/contact-details:
+ *   post:
+ *     summary: Users who sent me their contact details (Incoming Request tab)
+ *     consumes:
+ *      - application/json
+ *     produces:
+ *      - application/json
+ *     parameters:
+ *     - name: x-auth-token
+ *       in: header
+ *       required: true
+ *       type: string
+ *       description: an authorization header
+ *     tags:
+ *     - Dashboard
+ *     operationId: getIncomingRequestOfContactDetails
+ *     deprecated: false
+ *     responses:
+ *       '200':
+ *         description: ''
+ *         headers: {}
+ */
+router.post('/incoming-request/contact-details', auth, userController.getIncomingRequestOfContactDetails)
 
 module.exports = router
