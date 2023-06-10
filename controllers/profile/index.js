@@ -5,7 +5,8 @@ const responseFunctions = require('../../utils/responses')
 module.exports = {
   listAllProfiles: async (req, res) => {
     const { body } = req
-    const [err, data] = await to(profileService.listAllProfiles(body))
+    const { limit, offset } = req.query
+    const [err, data] = await to(profileService.listAllProfiles(body, Number(limit || 10), Number(offset || 0)))
     if (err) {
       return responseFunctions._400(res, err.message)
     }
