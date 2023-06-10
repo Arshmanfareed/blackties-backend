@@ -42,6 +42,10 @@ module.exports = {
           model: db.UserLanguage,
           ...(language.length > 0 ? { where: { language } } : {}),
         },
+        {
+          model: db.UserSetting,
+          attributes: ['isPremium', 'membership']
+        },
       ],
       having: {
         'age': {
