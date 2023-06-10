@@ -70,7 +70,19 @@ module.exports = {
   },
   login: async (body) => {
     const { email, password } = body
-    let user = await db.User.findOne({ where: { email } })
+    let user = await db.User.findOne({
+      where: { email },
+      include: [
+        {
+          model: db.Wallet,
+          attributes: ['amount']
+        },
+        {
+          model: db.UserSetting,
+          attributes: ['isPremium', 'membership']
+        }
+      ]
+    })
     if (!user) {
       throw new Error('Incorrect email or password')
     }
@@ -78,9 +90,6 @@ module.exports = {
     if (!isCorrectPassword) {
       throw new Error('Incorrect email or password')
     }
-    // if (user.status === status.INACTIVE) {
-    //   throw new Error('Your account is inactive')
-    // }
     user = JSON.parse(JSON.stringify(user))
     delete user['password']
     const authToken = generateJWT(user)

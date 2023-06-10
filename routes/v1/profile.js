@@ -11,6 +11,17 @@ const auth = require('../../middlewares/auth')
  *      - application/json
  *     produces:
  *      - application/json
+ *     parameters:
+ *     - name: limit
+ *       in: query
+ *       required: false
+ *       type: number
+ *       description: Limit
+ *     - name: offset
+ *       in: query
+ *       required: false
+ *       type: number
+ *       description: Offset
  *     requestBody:
  *       required: true
  *       content:

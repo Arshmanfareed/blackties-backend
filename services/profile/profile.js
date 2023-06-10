@@ -1,9 +1,10 @@
 const db = require('../../models')
 const constants = require('../../config/constants')
 const { Op, where, Sequelize } = require('sequelize')
+const { getPaginatedResult } = require('../../utils/array-paginate')
 
 module.exports = {
-  listAllProfiles: async (body) => {
+  listAllProfiles: async (body, limit, offset) => {
     const today = new Date();
     const { gender, sortBy, sortOrder, age, nationality, country, city, height, weight, ethnicity, healthStatus, language, skinColor, religiosity, tribialAffiliation, education, financialStatus, maritalStatus } = body
     const whereFilterProfile = {
@@ -23,7 +24,7 @@ module.exports = {
     if (Object.values(constants.gender).includes(gender)) {
       whereFilterProfile['sex'] = gender
     }
-    return db.User.findAll({
+    const users = await db.User.findAll({
       attributes: [
         'id',
         'email',
@@ -41,6 +42,10 @@ module.exports = {
           model: db.UserLanguage,
           ...(language.length > 0 ? { where: { language } } : {}),
         },
+        {
+          model: db.UserSetting,
+          attributes: ['isPremium', 'membership']
+        },
       ],
       having: {
         'age': {
@@ -52,6 +57,8 @@ module.exports = {
         [sortBy, sortOrder]
       ]
     })
+    const paginatedRecords = getPaginatedResult(users, limit, offset)
+    return { count: users.length, rows: paginatedRecords }
   },
   getUserProfile: async (userId) => {
     return db.User.findOne({

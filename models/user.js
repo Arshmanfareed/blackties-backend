@@ -52,6 +52,14 @@ module.exports = (sequelize, DataTypes) => {
         as: "requesteeUser",
         foreignKey: 'requesteeUserId'
       })
+
+      User.hasOne(models.Wallet, {
+        foreignKey: 'userId',
+      })
+      
+      User.hasOne(models.UserSetting, {
+        foreignKey: 'userId',
+      })
     }
   }
   User.init(
