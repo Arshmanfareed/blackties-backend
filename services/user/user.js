@@ -231,4 +231,24 @@ module.exports = {
       }
     })
   },
+  usersWhoViewedMyPicture: async (userId) => {
+    return db.PictureRequest.findAll({
+      attributes: ['id', 'requesterUserId', 'requesteeUserId', 'isViewed'],
+      where: {
+        requesteeUserId: userId,
+        isViewed: true,
+        imageUrl: {
+          [Op.ne]: null,
+        }
+      },
+      include: {
+        model: db.User,
+        as: 'pictureRequesterUser',
+        attributes: ['id', 'username', 'code'],
+        include: {
+          model: db.Profile
+        },
+      },
+    })
+  },
 }

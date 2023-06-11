@@ -60,6 +60,16 @@ module.exports = (sequelize, DataTypes) => {
       User.hasOne(models.UserSetting, {
         foreignKey: 'userId',
       })
+
+      User.hasMany(models.PictureRequest, {
+        as: 'pictureRequesterUser',
+        foreignKey: 'requesterUserId'
+      })
+
+      User.hasMany(models.PictureRequest, {
+        as: "pictureRequesteeUser",
+        foreignKey: 'requesteeUserId'
+      })
     }
   }
   User.init(

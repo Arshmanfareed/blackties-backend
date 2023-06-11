@@ -11,6 +11,15 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
+      PictureRequest.belongsTo(models.User, {
+        as: 'pictureRequesterUser',
+        foreignKey: 'requesterUserId'
+      })
+
+      PictureRequest.belongsTo(models.User, {
+        as: "pictureRequesteeUser",
+        foreignKey: 'requesteeUserId'
+      })
     }
   }
   PictureRequest.init({

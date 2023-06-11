@@ -132,4 +132,30 @@ router.post('/my-request/contact-details', auth, userController.getMyRequestOfCo
  */
 router.post('/incoming-request/contact-details', auth, userController.getIncomingRequestOfContactDetails)
 
+/**
+ * @swagger
+ * /dashboard/incoming-request/picture/viewers:
+ *   post:
+ *     summary: Users who viewed my picture (Incoming Request tab)
+ *     consumes:
+ *      - application/json
+ *     produces:
+ *      - application/json
+ *     parameters:
+ *     - name: x-auth-token
+ *       in: header
+ *       required: true
+ *       type: string
+ *       description: an authorization header
+ *     tags:
+ *     - Dashboard
+ *     operationId: usersWhoViewedMyPicture
+ *     deprecated: false
+ *     responses:
+ *       '200':
+ *         description: ''
+ *         headers: {}
+ */
+router.post('/incoming-request/picture/viewers', auth, userController.usersWhoViewedMyPicture)
+
 module.exports = router
