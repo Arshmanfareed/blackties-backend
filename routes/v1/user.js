@@ -245,7 +245,7 @@ router.post('/:id/request/picture', auth, userController.requestPicture)
 /**
  * @swagger
  * /user/request/{id}:
- *   post:
+ *   patch:
  *     summary: Accept picture request and upload a picture, Reject picture request, view a photo send by user to updated isViewed key
  *     consumes:
  *      - application/json
@@ -286,7 +286,7 @@ router.post('/:id/request/picture', auth, userController.requestPicture)
  *         description: ''
  *         headers: {}
  */
-router.post('/request/:id', auth, uploadUserMedia.single('media'), userController.updatePictureRequest)
+router.patch('/request/:id', auth, uploadUserMedia.single('media'), userController.updatePictureRequest)
 
 /**
  * @swagger
