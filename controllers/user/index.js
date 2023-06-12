@@ -130,4 +130,20 @@ module.exports = {
     }
     return responseFunctions._200(res, data, 'Data fetched successfully')
   },
+  getUsersWhoRejectedMyProfile: async (req, res) => {
+    const { id: userId } = req.user
+    const [err, data] = await to(userService.getUsersWhoRejectedMyProfile(userId))
+    if (err) {
+      return responseFunctions._400(res, err.message)
+    }
+    return responseFunctions._200(res, data, 'Data fetched successfully')
+  },
+  getProfilesRejectedByMe: async (req, res) => {
+    const { id: userId } = req.user
+    const [err, data] = await to(userService.getProfilesRejectedByMe(userId))
+    if (err) {
+      return responseFunctions._400(res, err.message)
+    }
+    return responseFunctions._200(res, data, 'Data fetched successfully')
+  },
 }

@@ -158,4 +158,56 @@ router.get('/incoming-request/contact-details', auth, userController.getIncoming
  */
 router.get('/incoming-request/picture/viewers', auth, userController.usersWhoViewedMyPicture)
 
+/**
+ * @swagger
+ * /dashboard/my-request/rejected-profiles:
+ *   get:
+ *     summary: Users who rejected my profile (Incoming Request tab)
+ *     consumes:
+ *      - application/json
+ *     produces:
+ *      - application/json
+ *     parameters:
+ *     - name: x-auth-token
+ *       in: header
+ *       required: true
+ *       type: string
+ *       description: an authorization header
+ *     tags:
+ *     - Dashboard
+ *     operationId: getUsersWhoRejectedMyProfile
+ *     deprecated: false
+ *     responses:
+ *       '200':
+ *         description: ''
+ *         headers: {}
+ */
+router.get('/my-request/rejected-profiles', auth, userController.getUsersWhoRejectedMyProfile)
+
+/**
+ * @swagger
+ * /dashboard/incoming-request/rejected-profiles:
+ *   get:
+ *     summary: I rejected users profile (My Request tab)
+ *     consumes:
+ *      - application/json
+ *     produces:
+ *      - application/json
+ *     parameters:
+ *     - name: x-auth-token
+ *       in: header
+ *       required: true
+ *       type: string
+ *       description: an authorization header
+ *     tags:
+ *     - Dashboard
+ *     operationId: getProfilesRejectedByMe
+ *     deprecated: false
+ *     responses:
+ *       '200':
+ *         description: ''
+ *         headers: {}
+ */
+router.get('/incoming-request/rejected-profiles', auth, userController.getProfilesRejectedByMe)
+
 module.exports = router

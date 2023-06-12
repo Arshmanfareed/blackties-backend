@@ -251,4 +251,40 @@ module.exports = {
       },
     })
   },
+  getUsersWhoRejectedMyProfile: async (userId) => {
+    let rejectedContactDetails = await db.ContactDetailsRequest.findAll({
+      attributes: ['id', 'status', 'requesterUserId', 'requesteeUserId'],
+      where: {
+        requesterUserId: userId,
+        status: requestStatus.REJECTED,
+      },
+      include: {
+        model: db.User,
+        as: 'requesteeUser',
+        attributes: ['id', 'email', 'username', 'code'],
+        include: {
+          model: db.Profile
+        }
+      }
+    })
+    return rejectedContactDetails
+  },
+  getProfilesRejectedByMe: async (userId) => {
+    let rejectedContactDetails = await db.ContactDetailsRequest.findAll({
+      attributes: ['id', 'status', 'requesterUserId', 'requesteeUserId'],
+      where: {
+        requesteeUserId: userId,
+        status: requestStatus.REJECTED,
+      },
+      include: {
+        model: db.User,
+        as: 'requesterUser',
+        attributes: ['id', 'email', 'username', 'code'],
+        include: {
+          model: db.Profile
+        }
+      }
+    })
+    return rejectedContactDetails
+  },
 }
