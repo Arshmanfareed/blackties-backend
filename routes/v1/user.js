@@ -329,4 +329,35 @@ router.patch('/request/:id', auth, uploadUserMedia.single('media'), userControll
  */
 router.get('/notification', auth, userController.getUserNotifications)
 
+/**
+ * @swagger
+ * /user/{id}/cancel-match:
+ *   patch:
+ *     summary: Cancel a match
+ *     consumes:
+ *      - application/json
+ *     produces:
+ *      - application/json
+ *     tags:
+ *     - User
+ *     parameters:
+ *     - name: x-auth-token
+ *       in: header
+ *       required: true
+ *       type: string
+ *       description: an authorization header
+ *     - name: id
+ *       in: path
+ *       required: true
+ *       type: string
+ *       description: The ID of the user you are canceling the match with.
+ *     operationId: cancelMatch
+ *     deprecated: false
+ *     responses:
+ *       '200':
+ *         description: ''
+ *         headers: {}
+ */
+router.patch('/:id/cancel-match', auth, userController.cancelMatch)
+
 module.exports = router

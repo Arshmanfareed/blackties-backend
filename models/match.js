@@ -25,7 +25,11 @@ module.exports = (sequelize, DataTypes) => {
   Match.init({
     userId: DataTypes.INTEGER,
     otherUserId: DataTypes.INTEGER,
-    status: DataTypes.BOOLEAN
+    status: DataTypes.BOOLEAN,
+    isCancelled: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false
+    },
   }, {
     sequelize,
     modelName: 'Match',

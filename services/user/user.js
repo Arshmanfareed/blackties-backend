@@ -287,4 +287,24 @@ module.exports = {
     })
     return rejectedContactDetails
   },
+  cancelMatch: async (userId, otherUserId) => {
+    const matchExist = await db.Match.findOne({
+      where: {
+        [Op.or]: [
+          { userId, otherUserId, }, // either match b/w user1 or user2
+          { userId: otherUserId, otherUserId: userId }, // or match b/w user2 or user1 
+        ],
+        isCancelled: false
+      }
+    })
+    if (!matchExist) {
+      throw new Error('Match does not exist.')
+    }
+    await db.Match.update({ isCancelled: true }, {
+      where: {
+        id: matchExist.id
+      }
+    })
+    return true
+  },
 }

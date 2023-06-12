@@ -32,6 +32,9 @@ module.exports = {
       status: {
         type: Sequelize.BOOLEAN
       },
+      isCancelled: {
+        type: Sequelize.BOOLEAN
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE
