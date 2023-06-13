@@ -30,12 +30,15 @@ const helperFunctions = {
       where: {
         [Op.or]: [
           { userId: requesterUserId, otherUserId: requesteeUserId }, // either match b/w user1 or user2
-          { userId: requesteeUserId, otherUserId: requesterUserId } // or match b/w user2 or user1 
-        ]
+          { userId: requesteeUserId, otherUserId: requesterUserId }, // or match b/w user2 or user1
+        ],
+        // isCancelled: false
       }
     })
     if (!matchExist) {
       await db.Match.create({ userId: requesterUserId, otherUserId: requesteeUserId, status: true }, { transaction: t })
+    } else if (matchExist.isCancelled) {
+      await db.Match.update({ isCancelled: false, cancelledBy: null }, { where: { id: matchExist.id }, transaction: t })
     }
     return true
   },

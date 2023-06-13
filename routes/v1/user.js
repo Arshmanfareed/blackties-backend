@@ -245,7 +245,7 @@ router.post('/:id/request/picture', auth, userController.requestPicture)
 /**
  * @swagger
  * /user/request/{id}:
- *   post:
+ *   patch:
  *     summary: Accept picture request and upload a picture, Reject picture request, view a photo send by user to updated isViewed key
  *     consumes:
  *      - application/json
@@ -286,7 +286,7 @@ router.post('/:id/request/picture', auth, userController.requestPicture)
  *         description: ''
  *         headers: {}
  */
-router.post('/request/:id', auth, uploadUserMedia.single('media'), userController.updatePictureRequest)
+router.patch('/request/:id', auth, uploadUserMedia.single('media'), userController.updatePictureRequest)
 
 /**
  * @swagger
@@ -328,5 +328,36 @@ router.post('/request/:id', auth, uploadUserMedia.single('media'), userControlle
  *         headers: {}
  */
 router.get('/notification', auth, userController.getUserNotifications)
+
+/**
+ * @swagger
+ * /user/{id}/cancel-match:
+ *   patch:
+ *     summary: Cancel a match
+ *     consumes:
+ *      - application/json
+ *     produces:
+ *      - application/json
+ *     tags:
+ *     - User
+ *     parameters:
+ *     - name: x-auth-token
+ *       in: header
+ *       required: true
+ *       type: string
+ *       description: an authorization header
+ *     - name: id
+ *       in: path
+ *       required: true
+ *       type: string
+ *       description: The ID of the user you are canceling the match with.
+ *     operationId: cancelMatch
+ *     deprecated: false
+ *     responses:
+ *       '200':
+ *         description: ''
+ *         headers: {}
+ */
+router.patch('/:id/cancel-match', auth, userController.cancelMatch)
 
 module.exports = router
