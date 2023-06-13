@@ -9,17 +9,38 @@ module.exports = {
       You will not be able to request the contact details of another user, unless you cancel the present request
       You will need to wait at least 24 hours to be able to cancel this request
     */
+    const t = await db.sequelize.transaction()
     try {
-      const t = await db.sequelize.transaction()
       const { requesterName, requesterMessage, name, personToContact, nameOfContact, phoneNo, message, isFromFemale } = body
+      // check wheteher requesterUserId have cancelled the match with requesteeUserId before
+      const matchCancelled = await db.Match.findOne({
+        where: {
+          [Op.or]: [
+            { userId: requesterUserId, otherUserId: requesteeUserId, }, // either match b/w user1 or user2
+            { userId: requesteeUserId, otherUserId: requesterUserId }, // or match b/w user2 or user1 
+          ],
+          isCancelled: true,
+          // cancelledBy: requesteeUserId
+        }
+      })
+      if (matchCancelled && matchCancelled.cancelledBy == requesteeUserId) {
+        throw new Error('This match has been cancelled, you cannot request contact details again.')
+      }
+
+      // check for already requested
       const alreadyRequested = await db.ContactDetailsRequest.findOne({
         where: {
           requesterUserId,
           // requesteeUserId,
           status: [requestStatus.PENDING, requestStatus.ACCEPTED],
-        }
+        },
+        order: [['id', 'DESC']],
       })
-      if (alreadyRequested) {
+      if (
+        alreadyRequested &&
+        (alreadyRequested.status == requestStatus.PENDING && matchCancelled ||
+          alreadyRequested.status == requestStatus.ACCEPTED && !matchCancelled)
+      ) {
         throw new Error('Request already exist.')
       }
       const request = await db.ContactDetailsRequest.create({
@@ -300,7 +321,7 @@ module.exports = {
     if (!matchExist) {
       throw new Error('Match does not exist.')
     }
-    await db.Match.update({ isCancelled: true }, {
+    await db.Match.update({ isCancelled: true, cancelledBy: userId }, {
       where: {
         id: matchExist.id
       }

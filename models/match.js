@@ -30,6 +30,7 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.BOOLEAN,
       defaultValue: false
     },
+    cancelledBy: DataTypes.INTEGER,
   }, {
     sequelize,
     modelName: 'Match',

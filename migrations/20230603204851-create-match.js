@@ -35,6 +35,16 @@ module.exports = {
       isCancelled: {
         type: Sequelize.BOOLEAN
       },
+      cancelledBy: {
+        type: Sequelize.INTEGER,
+        allowNull: true,
+        onDelete: 'CASCADE',
+        references: {
+          model: 'Users',
+          key: 'id',
+          as: 'cancelledBy',
+        },
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE
