@@ -81,7 +81,7 @@ module.exports = {
       password: Joi.string().min(8).max(50).required().label('Password').messages({
         'any.required': `{#label} is Required`,
       }),
-      language: Joi.string().required().label('Language').messages({
+      language: Joi.string().required().valid('en', 'ar').label('Language').messages({
         'any.required': `{#label} is Required`,
       }),
     })
