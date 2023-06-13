@@ -70,10 +70,10 @@ module.exports = {
       maritalStatus: Joi.string().required().label('Marital Status').messages({
         'any.required': `{#label} is Required`,
       }),
-      username: Joi.string().required().min(5).max(15).label('Username').messages({
+      username: Joi.string().required().min(4).max(16).label('Username').messages({
         'any.required': `{#label} is Required`,
-        'string.min': `{#label} must be between 5 - 15 char`,
-        'string.max': `{#label} must be between 5 - 15 char`,
+        'string.min': `{#label} must be between 4 - 16 char`,
+        'string.max': `{#label} must be between 4 - 16 char`,
       }),
       email: Joi.string().required().label('Email').messages({
         'any.required': `{#label} is Required`,
@@ -81,7 +81,7 @@ module.exports = {
       password: Joi.string().min(8).max(50).required().label('Password').messages({
         'any.required': `{#label} is Required`,
       }),
-      language: Joi.string().required().label('Language').messages({
+      language: Joi.string().required().valid('en', 'ar').label('Language').messages({
         'any.required': `{#label} is Required`,
       }),
     })
