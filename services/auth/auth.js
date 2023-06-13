@@ -47,9 +47,9 @@ module.exports = {
     try {
       const verificationCode = Math.floor(100000 + Math.random() * 900000)
       const { email, username, password, sex, dateOfBirth, height, weight, country, city, nationality, religiosity, education, skinColor, ethnicity, maritalStatus, language } = body
-      let userExistByEmailOrUsername = await db.User.findOne({ where: { [Op.or]: [{ email }, { username }] } })
-      if (userExistByEmailOrUsername) {
-        throw new Error("User already exist with this email or username")
+      let userExistByEmail = await db.User.findOne({ where: { email /* [Op.or]: [{ email }, { username }] */ } })
+      if (userExistByEmail) {
+        throw new Error("User already exist with this email")
       }
       const salt = await bcryptjs.genSalt(10);
       const hashedPassword = await bcryptjs.hash(password, salt)
