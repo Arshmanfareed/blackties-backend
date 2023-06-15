@@ -1,4 +1,4 @@
-const { requestStatus, gender } = require('../../config/constants')
+const { requestStatus, gender, notificationType } = require('../../config/constants')
 const helperFunctions = require('../../helpers')
 const db = require('../../models')
 const { Op } = require('sequelize')
@@ -12,6 +12,12 @@ module.exports = {
     const t = await db.sequelize.transaction()
     try {
       const { requesterName, requesterMessage, name, personToContact, nameOfContact, phoneNo, message, isFromFemale } = body
+      const notificationPayload = {
+        userId: requesteeUserId,
+        resourceId: requesterUserId,
+        resourceType: 'USER',
+        status: false
+      }
       // check wheteher requesterUserId have cancelled the match with requesteeUserId before
       const matchCancelled = await db.Match.findOne({
         where: {
@@ -68,8 +74,12 @@ module.exports = {
           message,
           status: false
         }, { transaction: t })
+        notificationPayload['notificationType'] = notificationType.CONTACT_DETAILS_SENT
+      } else {
+        notificationPayload['notificationType'] = notificationType.CONTACT_DETAILS_REQUEST
       }
       // generate notification
+      await db.Notification.create(notificationPayload, { transaction: t })
       await t.commit()
       return request
     } catch (error) {
@@ -93,6 +103,13 @@ module.exports = {
         Note: All other pending incoming requests will be cancelled
       */
       const requestUpdatePayload = {}
+      const { requesterUserId, requesteeUserId } = contactDetailsRequest
+      const notificationPayload = {
+        userId: requesterUserId,
+        resourceId: requesteeUserId,
+        resourceType: 'USER',
+        status: false
+      }
       if (status === requestStatus.ACCEPTED) { // accepted
         requestUpdatePayload['status'] = requestStatus.ACCEPTED
         if (isFemaleResponding) {
@@ -107,16 +124,20 @@ module.exports = {
           }, { transaction: t })
         }
         // if accept a match is created between these two users
-        const { requesterUserId, requesteeUserId } = contactDetailsRequest
         if (!isFemaleResponding) {
           await db.ContactDetails.update({ status: true }, { where: { contactDetailsRequestId: requestId } })
         }
         await helperFunctions.createMatchIfNotExist(requesterUserId, requesteeUserId, t)
+        // generate notification of match
+        notificationPayload['notificationType'] = notificationType.MATCH_CREATED
+        await db.Notification.create(notificationPayload, { transaction: t })
       } else { // rejected 
         requestUpdatePayload['status'] = requestStatus.REJECTED
+        notificationPayload['notificationType'] = contactDetailsRequest.isFromFemale ? notificationType.CONTACT_DETAILS_SENT_REJECTED : notificationType.CONTACT_DETAILS_REQUEST_REJECTED
+        // generate notification of reject
+        await db.Notification.create(notificationPayload, { transaction: t })
       }
       await db.ContactDetailsRequest.update(requestUpdatePayload, { where: { id: requestId }, transaction: t })
-      // generate notification
       await t.commit()
       return true
     } catch (error) {
@@ -157,18 +178,17 @@ module.exports = {
         throw new Error("you've already requested picture to this user.")
       }
       // create picture request
-      await db.PictureRequest.create({ requesterUserId, requesteeUserId, status: requestStatus.PENDING }, { transaction: t })
-      const requesterUser = await db.User.findOne({ where: { id: requesterUserId } })
+      const pictureRequest = await db.PictureRequest.create({ requesterUserId, requesteeUserId, status: requestStatus.PENDING }, { transaction: t })
       // create notification and notifiy other user about request
       await db.Notification.create({
         userId: requesteeUserId,
         resourceId: requesterUserId,
         resourceType: 'USER',
-        description: `${requesterUser.username} has requested your picture`,
+        notificationType: notificationType.PICTURE_REQUEST,
         status: 0
       }, { transaction: t })
       await t.commit()
-      return true
+      return pictureRequest
     } catch (error) {
       await t.rollback()
       throw new Error(error.message)
@@ -186,9 +206,9 @@ module.exports = {
       status: 0
     }
     if (dataToUpdate?.status === requestStatus.ACCEPTED) {
-      notificationPayload['description'] = `${requesteeUser.username} has sent you their picture`
+      notificationPayload['notificationType'] = notificationType.PICTURE_SENT
     } else if (dataToUpdate?.status === requestStatus.REJECTED) {
-      notificationPayload['description'] = `${requesteeUser.username} has declined your picture request`
+      notificationPayload['notificationType'] = notificationType.PICTURE_REQUEST_REJECTED
     } else {
       return true
     }
@@ -204,7 +224,7 @@ module.exports = {
         userId,
         status: queryStatus === 'unread' ? 0 : [0, 1]
       },
-      attributes: ['id', 'resourceId', 'resourceType', 'description', 'status', 'createdAt']
+      attributes: ['id', 'resourceId', 'resourceType', 'notificationType', 'status', 'createdAt']
     })
   },
   getMyRequestOfContactDetails: async (userId) => {
@@ -325,6 +345,13 @@ module.exports = {
       where: {
         id: matchExist.id
       }
+    })
+    await db.Notification.create({
+      userId: otherUserId,
+      resourceId: userId,
+      resourceType: 'USER',
+      notificationType: notificationType.MATCH_CANCELLED,
+      status: false,
     })
     return true
   },
