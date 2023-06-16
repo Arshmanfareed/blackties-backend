@@ -25,6 +25,9 @@ module.exports = {
       resourceType: {
         type: Sequelize.STRING(50)
       },
+      notificationType: {
+        type: Sequelize.STRING(100)
+      },
       description: {
         type: Sequelize.STRING(300)
       },

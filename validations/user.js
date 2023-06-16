@@ -76,5 +76,16 @@ module.exports = {
     })
     return schema.validate(obj, { allowUnknown: true })
   },
+  validateUpdateNotification: function (obj) {
+    const schema = Joi.object({
+      id: Joi.array().required().items(Joi.number()).min(1).label('id').messages({
+        'any.required': `{#label} is Required`,
+      }),
+      status: Joi.boolean().required().label('status').messages({
+        'any.required': `{#label} is Required`,
+      }),
+    })
+    return schema.validate(obj, { allowUnknown: true })
+  },
 }
 

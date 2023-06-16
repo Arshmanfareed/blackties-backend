@@ -18,6 +18,7 @@ module.exports = (sequelize, DataTypes) => {
     resourceId: DataTypes.INTEGER,
     resourceType: DataTypes.STRING,
     description: DataTypes.STRING,
+    notificationType: DataTypes.STRING,
     status: DataTypes.INTEGER
   }, {
     sequelize,

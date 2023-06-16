@@ -319,7 +319,7 @@ router.patch('/request/:id', auth, uploadUserMedia.single('media'), userControll
  *       in: query
  *       required: false
  *       type: number
- *       description: status for getting all notifications and unread notifications (value can be all or unread)
+ *       description: status for getting read or unread or all notifications (0 is for unread, 1 is for read, leave empty for getting all notifications)
  *     operationId: getUserNotifications
  *     deprecated: false
  *     responses:
@@ -328,6 +328,48 @@ router.patch('/request/:id', auth, uploadUserMedia.single('media'), userControll
  *         headers: {}
  */
 router.get('/notification', auth, userController.getUserNotifications)
+
+/**
+ * @swagger
+ * /user/notification:
+ *   patch:
+ *     summary: Mark notification as read or unread
+ *     consumes:
+ *      - application/json
+ *     produces:
+ *      - application/json
+ *     tags:
+ *     - User
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - id
+ *               - status
+ *             properties:
+ *               status:
+ *                 type: number 
+ *               id:
+ *                 type: array 
+ *                 items:
+ *                   type: integer
+ *     parameters:
+ *     - name: x-auth-token
+ *       in: header
+ *       required: true
+ *       type: string
+ *       description: an authorization header
+ *     operationId: markNotificationAsReadOrUnread
+ *     deprecated: false
+ *     responses:
+ *       '200':
+ *         description: ''
+ *         headers: {}
+ */
+router.patch('/notification', auth, userController.markNotificationAsReadOrUnread)
 
 /**
  * @swagger
