@@ -155,4 +155,17 @@ module.exports = {
     }
     return responseFunctions._200(res, data, 'Data fetched successfully')
   },
+  markNotificationAsReadOrUnread: async (req, res) => {
+    const { body } = req
+    const { id: notificationIds, status } = body
+    const { error } = userValidations.validateUpdateNotification(body)
+    if (error) {
+      return responseFunctions._400(res, error.details[0].message)
+    }
+    const [err, data] = await to(userService.markNotificationAsReadOrUnread(notificationIds, status))
+    if (err) {
+      return responseFunctions._400(res, err.message)
+    }
+    return responseFunctions._200(res, data, 'Data fetched successfully')
+  },
 }

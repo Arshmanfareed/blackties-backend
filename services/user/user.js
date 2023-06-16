@@ -222,7 +222,7 @@ module.exports = {
       offset,
       where: {
         userId,
-        status: queryStatus === 'unread' ? 0 : [0, 1]
+        status: queryStatus || [0, 1],
       },
       attributes: ['id', 'resourceId', 'resourceType', 'notificationType', 'status', 'createdAt']
     })
@@ -354,5 +354,10 @@ module.exports = {
       status: false,
     })
     return true
+  },
+  markNotificationAsReadOrUnread: async (notificationIds, status) => {
+    return db.Notification.update({ status }, {
+      where: { id: notificationIds }
+    })
   },
 }
