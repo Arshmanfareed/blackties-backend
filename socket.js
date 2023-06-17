@@ -27,8 +27,7 @@ module.exports = (server) => {
     const { id: userId } = socket.user
     console.log("new connection on socket => ", socket.id, " with userId => ", socket.user.id);
     if (userId) { // updating socket id of user in db whenever a user connects with socket
-      // await db.User.update({ socketId: socket.id }, { where: { id: userId } })
-      // onlineUsers[userId] = socket.id
+      await db.User.update({ socketId: socket.id }, { where: { id: userId } })
       // broadcasting to all users that a new user is online
       io.emit('is-online', { recipientId: userId, isOnline: true });
       onlineUsers[userId] = { isOnline: true, socketId: socket.id, lastSeen: new Date() }
@@ -63,9 +62,9 @@ module.exports = (server) => {
         const userId = socket.user.id
         console.log("*********** socket disconnected => ", socket.id, " == userId => ", userId);
         onlineUsers[userId] = { isOnline: false, socketId: null, lastSeen: new Date() }
-        // await db.User.update({ socketId: null }, { where: { id: userId } })
         io.emit('is-online', { recipientId: userId, isOnline: false, lastSeen: new Date() });
-        // await db.UserSetting.update({ lastSeen: new Date() }, { where: { userId } })
+        await db.User.update({ socketId: null }, { where: { id: userId } })
+        await db.UserSetting.update({ lastSeen: new Date() }, { where: { userId } })
       } catch (error) {
         printErrorLog('disconnect', error.message)
       }

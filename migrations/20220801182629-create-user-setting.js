@@ -36,6 +36,9 @@ module.exports = {
       language: {
         type: Sequelize.STRING(30)
       },
+      lastSeen: {
+        type: Sequelize.DATE
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE
