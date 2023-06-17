@@ -1,6 +1,7 @@
 const db = require("./models")
 const onlineUsers = {}
 const socketAuth = require("./middlewares/socketAuth")
+let io;
 
 function printEventWithData(event, data) { // temp function for debugging, will remove later
   console.log(`event: ${event} with data => ${JSON.stringify(data)}`)
@@ -10,9 +11,9 @@ function printErrorLog(event, error) { // temp function for debugging, will remo
   console.log(`Error in event: ${event} => ${error}`)
 }
 
-module.exports = (server) => {
+function socketInit(server) {
   console.log("Inside socket file....");
-  const io = require("socket.io")(server, {
+  io = require("socket.io")(server, {
     cors: {
       origin: process.env.CORS_ORIGIN,
       methods: ["GET", "POST"]
@@ -71,4 +72,15 @@ module.exports = (server) => {
     });
 
   })
+}
+
+
+// separate events that would be trigger from controller on certain actions
+function someTestEvent(data) {
+  io.emit('test-event', data);
+}
+
+module.exports = {
+  socketInit,
+  someTestEvent,
 }

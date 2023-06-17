@@ -16,7 +16,7 @@ const profileRoutes = require('./routes/v1/profile')
 const userRoutes = require('./routes/v1/user')
 const purchaseRoutes = require('./routes/v1/purchase')
 const dashboardRoutes = require('./routes/v1/dashboard')
-
+const { socketInit } = require('./socket')
 // require("./cron-job")
 
 app.use(cors({
@@ -72,4 +72,4 @@ if (process.env.NODE_ENV == 'development' || process.env.NODE_ENV == 'staging') 
     )
 }
 // connecting socket
-require('./socket')(server)
+socketInit(server)
