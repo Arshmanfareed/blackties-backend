@@ -34,6 +34,7 @@ module.exports = (sequelize, DataTypes) => {
       defaultValue: false,
     },
     membership: DataTypes.STRING,
+    lastSeen: DataTypes.DATE,
   }, {
     sequelize,
     modelName: 'UserSetting',

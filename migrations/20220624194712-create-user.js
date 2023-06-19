@@ -41,6 +41,9 @@ module.exports = {
       code: {
         type: Sequelize.STRING(50),
       },
+      socketId: {
+        type: Sequelize.STRING(50),
+      },
       status: {
         allowNull: false,
         type: Sequelize.ENUM,
