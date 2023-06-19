@@ -360,4 +360,17 @@ module.exports = {
       where: { id: notificationIds }
     })
   },
+  addSeenToUserProfile: async (viewerId, viewedId) => {
+    const [viewerUser, viewedUser] = await Promise.all([
+      db.Profile.findOne({ where: { userId: viewerId }, attributes: ['sex'] }),
+      db.Profile.findOne({ where: { userId: viewedId }, attributes: ['sex'] })
+    ]);
+    if (viewerUser?.sex === viewedUser?.sex) {
+      return false;
+    }
+    // update record if already exist
+    await db.UserSeen.destroy({ where: { viewerId, viewedId } }) // deleting prevoius seen to avoid unnecessary records
+    await db.UserSeen.create({ viewerId, viewedId })
+    return true
+  },
 }
