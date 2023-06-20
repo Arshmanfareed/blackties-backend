@@ -24,6 +24,10 @@ module.exports = {
     if (Object.values(constants.gender).includes(gender)) {
       whereFilterProfile['sex'] = gender
     }
+    let sortOrderQuery = [db.UserSetting, 'lastSeen', 'ASC'] // default sorting
+    if (sortBy != 'lastSeen') {
+      sortOrderQuery = [sortBy, sortOrder]
+    }
     const usernameQuery = username ? `%${username}%` : "%%";
     const users = await db.User.findAll({
       where: {
@@ -49,7 +53,7 @@ module.exports = {
         },
         {
           model: db.UserSetting,
-          attributes: ['isPremium', 'membership']
+          attributes: ['isPremium', 'membership', 'lastSeen']
         },
       ],
       having: {
@@ -59,7 +63,7 @@ module.exports = {
         }
       },
       order: [
-        [sortBy, sortOrder]
+        sortOrderQuery
       ]
     })
     const paginatedRecords = getPaginatedResult(users, limit, offset)
