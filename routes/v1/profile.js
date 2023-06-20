@@ -29,6 +29,10 @@ const auth = require('../../middlewares/auth')
  *           schema:
  *             type: object
  *             properties:
+ *               isGold:
+ *                 type: boolean
+ *               username:
+ *                 type: string
  *               gender:
  *                 type: string
  *               sortBy:

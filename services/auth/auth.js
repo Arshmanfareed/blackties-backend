@@ -1,5 +1,5 @@
 const db = require('../../models')
-const { roles, status } = require('../../config/constants')
+const { roles, status, membership } = require('../../config/constants')
 const moment = require('moment')
 const { Op } = require('sequelize')
 const bcryptjs = require("bcryptjs")
@@ -46,7 +46,7 @@ module.exports = {
     const t = await db.sequelize.transaction()
     try {
       const verificationCode = Math.floor(100000 + Math.random() * 900000)
-      const { email, username, password, sex, dateOfBirth, height, weight, country, city, nationality, religiosity, education, skinColor, ethnicity, maritalStatus, language } = body
+      const { email, username, password, sex, dateOfBirth, height, weight, country, city, nationality, religiosity, education, skinColor, ethnicity, maritalStatus, language, tribe } = body
       let userExistByEmail = await db.User.findOne({ where: { email /* [Op.or]: [{ email }, { username }] */ } })
       if (userExistByEmail) {
         throw new Error("User already exist with this email")
@@ -56,9 +56,9 @@ module.exports = {
       const userCode = await helpers.generateUserCode(sex)
       const userCreated = await db.User.create({ email, username, password: hashedPassword, status: status.UNVERIFIED, otp: verificationCode, otpExpiry: new Date(), language, code: userCode }, { transaction: t })
       const { id: userId } = userCreated
-      const profileCreated = await db.Profile.create({ userId, sex, dateOfBirth, height, weight, country, city, nationality, religiosity, education, skinColor, ethnicity, maritalStatus }, { transaction: t })
+      const profileCreated = await db.Profile.create({ userId, sex, dateOfBirth, height, weight, country, city, nationality, religiosity, education, skinColor, ethnicity, maritalStatus, tribe }, { transaction: t })
       await db.Wallet.create({ userId, amount: 0 }, { transaction: t })
-      await db.UserSetting.create({ userId, isNotificationEnabled: true, isPremium: false, membership: "REGULAR" }, { transaction: t })
+      await db.UserSetting.create({ userId, isNotificationEnabled: true, isPremium: false, membership: membership.REGULAR, lastSeen: new Date() }, { transaction: t })
       await t.commit()
       // send OTP or verification link
       helpers.sendAccountActivationLink(email, userCreated.id, verificationCode)
