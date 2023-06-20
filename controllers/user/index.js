@@ -177,4 +177,13 @@ module.exports = {
     }
     return responseFunctions._200(res, data, 'Seen added successfully')
   },
+  getUsersWhoSeenMyProfile: async (req, res) => {
+    const { id: userId } = req.user
+    const { limit, offset } = req.query
+    const [err, data] = await to(userService.getUsersWhoSeenMyProfile(userId, Number(limit || 10), Number(offset || 0)))
+    if (err) {
+      return responseFunctions._400(res, err.message)
+    }
+    return responseFunctions._200(res, data, 'Data fetched successfully')
+  },
 }

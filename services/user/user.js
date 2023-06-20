@@ -373,4 +373,20 @@ module.exports = {
     await db.UserSeen.create({ viewerId, viewedId })
     return true
   },
+  getUsersWhoSeenMyProfile: async (userId, limit, offset) => {
+    return db.UserSeen.findAndCountAll({
+      limit,
+      offset,
+      attributes: ['id', 'viewerId', 'viewedId', 'createdAt'],
+      where: { viewedId: userId },
+      include: {
+        model: db.User,
+        as: 'viewerUser',
+        attributes: ['id', 'email', 'username', 'code'],
+        include: {
+          model: db.Profile,
+        },
+      }
+    })
+  },
 }

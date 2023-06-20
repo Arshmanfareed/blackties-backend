@@ -210,4 +210,40 @@ router.get('/my-request/rejected-profiles', auth, userController.getUsersWhoReje
  */
 router.get('/incoming-request/rejected-profiles', auth, userController.getProfilesRejectedByMe)
 
+/**
+ * @swagger
+ * /dashboard/users-visit:
+ *   get:
+ *     summary: Get list of users who who visited my profile
+ *     consumes:
+ *      - application/json
+ *     produces:
+ *      - application/json
+ *     parameters:
+ *     - name: x-auth-token
+ *       in: header
+ *       required: true
+ *       type: string
+ *       description: an authorization header
+ *     - name: limit
+ *       in: query
+ *       required: false
+ *       type: number
+ *       description: Limit
+ *     - name: offset
+ *       in: query
+ *       required: false
+ *       type: number
+ *       description: Offset
+ *     tags:
+ *     - Dashboard
+ *     operationId: getUsersWhoSeenMyProfile
+ *     deprecated: false
+ *     responses:
+ *       '200':
+ *         description: ''
+ *         headers: {}
+ */
+router.get('/users-visit', auth, userController.getUsersWhoSeenMyProfile)
+
 module.exports = router
