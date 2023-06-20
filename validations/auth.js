@@ -70,6 +70,9 @@ module.exports = {
       maritalStatus: Joi.string().required().label('Marital Status').messages({
         'any.required': `{#label} is Required`,
       }),
+      tribe: Joi.string().required().allow(null).label('Tribe').messages({
+        'any.required': `{#label} is Required`,
+      }),
       username: Joi.string().required().min(4).max(16).label('Username').messages({
         'any.required': `{#label} is Required`,
         'string.min': `{#label} must be between 4 - 16 char`,
