@@ -35,5 +35,10 @@ module.exports = {
     MATCH_CREATED: 'MATCH_CREATED',
     MATCH_CANCELLED: 'MATCH_CANCELLED',
   },
+  membership: {
+    REGULAR: 'Regular',
+    GOLD: 'Gold',
+    SILVER: 'Silver',
+  },
   apiPrefix: '/dev/mahaba/api/v1',
 }

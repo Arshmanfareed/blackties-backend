@@ -6,7 +6,8 @@ const { getPaginatedResult } = require('../../utils/array-paginate')
 module.exports = {
   listAllProfiles: async (body, limit, offset) => {
     const today = new Date();
-    const { gender, sortBy, sortOrder, age, nationality, country, city, height, weight, ethnicity, healthStatus, language, skinColor, religiosity, tribialAffiliation, education, financialStatus, maritalStatus, username } = body
+    const { gender, sortBy, sortOrder, age, nationality, country, city, height, weight, ethnicity, healthStatus, language, skinColor, religiosity, tribialAffiliation, education, financialStatus, maritalStatus, username, isGold } = body
+    const { REGULAR, SILVER, GOLD } = constants.membership
     const whereFilterProfile = {
       height: { [Op.between]: [height[0], height[1]] },
       weight: { [Op.between]: [weight[0], weight[1]] },
@@ -53,7 +54,8 @@ module.exports = {
         },
         {
           model: db.UserSetting,
-          attributes: ['isPremium', 'membership', 'lastSeen']
+          attributes: ['isPremium', 'membership', 'lastSeen'],
+          where: { membership: isGold ? 'Gold' : [REGULAR, SILVER, GOLD] },
         },
       ],
       having: {

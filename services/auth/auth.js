@@ -1,5 +1,5 @@
 const db = require('../../models')
-const { roles, status } = require('../../config/constants')
+const { roles, status, membership } = require('../../config/constants')
 const moment = require('moment')
 const { Op } = require('sequelize')
 const bcryptjs = require("bcryptjs")
@@ -58,7 +58,7 @@ module.exports = {
       const { id: userId } = userCreated
       const profileCreated = await db.Profile.create({ userId, sex, dateOfBirth, height, weight, country, city, nationality, religiosity, education, skinColor, ethnicity, maritalStatus, tribe }, { transaction: t })
       await db.Wallet.create({ userId, amount: 0 }, { transaction: t })
-      await db.UserSetting.create({ userId, isNotificationEnabled: true, isPremium: false, membership: "REGULAR", lastSeen: new Date() }, { transaction: t })
+      await db.UserSetting.create({ userId, isNotificationEnabled: true, isPremium: false, membership: membership.REGULAR, lastSeen: new Date() }, { transaction: t })
       await t.commit()
       // send OTP or verification link
       helpers.sendAccountActivationLink(email, userCreated.id, verificationCode)
