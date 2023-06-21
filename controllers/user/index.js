@@ -168,4 +168,13 @@ module.exports = {
     }
     return responseFunctions._200(res, data, 'Data fetched successfully')
   },
+  requestExtraInfo: async (req, res) => {
+    const { id: userId } = req.user
+    const { id: otherUserId } = req.params
+    const [err, data] = await to(userService.requestExtraInfo(userId, otherUserId))
+    if (err) {
+      return responseFunctions._400(res, err.message)
+    }
+    return responseFunctions._200(res, data, 'Request sent successfully')
+  },
 }

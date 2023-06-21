@@ -360,4 +360,7 @@ module.exports = {
       where: { id: notificationIds }
     })
   },
+  requestExtraInfo: async (userId, otherUserId) => {
+    return 'requestExtraInfo'
+  },
 }

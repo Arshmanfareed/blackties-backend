@@ -402,4 +402,60 @@ router.patch('/notification', auth, userController.markNotificationAsReadOrUnrea
  */
 router.patch('/:id/cancel-match', auth, userController.cancelMatch)
 
+/**
+ * @swagger
+ * /user/{id}/request/extra-info:
+ *   post:
+ *     summary: Request Extra information from other user
+ *     consumes:
+ *      - application/json
+ *     produces:
+ *      - application/json
+ *     tags:
+ *     - User
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - name
+ *             properties:
+ *               requesterName:
+ *                 type: string
+ *               requesterMessage:
+ *                 type: string
+ *               name:
+ *                 type: string
+ *               message:
+ *                 type: string
+ *               personToContact:
+ *                 type: string
+ *               nameOfContact:
+ *                 type: string
+ *               phoneNo:
+ *                 type: string
+ *               isFromFemale:
+ *                 type: boolean
+ *     parameters:
+ *     - name: x-auth-token
+ *       in: header
+ *       required: true
+ *       type: string
+ *       description: an authorization header
+ *     - name: id
+ *       in: path
+ *       required: true
+ *       type: string
+ *       description: Id of the user to which you are requesting Extra information
+ *     operationId: requestExtraInfo
+ *     deprecated: false
+ *     responses:
+ *       '200':
+ *         description: ''
+ *         headers: {}
+ */
+router.post('/:id/request/extra-info', auth, userController.requestExtraInfo)
+
 module.exports = router
