@@ -41,6 +41,7 @@ module.exports = {
         'username',
         'status',
         'createdAt',
+        'code',
         [Sequelize.literal(`TIMESTAMPDIFF(YEAR, dateOfBirth, '${today.toISOString()}')`), 'age']
       ],
       include: [
