@@ -360,7 +360,34 @@ module.exports = {
       where: { id: notificationIds }
     })
   },
-  requestExtraInfo: async (userId, otherUserId) => {
-    return 'requestExtraInfo'
+  requestExtraInfo: async (requesterUserId, requesteeUserId, body) => {
+    const { questions } = body
+    let extraInfoRequest = await db.ExtraInfoRequest.findOne({
+      where: {
+        requesterUserId,
+        requesteeUserId
+      }
+    })
+    if (!extraInfoRequest) {
+      extraInfoRequest = await db.ExtraInfoRequest.create({
+        requesterUserId,
+        requesteeUserId,
+        status: requestStatus.PENDING
+      })
+    }
+    // create question
+    for (let question of questions) {
+      // create user asked question
+      const { categoryId, questionId } = question
+    }
+    // create notification
+    await db.Notification.create({
+      userId: requesteeUserId,
+      resourceId: requesterUserId,
+      resourceType: 'USER',
+      notificationType: notificationType.QUESTION_RECEIVED,
+      status: 0
+    }, { transaction: t })
+    return true
   },
 }
