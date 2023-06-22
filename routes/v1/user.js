@@ -419,25 +419,16 @@ router.patch('/:id/cancel-match', auth, userController.cancelMatch)
  *         application/json:
  *           schema:
  *             type: object
- *             required:
- *               - name
  *             properties:
- *               requesterName:
- *                 type: string
- *               requesterMessage:
- *                 type: string
- *               name:
- *                 type: string
- *               message:
- *                 type: string
- *               personToContact:
- *                 type: string
- *               nameOfContact:
- *                 type: string
- *               phoneNo:
- *                 type: string
- *               isFromFemale:
- *                 type: boolean
+ *               questions:
+ *                 type: array
+ *                 items:
+ *                   type: object
+ *                   properties:
+ *                     category:
+ *                       type: string
+ *                     question:
+ *                       type: string
  *     parameters:
  *     - name: x-auth-token
  *       in: header

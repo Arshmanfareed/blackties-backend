@@ -362,32 +362,51 @@ module.exports = {
   },
   requestExtraInfo: async (requesterUserId, requesteeUserId, body) => {
     const { questions } = body
-    let extraInfoRequest = await db.ExtraInfoRequest.findOne({
-      where: {
-        requesterUserId,
-        requesteeUserId
-      }
-    })
-    if (!extraInfoRequest) {
-      extraInfoRequest = await db.ExtraInfoRequest.create({
-        requesterUserId,
-        requesteeUserId,
-        status: requestStatus.PENDING
+    const t = await db.sequelize.transaction()
+    try {
+      let extraInfoRequest = await db.ExtraInfoRequest.findOne({
+        where: {
+          [Op.or]: [
+            { requesterUserId, requesteeUserId },
+            { requesterUserId: requesteeUserId, requesteeUserId: requesterUserId },
+          ],
+        }
       })
+      if (!extraInfoRequest) {
+        extraInfoRequest = await db.ExtraInfoRequest.create({
+          requesterUserId,
+          requesteeUserId,
+          status: requestStatus.PENDING
+        }, { transaction: t })
+      }
+      // create question
+      for (let questionObj of questions) {
+        // create user asked question
+        const { category, question } = questionObj
+        await db.UserQuestionAnswer.create({
+          extraInfoRequestId: extraInfoRequest.id,
+          askingUserId: requesterUserId,
+          askedUserId: requesteeUserId,
+          category,
+          question,
+          requesterUserId,
+          requesteeUserId,
+          status: false
+        }, { transaction: t })
+      }
+      // create notification
+      await db.Notification.create({
+        userId: requesteeUserId,
+        resourceId: requesterUserId,
+        resourceType: 'USER',
+        notificationType: notificationType.QUESTION_RECEIVED,
+        status: 0
+      }, { transaction: t })
+      await t.commit()
+      return true
+    } catch (error) {
+      await t.rollback()
+      throw new Error(error.message)
     }
-    // create question
-    for (let question of questions) {
-      // create user asked question
-      const { categoryId, questionId } = question
-    }
-    // create notification
-    await db.Notification.create({
-      userId: requesteeUserId,
-      resourceId: requesterUserId,
-      resourceType: 'USER',
-      notificationType: notificationType.QUESTION_RECEIVED,
-      status: 0
-    }, { transaction: t })
-    return true
   },
 }
