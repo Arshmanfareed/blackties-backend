@@ -178,4 +178,14 @@ module.exports = {
     }
     return responseFunctions._200(res, data, 'Request sent successfully')
   },
+  acceptOrRejectExtraInfoRequest: async (req, res) => {
+    const { body, user, params } = req
+    const { id: requestId } = params
+    const { status } = body
+    const [err, data] = await to(userService.acceptOrRejectExtraInfoRequest(requestId, status))
+    if (err) {
+      return responseFunctions._400(res, err.message)
+    }
+    return responseFunctions._200(res, data, 'Request responded successfully')
+  },
 }

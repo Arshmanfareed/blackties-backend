@@ -409,4 +409,29 @@ module.exports = {
       throw new Error(error.message)
     }
   },
+  acceptOrRejectExtraInfoRequest: async (requestId, status) => {
+    const { ACCEPTED, REJECTED } = requestStatus
+    const updateStatus = status === ACCEPTED ? ACCEPTED : REJECTED;
+    const t = await db.sequelize.transaction()
+    try {
+      await db.ExtraInfoRequest.update({ status: updateStatus }, { where: { id: requestId }, transaction: t })
+      const updatedRequest = await db.ExtraInfoRequest.findOne({ where: { id: requestId } })
+      if (status === REJECTED) { // notification for rejected request
+        await db.Notification.create({
+          userId: updatedRequest.requesterUserId,
+          resourceId: updatedRequest.requesteeUserId,
+          resourceType: 'USER',
+          notificationType: notificationType.EXTRA_INFO_REQUEST_REJECTED,
+          status: 0
+        }, { transaction: t })
+        // delete question associated to this request
+        await db.UserQuestionAnswer.destroy({ where: { extraInfoRequestId: requestId }, transaction: t })
+      }
+      await t.commit()
+      return true
+    } catch (error) {
+      await t.rollback()
+      throw new Error(error.message)
+    }
+  },
 }

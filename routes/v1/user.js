@@ -449,4 +449,45 @@ router.patch('/:id/cancel-match', auth, userController.cancelMatch)
  */
 router.post('/:id/request/extra-info', auth, userController.requestExtraInfo)
 
+// accept or reject extra info request
+/**
+ * @swagger
+ * /user/request/extra-info/{id}/accept-reject:
+ *   patch:
+ *     summary: Accept or reject extra info request
+ *     consumes:
+ *      - application/json
+ *     produces:
+ *      - application/json
+ *     tags:
+ *     - User
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               status:
+ *                 type: string
+ *     parameters:
+ *     - name: x-auth-token
+ *       in: header
+ *       required: true
+ *       type: string
+ *       description: an authorization header
+ *     - name: id
+ *       in: path
+ *       required: true
+ *       type: string
+ *       description: Id of the extra info request 
+ *     operationId: acceptOrRejectExtraInfoRequest
+ *     deprecated: false
+ *     responses:
+ *       '200':
+ *         description: ''
+ *         headers: {}
+ */
+router.patch('/request/extra-info/:id/accept-reject', auth, userController.acceptOrRejectExtraInfoRequest)
+
 module.exports = router
