@@ -441,4 +441,27 @@ module.exports = {
       throw new Error(error.message)
     }
   },
+  answerToQuestion: async (questionId, answer) => {
+    const t = await db.sequelize.transaction()
+    try {
+      await db.UserQuestionAnswer.update({
+        answer,
+        status: true
+      }, { where: { id: questionId }, transaction: t })
+      const updatedQuestion = await db.UserQuestionAnswer.findOne({ where: { id: questionId } })
+      // send notification
+      await db.Notification.create({
+        userId: updatedQuestion.askingUserId,
+        resourceId: updatedQuestion.askedUserId,
+        resourceType: 'USER',
+        notificationType: notificationType.QUESTION_ANSWERED,
+        status: 0
+      }, { transaction: t })
+      await t.commit()
+      return true
+    } catch (error) {
+      await t.rollback()
+      throw new Error(error.message)
+    }
+  },
 }

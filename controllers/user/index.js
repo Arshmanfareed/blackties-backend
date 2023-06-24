@@ -188,4 +188,18 @@ module.exports = {
     }
     return responseFunctions._200(res, data, 'Request responded successfully')
   },
+  answerToQuestion: async (req, res) => {
+    const { body, params } = req
+    const { id: questionId } = params
+    const { answer } = body
+    const { error } = userValidations.validateAnswerToQuestion(body)
+    if (error) {
+      return responseFunctions._400(res, error.details[0].message)
+    }
+    const [err, data] = await to(userService.answerToQuestion(questionId, answer))
+    if (err) {
+      return responseFunctions._400(res, err.message)
+    }
+    return responseFunctions._200(res, data, 'Answer submitted successfully')
+  },
 }
