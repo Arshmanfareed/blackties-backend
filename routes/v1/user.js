@@ -529,4 +529,35 @@ router.patch('/request/extra-info/:id/accept-reject', auth, userController.accep
  */
 router.post('/extra-info/question/:id/answer', auth, userController.answerToQuestion)
 
+/**
+ * @swagger
+ * /user/{id}/seen:
+ *   post:
+ *     summary: Add seen to user profile (Users who clicked on my card (User info popup opens) or Users who opened my User info page (through URL))
+ *     consumes:
+ *      - application/json
+ *     produces:
+ *      - application/json
+ *     tags:
+ *     - User
+ *     parameters:
+ *     - name: x-auth-token
+ *       in: header
+ *       required: true
+ *       type: string
+ *       description: an authorization header
+ *     - name: id
+ *       in: path
+ *       required: true
+ *       type: string
+ *       description: Id of the user whose profile you are currently viewing
+ *     operationId: addSeenToUserProfile
+ *     deprecated: false
+ *     responses:
+ *       '200':
+ *         description: ''
+ *         headers: {}
+ */
+router.post('/:id/seen', auth, userController.addSeenToUserProfile)
+
 module.exports = router
