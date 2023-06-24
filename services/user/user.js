@@ -370,9 +370,16 @@ module.exports = {
             { requesterUserId, requesteeUserId },
             { requesterUserId: requesteeUserId, requesteeUserId: requesterUserId },
           ],
-        }
+        },
+        order: [['id', 'DESC']]
       })
-      if (!extraInfoRequest) {
+      if (extraInfoRequest &&
+        extraInfoRequest.requesterUserId === requesterUserId &&
+        extraInfoRequest.status === requestStatus.REJECTED
+      ) {
+        throw new Error('your request was previously rejected.')
+      }
+      if (!extraInfoRequest || (extraInfoRequest && extraInfoRequest.status === requestStatus.REJECTED)) {
         extraInfoRequest = await db.ExtraInfoRequest.create({
           requesterUserId,
           requesteeUserId,
