@@ -168,6 +168,40 @@ module.exports = {
     }
     return responseFunctions._200(res, data, 'Data fetched successfully')
   },
+  requestExtraInfo: async (req, res) => {
+    const { body, user, params } = req
+    const { id: requesterUserId } = user
+    const { id: requesteeUserId } = params
+    const [err, data] = await to(userService.requestExtraInfo(requesterUserId, requesteeUserId, body))
+    if (err) {
+      return responseFunctions._400(res, err.message)
+    }
+    return responseFunctions._200(res, data, 'Request sent successfully')
+  },
+  acceptOrRejectExtraInfoRequest: async (req, res) => {
+    const { body, user, params } = req
+    const { id: requestId } = params
+    const { status } = body
+    const [err, data] = await to(userService.acceptOrRejectExtraInfoRequest(requestId, status))
+    if (err) {
+      return responseFunctions._400(res, err.message)
+    }
+    return responseFunctions._200(res, data, 'Request responded successfully')
+  },
+  answerToQuestion: async (req, res) => {
+    const { body, params } = req
+    const { id: questionId } = params
+    const { answer } = body
+    const { error } = userValidations.validateAnswerToQuestion(body)
+    if (error) {
+      return responseFunctions._400(res, error.details[0].message)
+    }
+    const [err, data] = await to(userService.answerToQuestion(questionId, answer))
+    if (err) {
+      return responseFunctions._400(res, err.message)
+    }
+    return responseFunctions._200(res, data, 'Answer submitted successfully')
+  },
   addSeenToUserProfile: async (req, res) => {
     const { id: viewerId } = req.user
     const { id: viewedId } = req.params

@@ -360,6 +360,110 @@ module.exports = {
       where: { id: notificationIds }
     })
   },
+  requestExtraInfo: async (requesterUserId, requesteeUserId, body) => {
+    const { questions } = body
+    const t = await db.sequelize.transaction()
+    try {
+      let extraInfoRequest = await db.ExtraInfoRequest.findOne({
+        where: {
+          [Op.or]: [
+            { requesterUserId, requesteeUserId },
+            { requesterUserId: requesteeUserId, requesteeUserId: requesterUserId },
+          ],
+        },
+        order: [['id', 'DESC']]
+      })
+      if (extraInfoRequest &&
+        extraInfoRequest.requesterUserId === requesterUserId &&
+        extraInfoRequest.status === requestStatus.REJECTED
+      ) {
+        throw new Error('your request was previously rejected.')
+      }
+      if (!extraInfoRequest || (extraInfoRequest && extraInfoRequest.status === requestStatus.REJECTED)) {
+        extraInfoRequest = await db.ExtraInfoRequest.create({
+          requesterUserId,
+          requesteeUserId,
+          status: requestStatus.PENDING
+        }, { transaction: t })
+      }
+      // create question
+      for (let questionObj of questions) {
+        // create user asked question
+        const { category, question } = questionObj
+        await db.UserQuestionAnswer.create({
+          extraInfoRequestId: extraInfoRequest.id,
+          askingUserId: requesterUserId,
+          askedUserId: requesteeUserId,
+          category,
+          question,
+          requesterUserId,
+          requesteeUserId,
+          status: false
+        }, { transaction: t })
+      }
+      // create notification
+      await db.Notification.create({
+        userId: requesteeUserId,
+        resourceId: requesterUserId,
+        resourceType: 'USER',
+        notificationType: notificationType.QUESTION_RECEIVED,
+        status: 0
+      }, { transaction: t })
+      await t.commit()
+      return true
+    } catch (error) {
+      await t.rollback()
+      throw new Error(error.message)
+    }
+  },
+  acceptOrRejectExtraInfoRequest: async (requestId, status) => {
+    const { ACCEPTED, REJECTED } = requestStatus
+    const updateStatus = status === ACCEPTED ? ACCEPTED : REJECTED;
+    const t = await db.sequelize.transaction()
+    try {
+      await db.ExtraInfoRequest.update({ status: updateStatus }, { where: { id: requestId }, transaction: t })
+      const updatedRequest = await db.ExtraInfoRequest.findOne({ where: { id: requestId } })
+      if (status === REJECTED) { // notification for rejected request
+        await db.Notification.create({
+          userId: updatedRequest.requesterUserId,
+          resourceId: updatedRequest.requesteeUserId,
+          resourceType: 'USER',
+          notificationType: notificationType.EXTRA_INFO_REQUEST_REJECTED,
+          status: 0
+        }, { transaction: t })
+        // delete question associated to this request
+        await db.UserQuestionAnswer.destroy({ where: { extraInfoRequestId: requestId }, transaction: t })
+      }
+      await t.commit()
+      return true
+    } catch (error) {
+      await t.rollback()
+      throw new Error(error.message)
+    }
+  },
+  answerToQuestion: async (questionId, answer) => {
+    const t = await db.sequelize.transaction()
+    try {
+      await db.UserQuestionAnswer.update({
+        answer,
+        status: true
+      }, { where: { id: questionId }, transaction: t })
+      const updatedQuestion = await db.UserQuestionAnswer.findOne({ where: { id: questionId } })
+      // send notification
+      await db.Notification.create({
+        userId: updatedQuestion.askingUserId,
+        resourceId: updatedQuestion.askedUserId,
+        resourceType: 'USER',
+        notificationType: notificationType.QUESTION_ANSWERED,
+        status: 0
+      }, { transaction: t })
+      await t.commit()
+      return true
+    } catch (error) {
+      await t.rollback()
+      throw new Error(error.message)
+    }
+  },
   addSeenToUserProfile: async (viewerId, viewedId) => {
     const [viewerUser, viewedUser] = await Promise.all([
       db.Profile.findOne({ where: { userId: viewerId }, attributes: ['sex'] }),

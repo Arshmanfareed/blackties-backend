@@ -87,5 +87,13 @@ module.exports = {
     })
     return schema.validate(obj, { allowUnknown: true })
   },
+  validateAnswerToQuestion: function (obj) {
+    const schema = Joi.object({
+      answer: Joi.string().min(3).max(100).label('answer').required().messages({
+        'any.required': `{#label} is Required`,
+      }),
+    })
+    return schema.validate(obj, { allowUnknown: true })
+  },
 }
 

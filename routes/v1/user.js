@@ -404,6 +404,133 @@ router.patch('/:id/cancel-match', auth, userController.cancelMatch)
 
 /**
  * @swagger
+ * /user/{id}/request/extra-info:
+ *   post:
+ *     summary: Request Extra information from other user
+ *     consumes:
+ *      - application/json
+ *     produces:
+ *      - application/json
+ *     tags:
+ *     - User
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               questions:
+ *                 type: array
+ *                 items:
+ *                   type: object
+ *                   properties:
+ *                     category:
+ *                       type: string
+ *                     question:
+ *                       type: string
+ *     parameters:
+ *     - name: x-auth-token
+ *       in: header
+ *       required: true
+ *       type: string
+ *       description: an authorization header
+ *     - name: id
+ *       in: path
+ *       required: true
+ *       type: string
+ *       description: Id of the user to which you are requesting Extra information
+ *     operationId: requestExtraInfo
+ *     deprecated: false
+ *     responses:
+ *       '200':
+ *         description: ''
+ *         headers: {}
+ */
+router.post('/:id/request/extra-info', auth, userController.requestExtraInfo)
+
+/**
+ * @swagger
+ * /user/request/extra-info/{id}/accept-reject:
+ *   patch:
+ *     summary: Accept or reject extra info request
+ *     consumes:
+ *      - application/json
+ *     produces:
+ *      - application/json
+ *     tags:
+ *     - User
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               status:
+ *                 type: string
+ *     parameters:
+ *     - name: x-auth-token
+ *       in: header
+ *       required: true
+ *       type: string
+ *       description: an authorization header
+ *     - name: id
+ *       in: path
+ *       required: true
+ *       type: string
+ *       description: Id of the extra info request 
+ *     operationId: acceptOrRejectExtraInfoRequest
+ *     deprecated: false
+ *     responses:
+ *       '200':
+ *         description: ''
+ *         headers: {}
+ */
+router.patch('/request/extra-info/:id/accept-reject', auth, userController.acceptOrRejectExtraInfoRequest)
+
+/**
+ * @swagger
+ * /user/extra-info/question/{id}/answer:
+ *   post:
+ *     summary: Answer to the question
+ *     consumes:
+ *      - application/json
+ *     produces:
+ *      - application/json
+ *     tags:
+ *     - User
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               answer:
+ *                 type: string
+ *     parameters:
+ *     - name: x-auth-token
+ *       in: header
+ *       required: true
+ *       type: string
+ *       description: an authorization header
+ *     - name: id
+ *       in: path
+ *       required: true
+ *       type: string
+ *       description: Id of the user asked question
+ *     operationId: answerToQuestion
+ *     deprecated: false
+ *     responses:
+ *       '200':
+ *         description: ''
+ *         headers: {}
+ */
+router.post('/extra-info/question/:id/answer', auth, userController.answerToQuestion)
+
+/**
+ * @swagger
  * /user/{id}/seen:
  *   post:
  *     summary: Add seen to user profile (Users who clicked on my card (User info popup opens) or Users who opened my User info page (through URL))
