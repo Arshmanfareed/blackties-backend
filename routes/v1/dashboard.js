@@ -272,4 +272,30 @@ router.get('/users-visit', auth, userController.getUsersWhoSeenMyProfile)
  */
 router.get('/my-request/more-info', auth, userController.getUsersIRequestedMoreInfoFrom)
 
+/**
+ * @swagger
+ * /dashboard/incoming-request/more-info:
+ *   get:
+ *     summary: Requested more information (Retrieve users for whom I have requested additional information.)
+ *     consumes:
+ *      - application/json
+ *     produces:
+ *      - application/json
+ *     parameters:
+ *     - name: x-auth-token
+ *       in: header
+ *       required: true
+ *       type: string
+ *       description: an authorization header
+ *     tags:
+ *     - Dashboard
+ *     operationId: getUsersWhoRequestedMoreInfoFromMe
+ *     deprecated: false
+ *     responses:
+ *       '200':
+ *         description: ''
+ *         headers: {}
+ */
+router.get('/incoming-request/more-info', auth, userController.getUsersWhoRequestedMoreInfoFromMe)
+
 module.exports = router

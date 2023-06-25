@@ -511,4 +511,22 @@ module.exports = {
       }
     })
   },
+  getUsersWhoRequestedMoreInfoFromMe: async (userId) => {
+    return db.ExtraInfoRequest.findAll({
+      where: {
+        requesteeUserId: userId,
+        status: {
+          [Op.ne]: requestStatus.REJECTED
+        },
+      },
+      include: {
+        model: db.User,
+        as: 'requesterUser',
+        attributes: ['id', 'email', 'username', 'code'],
+        include: {
+          model: db.Profile
+        }
+      }
+    })
+  },
 }
