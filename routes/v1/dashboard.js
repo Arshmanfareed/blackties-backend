@@ -246,4 +246,30 @@ router.get('/incoming-request/rejected-profiles', auth, userController.getProfil
  */
 router.get('/users-visit', auth, userController.getUsersWhoSeenMyProfile)
 
+/**
+ * @swagger
+ * /dashboard/my-request/more-info:
+ *   get:
+ *     summary: Requested more information (Retrieve users for whom I have requested additional information.)
+ *     consumes:
+ *      - application/json
+ *     produces:
+ *      - application/json
+ *     parameters:
+ *     - name: x-auth-token
+ *       in: header
+ *       required: true
+ *       type: string
+ *       description: an authorization header
+ *     tags:
+ *     - Dashboard
+ *     operationId: getUsersWhichIRequestedMoreInfo
+ *     deprecated: false
+ *     responses:
+ *       '200':
+ *         description: ''
+ *         headers: {}
+ */
+router.get('/my-request/more-info', auth, userController.getUsersIRequestedMoreInfoFrom)
+
 module.exports = router

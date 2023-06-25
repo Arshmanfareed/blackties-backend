@@ -78,6 +78,14 @@ module.exports = (sequelize, DataTypes) => {
       User.hasMany(models.UserSeen, {
         foreignKey: 'viewedId',
       })
+
+      User.hasMany(models.ExtraInfoRequest, {
+        foreignKey: 'requesterUserId',
+      })
+
+      User.hasMany(models.ExtraInfoRequest, {
+        foreignKey: 'requesteeUserId',
+      })
     }
   }
   User.init(

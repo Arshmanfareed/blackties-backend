@@ -220,4 +220,12 @@ module.exports = {
     }
     return responseFunctions._200(res, data, 'Data fetched successfully')
   },
+  getUsersIRequestedMoreInfoFrom: async (req, res) => {
+    const { id: userId } = req.user
+    const [err, data] = await to(userService.getUsersIRequestedMoreInfoFrom(userId))
+    if (err) {
+      return responseFunctions._400(res, err.message)
+    }
+    return responseFunctions._200(res, data, 'Data fetched successfully')
+  },
 }
