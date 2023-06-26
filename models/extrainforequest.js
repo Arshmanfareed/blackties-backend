@@ -11,6 +11,9 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
+      ExtraInfoRequest.hasMany(models.UserQuestionAnswer, {
+        foreignKey: 'extraInfoRequestId'
+      })
     }
   }
   ExtraInfoRequest.init({
