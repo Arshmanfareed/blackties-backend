@@ -14,6 +14,16 @@ module.exports = (sequelize, DataTypes) => {
       ExtraInfoRequest.hasMany(models.UserQuestionAnswer, {
         foreignKey: 'extraInfoRequestId'
       })
+
+      ExtraInfoRequest.belongsTo(models.User, {
+        foreignKey: 'requesterUserId',
+        as: 'requesterUser'
+      });
+
+      ExtraInfoRequest.belongsTo(models.User, {
+        foreignKey: 'requesteeUserId',
+        as: 'requesteeUser'
+      });
     }
   }
   ExtraInfoRequest.init({
