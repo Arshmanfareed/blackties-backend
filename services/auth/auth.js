@@ -80,7 +80,10 @@ module.exports = {
         {
           model: db.UserSetting,
           attributes: ['isPremium', 'membership']
-        }
+        },
+        {
+          model: db.Profile
+        },
       ]
     })
     if (!user) {
@@ -92,7 +95,10 @@ module.exports = {
     }
     user = JSON.parse(JSON.stringify(user))
     delete user['password']
-    const authToken = generateJWT(user)
+    const jwtPayload = { ...user }
+    delete jwtPayload['Profile']
+    delete jwtPayload['Wallet']
+    const authToken = generateJWT(jwtPayload)
     user['authToken'] = authToken
     return user
   },
