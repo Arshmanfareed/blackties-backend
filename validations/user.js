@@ -95,5 +95,16 @@ module.exports = {
     })
     return schema.validate(obj, { allowUnknown: true })
   },
+  validateUpdateUser: function (obj) {
+    const schema = Joi.object({
+      email: Joi.string().email().label('Email').messages({
+        'any.required': `{#label} is Required`,
+      }),
+      phoneNo: Joi.string().label('Phone No.').messages({
+        'any.required': `{#label} is Required`,
+      }),
+    })
+    return schema.validate(obj, { allowUnknown: false })
+  },
 }
 
