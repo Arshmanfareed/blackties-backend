@@ -20,6 +20,10 @@ module.exports = (sequelize, DataTypes) => {
         as: "requesteeUser",
         foreignKey: 'requesteeUserId'
       })
+
+      ContactDetailsRequest.hasOne(models.ContactDetails, {
+        foreignKey: 'contactDetailsRequestId'
+      })
     }
   }
   ContactDetailsRequest.init({

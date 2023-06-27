@@ -529,4 +529,14 @@ module.exports = {
       }
     })
   },
+  updateUser: async (userId, body) => {
+    const { email } = body
+    if (email) { // check if updating email not exist before or used by someone else
+      const userExist = await db.User.findOne({ where: { email } })
+      if (userExist && userExist.id !== userId) {
+        throw new Error('Email already exist.')
+      }
+    }
+    return db.User.update({ ...body }, { where: { id: userId } })
+  },
 }

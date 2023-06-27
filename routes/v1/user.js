@@ -560,4 +560,41 @@ router.post('/extra-info/question/:id/answer', auth, userController.answerToQues
  */
 router.post('/:id/seen', auth, userController.addSeenToUserProfile)
 
+/**
+ * @swagger
+ * /user:
+ *   patch:
+ *     summary: Update user email or phone no.
+ *     consumes:
+ *      - application/json
+ *     produces:
+ *      - application/json
+ *     tags:
+ *     - User
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *               phoneNo:
+ *                 type: string
+ *     parameters:
+ *     - name: x-auth-token
+ *       in: header
+ *       required: true
+ *       type: string
+ *       description: an authorization header
+ *     operationId: updateUser
+ *     deprecated: false
+ *     responses:
+ *       '200':
+ *         description: ''
+ *         headers: {}
+ */
+router.patch('/', auth, userController.updateUser)
+
 module.exports = router

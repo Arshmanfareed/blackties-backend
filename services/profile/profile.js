@@ -186,4 +186,46 @@ module.exports = {
     })
     return matchesProfiles
   },
+  getUserProfileWithDetails: async (loginUserId, otherUserId) => {
+    let user, extraInfoRequest, pictureRequest, contactDetailsRequest;
+    user = db.User.findOne({
+      where: { id: otherUserId },
+      attributes: ['id', 'username', 'email', 'code', 'createdAt'],
+      include: [
+        {
+          model: db.Profile
+        },
+        {
+          model: db.UserLanguage
+        },
+      ]
+    })
+    const requestsWhereClause = {
+      [Op.or]: [
+        { requesterUserId: loginUserId, requesteeUserId: otherUserId },
+        { requesterUserId: otherUserId, requesteeUserId: loginUserId },
+      ],
+    }
+    extraInfoRequest = db.ExtraInfoRequest.findOne({
+      where: requestsWhereClause,
+      include: {
+        model: db.UserQuestionAnswer
+      },
+      order: [['id', 'DESC']]
+    })
+    pictureRequest = db.PictureRequest.findOne({
+      where: requestsWhereClause,
+      order: [['id', 'DESC']]
+    })
+    contactDetailsRequest = db.ContactDetailsRequest.findOne({
+      where: requestsWhereClause,
+      order: [['id', 'DESC']],
+      include: {
+        model: db.ContactDetails
+      }
+    })
+    const promiseResolved = await Promise.all([user, extraInfoRequest, pictureRequest, contactDetailsRequest]);
+    [user, extraInfoRequest, pictureRequest, contactDetailsRequest] = promiseResolved
+    return { user, pictureRequest, extraInfoRequest, contactDetailsRequest }
+  },
 }

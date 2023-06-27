@@ -236,4 +236,17 @@ module.exports = {
     }
     return responseFunctions._200(res, data, 'Data fetched successfully')
   },
+  updateUser: async (req, res) => {
+    const { id: userId } = req.user
+    const { body } = req
+    const { error } = userValidations.validateUpdateUser(body)
+    if (error) {
+      return responseFunctions._400(res, error.details[0].message)
+    }
+    const [err, data] = await to(userService.updateUser(userId, body))
+    if (err) {
+      return responseFunctions._400(res, err.message)
+    }
+    return responseFunctions._200(res, data, 'Details updated successfully')
+  },
 }

@@ -56,7 +56,7 @@ module.exports = (sequelize, DataTypes) => {
       User.hasOne(models.Wallet, {
         foreignKey: 'userId',
       })
-      
+
       User.hasOne(models.UserSetting, {
         foreignKey: 'userId',
       })
@@ -92,6 +92,7 @@ module.exports = (sequelize, DataTypes) => {
     {
       role: DataTypes.INTEGER,
       email: DataTypes.STRING,
+      phoneNo: DataTypes.STRING,
       username: DataTypes.STRING,
       password: DataTypes.STRING,
       platform: DataTypes.STRING,
