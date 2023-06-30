@@ -69,7 +69,7 @@ module.exports = {
     }
   },
   login: async (body) => {
-    const { email, password } = body
+    const { email, password, fcmToken } = body
     let user = await db.User.findOne({
       where: { email },
       include: [
@@ -89,6 +89,10 @@ module.exports = {
     const isCorrectPassword = await bcryptjs.compare(password, user.password)
     if (!isCorrectPassword) {
       throw new Error('Incorrect email or password')
+    }
+    // update fcmToken in db
+    if (fcmToken) {
+      await db.User.update({ fcmToken }, { where: { id: user.id } })
     }
     user = JSON.parse(JSON.stringify(user))
     delete user['password']
