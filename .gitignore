@@ -4,4 +4,3 @@ nohup.out
 package-lock.json
 public/
 test.*
-firebase-service-account.json
