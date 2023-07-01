@@ -2,6 +2,7 @@ const { requestStatus, gender, notificationType } = require('../../config/consta
 const helperFunctions = require('../../helpers')
 const db = require('../../models')
 const { Op } = require('sequelize')
+const pushNotification = require('../../utils/push-notification')
 
 module.exports = {
   requestContactDetails: async (requesterUserId, requesteeUserId, body) => {
@@ -80,6 +81,9 @@ module.exports = {
       }
       // generate notification
       await db.Notification.create(notificationPayload, { transaction: t })
+      // push notification
+      const { fcmToken } = await db.User.findOne({ where: { id: notificationPayload.userId }, attributes: ['fcmToken'] })
+      pushNotification.sendNotificationSingle(fcmToken, notificationPayload.notificationType, notificationPayload.notificationType)
       await t.commit()
       return request
     } catch (error) {
@@ -131,6 +135,9 @@ module.exports = {
         // generate notification of match
         notificationPayload['notificationType'] = notificationType.MATCH_CREATED
         await db.Notification.create(notificationPayload, { transaction: t })
+        // push notification
+        const { fcmToken } = await db.User.findOne({ where: { id: notificationPayload.userId }, attributes: ['fcmToken'] })
+        pushNotification.sendNotificationSingle(fcmToken, notificationPayload.notificationType, notificationPayload.notificationType)
       } else { // rejected 
         requestUpdatePayload['status'] = requestStatus.REJECTED
         notificationPayload['notificationType'] = contactDetailsRequest.isFromFemale ? notificationType.CONTACT_DETAILS_SENT_REJECTED : notificationType.CONTACT_DETAILS_REQUEST_REJECTED
@@ -187,6 +194,9 @@ module.exports = {
         notificationType: notificationType.PICTURE_REQUEST,
         status: 0
       }, { transaction: t })
+      // push notification
+      const { fcmToken } = await db.User.findOne({ where: { id: requesteeUserId }, attributes: ['fcmToken'] })
+      pushNotification.sendNotificationSingle(fcmToken, notificationType.PICTURE_REQUEST, notificationType.PICTURE_REQUEST)
       await t.commit()
       return pictureRequest
     } catch (error) {
@@ -198,7 +208,6 @@ module.exports = {
     // update picture request
     await db.PictureRequest.update(dataToUpdate, { where: { id: requestId } })
     const updatedRequest = await db.PictureRequest.findOne({ where: { id: requestId } })
-    const requesteeUser = await db.User.findOne({ where: { id: updatedRequest.requesteeUserId } })
     const notificationPayload = {
       userId: updatedRequest.requesterUserId,
       resourceId: updatedRequest.requesteeUserId,
@@ -207,6 +216,9 @@ module.exports = {
     }
     if (dataToUpdate?.status === requestStatus.ACCEPTED) {
       notificationPayload['notificationType'] = notificationType.PICTURE_SENT
+      // push notification
+      const { fcmToken } = await db.User.findOne({ where: { id: notificationPayload.userId }, attributes: ['fcmToken'] })
+      pushNotification.sendNotificationSingle(fcmToken, notificationPayload.notificationType, notificationPayload.notificationType)
     } else if (dataToUpdate?.status === requestStatus.REJECTED) {
       notificationPayload['notificationType'] = notificationType.PICTURE_REQUEST_REJECTED
     } else {
@@ -353,6 +365,9 @@ module.exports = {
       notificationType: notificationType.MATCH_CANCELLED,
       status: false,
     })
+    // push notification
+    const { fcmToken } = await db.User.findOne({ where: { id: otherUserId }, attributes: ['fcmToken'] })
+    pushNotification.sendNotificationSingle(fcmToken, notificationType.MATCH_CANCELLED, notificationType.MATCH_CANCELLED)
     return true
   },
   markNotificationAsReadOrUnread: async (notificationIds, status) => {
@@ -409,6 +424,9 @@ module.exports = {
         notificationType: notificationType.QUESTION_RECEIVED,
         status: 0
       }, { transaction: t })
+      // push notification
+      const { fcmToken } = await db.User.findOne({ where: { id: requesteeUserId }, attributes: ['fcmToken'] })
+      pushNotification.sendNotificationSingle(fcmToken, notificationType.QUESTION_RECEIVED, notificationType.QUESTION_RECEIVED)
       await t.commit()
       return true
     } catch (error) {
@@ -457,6 +475,9 @@ module.exports = {
         notificationType: notificationType.QUESTION_ANSWERED,
         status: 0
       }, { transaction: t })
+      // push notification
+      const { fcmToken } = await db.User.findOne({ where: { id: updatedQuestion.askingUserId }, attributes: ['fcmToken'] })
+      pushNotification.sendNotificationSingle(fcmToken, notificationType.QUESTION_ANSWERED, notificationType.QUESTION_ANSWERED)
       await t.commit()
       return true
     } catch (error) {
