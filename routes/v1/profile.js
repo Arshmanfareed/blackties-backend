@@ -167,6 +167,8 @@ router.get('/me', auth, profileController.getMyProfile)
  *           schema:
  *             type: object
  *             properties:
+ *               username:
+ *                 type: string
  *               dateOfBirth:
  *                 type: string
  *                 format: date
