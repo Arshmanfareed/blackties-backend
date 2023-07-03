@@ -2,6 +2,7 @@ const db = require('../../models')
 const constants = require('../../config/constants')
 const { Op, where, Sequelize } = require('sequelize')
 const { getPaginatedResult } = require('../../utils/array-paginate')
+const helperFunctions = require('../../helpers')
 
 module.exports = {
   listAllProfiles: async (body, limit, offset) => {
@@ -73,22 +74,12 @@ module.exports = {
     return { count: users.length, rows: paginatedRecords }
   },
   getUserProfile: async (userId) => {
-    return db.User.findOne({
-      where: { id: userId },
-      include: [
-        {
-          model: db.Profile
-        },
-        {
-          model: db.UserLanguage
-        }
-      ]
-    })
+    return helperFunctions.getUserProfile(userId)
   },
   updateProfile: async (body, userId) => {
     const t = await db.sequelize.transaction()
     try {
-      const { userLanguages } = body
+      const { userLanguages, username } = body
       if (userLanguages) {
         await db.UserLanguage.destroy({ where: { userId } })
         if (userLanguages.length > 0) {
@@ -97,14 +88,18 @@ module.exports = {
         }
         delete body['language']
       }
+      if (username) {
+        await db.User.update({ username }, { where: { id: userId }, transaction: t })
+        delete body.username
+      }
       if (Object.keys(body).length > 0) {
         await db.Profile.update({ ...body }, { where: { userId }, transaction: t })
       }
       await t.commit()
-      return true
+      return helperFunctions.getUserProfile(userId)
     } catch (error) {
-      await t.rollback()
       console.log(error)
+      await t.rollback()
       return false
     }
   },
