@@ -143,6 +143,8 @@ router.get('/health-check', (req, res) => { return res.status(200).send({ succes
  *                 type: string
  *               password:
  *                 type: string
+ *               fcmToken:
+ *                 type: string
  *     tags:
  *     - Auth
  *     operationId: login
