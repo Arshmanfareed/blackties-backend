@@ -77,10 +77,19 @@ function socketInit(server) {
 
 // separate events that would be trigger from controller on certain actions
 function someTestEvent(data) {
-  io.emit('test-event', data);
+  io.emit('test-event', data)
+}
+
+function transmitDataOnRealtime(eventName, userId, data) {
+  const receiverUser = onlineUsers[userId]
+  if (receiverUser?.socketId) {
+    console.log(`emit: sending data to userId: ${userId} on event: ${eventName} with data: ${JSON.stringify(data)}`)
+    io.to(receiverUser.socketId).emit(eventName, data);
+  }
 }
 
 module.exports = {
   socketInit,
   someTestEvent,
+  transmitDataOnRealtime
 }

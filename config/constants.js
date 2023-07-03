@@ -43,5 +43,8 @@ module.exports = {
     GOLD: 'Gold',
     SILVER: 'Silver',
   },
+  socketEvents: {
+    PICTURE_REQUEST: 'picture-request',
+  },
   apiPrefix: '/dev/mahaba/api/v1',
 }

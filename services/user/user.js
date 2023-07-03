@@ -1,7 +1,8 @@
-const { requestStatus, gender, notificationType } = require('../../config/constants')
+const { requestStatus, gender, notificationType, socketEvents } = require('../../config/constants')
 const helperFunctions = require('../../helpers')
 const db = require('../../models')
 const { Op } = require('sequelize')
+const socketFunctions = require('../../socket')
 
 module.exports = {
   requestContactDetails: async (requesterUserId, requesteeUserId, body) => {
@@ -188,6 +189,7 @@ module.exports = {
         status: 0
       }, { transaction: t })
       await t.commit()
+      socketFunctions.transmitDataOnRealtime(socketEvents.PICTURE_REQUEST, requesteeUserId, pictureRequest)
       return pictureRequest
     } catch (error) {
       await t.rollback()
