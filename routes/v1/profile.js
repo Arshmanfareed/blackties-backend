@@ -31,7 +31,7 @@ const auth = require('../../middlewares/auth')
  *             properties:
  *               isGold:
  *                 type: boolean
- *               username:
+ *               usernameOrCode:
  *                 type: string
  *               gender:
  *                 type: string
