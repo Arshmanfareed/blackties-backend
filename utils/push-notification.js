@@ -1,4 +1,4 @@
-const firebaseMessaging = require('../config/firebase')
+const firebase = require('../config/firebase')
 
 module.exports = {
   sendNotificationSingle: async (token, title, body, payload = JSON.stringify({})) => {
@@ -8,6 +8,7 @@ module.exports = {
       notification: { title, body },
       token
     }
+    const firebaseMessaging = await firebase()
     firebaseMessaging.send(message)
       .then((response) => {
         // Response is a message ID string.
@@ -25,6 +26,7 @@ module.exports = {
       notification: { title, body },
       tokens: tokensArray
     }
+    const firebaseMessaging = await firebase()
     firebaseMessaging.sendMulticast(message)
       .then((response) => {
         // Response is a message ID string.

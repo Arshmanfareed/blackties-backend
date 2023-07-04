@@ -1,6 +1,6 @@
 const AWS = require('aws-sdk')
 
-module.exports.readFileFromS3 = async (fileName) => {
+module.exports.readFileFromS3 = async (bucketName, fileName) => {
   const s3 = new AWS.S3({
     apiVersion: '2006-03-01',
     credentials: {
@@ -10,7 +10,7 @@ module.exports.readFileFromS3 = async (fileName) => {
     },
   })
 
-  const params = { Bucket: process.env.BUCKET_NAME, Key: fileName }
+  const params = { Bucket: bucketName, Key: fileName }
   try {
     let data = await s3.getObject(params).promise()
     data = JSON.parse(data.Body.toString('utf8'))
