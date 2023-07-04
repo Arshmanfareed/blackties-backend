@@ -158,6 +158,30 @@ module.exports = {
       sports: {
         type: Sequelize.STRING(500),
       },
+      work: {
+        type: Sequelize.STRING(200),
+      },
+      workFunction: {
+        type: Sequelize.STRING(200),
+      },
+      clothing: {
+        type: Sequelize.STRING(200),
+      },
+      quranMemorization: {
+        type: Sequelize.STRING(200),
+      },
+      polygamy: {
+        type: Sequelize.STRING(200),
+      },
+      dislikes: {
+        type: Sequelize.STRING(500),
+      },
+      interests: {
+        type: Sequelize.STRING(500),
+      },
+      description: {
+        type: Sequelize.STRING(500),
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,
