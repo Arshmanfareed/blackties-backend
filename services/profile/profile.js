@@ -7,7 +7,7 @@ const helperFunctions = require('../../helpers')
 module.exports = {
   listAllProfiles: async (body, limit, offset) => {
     const today = new Date();
-    const { gender, sortBy, sortOrder, age, nationality, country, city, height, weight, ethnicity, healthStatus, language, skinColor, religiosity, tribialAffiliation, education, financialStatus, maritalStatus, username, isGold } = body
+    const { gender, sortBy, sortOrder, age, nationality, country, city, height, weight, ethnicity, healthStatus, language, skinColor, religiosity, tribialAffiliation, education, financialStatus, maritalStatus, usernameOrCode, isGold } = body
     const { REGULAR, SILVER, GOLD } = constants.membership
     const whereFilterProfile = {
       height: { [Op.between]: [height[0], height[1]] },
@@ -30,11 +30,14 @@ module.exports = {
     if (sortBy != 'lastSeen') {
       sortOrderQuery = [sortBy, sortOrder]
     }
-    const usernameQuery = username ? `%${username}%` : "%%";
+    const usernameOrCodeQuery = usernameOrCode ? `%${usernameOrCode}%` : "%%";
     const users = await db.User.findAll({
       where: {
         role: constants.roles.USER,
-        username: { [Op.like]: usernameQuery }
+        [Op.or]: {
+          username: { [Op.like]: usernameOrCodeQuery },
+          code: { [Op.like]: usernameOrCodeQuery },
+        }
       },
       attributes: [
         'id',
