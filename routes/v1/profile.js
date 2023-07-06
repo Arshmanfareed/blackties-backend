@@ -274,6 +274,26 @@ router.get('/me', auth, profileController.getMyProfile)
  *                 type: array
  *                 items:
  *                   type: string
+ *               description:
+ *                 type: string
+ *               work:
+ *                 type: string
+ *               workFunction:
+ *                 type: string
+ *               clothing:
+ *                 type: string
+ *               quranMemorization:
+ *                 type: string
+ *               polygamy:
+ *                 type: string
+ *               dislikes:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *               interests:
+ *                 type: array
+ *                 items:
+ *                   type: string
  *     operationId: updateProfile
  *     deprecated: false
  *     responses:
