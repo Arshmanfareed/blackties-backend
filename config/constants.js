@@ -43,5 +43,10 @@ module.exports = {
     GOLD: 'Gold',
     SILVER: 'Silver',
   },
+  featureValidity: {
+    DAYS: 'DAYS',
+    LIFETIME: 'LIFETIME',
+    COUNT: 'COUNT', 
+  },
   apiPrefix: '/dev/mahaba/api/v1',
 }
