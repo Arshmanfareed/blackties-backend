@@ -83,6 +83,37 @@ router.post('/premium', auth, purchaseController.buyPremiumMembership)
 /**
  * @swagger
  * /purchase/feature:
+ *   get:
+ *     summary: Get list of features 
+ *     consumes:
+ *      - application/json
+ *     produces:
+ *      - application/json
+ *     parameters:
+ *     - name: x-auth-token
+ *       in: header
+ *       required: true
+ *       type: string
+ *       description: an authorization header
+ *     - name: gender
+ *       in: query
+ *       required: false
+ *       type: number
+ *       description: Gender (male, female)
+ *     tags:
+ *     - Purchase
+ *     operationId: getListOfAvailableFeatures
+ *     deprecated: false
+ *     responses:
+ *       '200':
+ *         description: ''
+ *         headers: {}
+ */
+router.get('/feature', auth, purchaseController.getListOfAvailableFeatures)
+
+/**
+ * @swagger
+ * /purchase/feature:
  *   post:
  *     summary: Purchase (unlock) features using wallet money. 
  *     consumes:

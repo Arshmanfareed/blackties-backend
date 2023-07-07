@@ -96,4 +96,7 @@ module.exports = {
   purchaseIndividualFeature: async (userId, body) => {
     return true
   },
+  getListOfAvailableFeatures: async (gender) => {
+    return db.Feature.findAndCountAll({ where: { gender: gender ? [gender, 'both'] : ['male', 'female', 'both'] } })
+  },
 }
