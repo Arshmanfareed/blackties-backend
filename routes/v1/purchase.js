@@ -80,4 +80,41 @@ router.get('/stripe-cancel', purchaseController.cancelStripePurchase)
  */
 router.post('/premium', auth, purchaseController.buyPremiumMembership)
 
+/**
+ * @swagger
+ * /purchase/feature:
+ *   post:
+ *     summary: Purchase (unlock) features using wallet money. 
+ *     consumes:
+ *      - application/json
+ *     produces:
+ *      - application/json
+ *     parameters:
+ *     - name: x-auth-token
+ *       in: header
+ *       required: true
+ *       type: string
+ *       description: an authorization header
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - productId
+ *             properties:
+ *               productId:
+ *                 type: string
+ *     tags:
+ *     - Purchase
+ *     operationId: purchaseIndividualFeature
+ *     deprecated: false
+ *     responses:
+ *       '200':
+ *         description: ''
+ *         headers: {}
+ */
+router.post('/feature', auth, purchaseController.purchaseIndividualFeature)
+
 module.exports = router

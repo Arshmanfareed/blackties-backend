@@ -36,4 +36,13 @@ module.exports = {
     }
     return responseFunctions._200(res, data, 'Data fetched successfully')
   },
+  purchaseIndividualFeature: async (req, res) => {
+    const { body, user } = req
+    const { id: userId } = user
+    const [err, data] = await to(purchaseService.purchaseIndividualFeature(userId, body))
+    if (err) {
+      return responseFunctions._400(res, err.message)
+    }
+    return responseFunctions._200(res, data, 'Purchase successfully')
+  },
 }

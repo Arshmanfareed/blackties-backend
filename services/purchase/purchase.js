@@ -93,4 +93,7 @@ module.exports = {
     const session = await stipeUtils.createCheckoutSession(payload, hostAddress)
     return { sessionUrl: session.url }
   },
+  purchaseIndividualFeature: async (userId, body) => {
+    return true
+  },
 }
