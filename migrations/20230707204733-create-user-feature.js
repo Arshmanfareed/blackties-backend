@@ -2,21 +2,32 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('Features', {
+    await queryInterface.createTable('UserFeatures', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      name: {
-        type: Sequelize.STRING(100)
+      userId: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        onDelete: 'CASCADE',
+        references: {
+          model: 'Users',
+          key: 'id',
+          as: 'userId',
+        },
       },
-      gender: {
-        type: Sequelize.STRING(10)
-      },
-      price: {
-        type: Sequelize.INTEGER(3)
+      featureId: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        onDelete: 'CASCADE',
+        references: {
+          model: 'Features',
+          key: 'id',
+          as: 'featureId',
+        },
       },
       featureType: {
         type: Sequelize.STRING(50)
@@ -24,7 +35,11 @@ module.exports = {
       validityType: {
         type: Sequelize.STRING(20)
       },
-      count: {
+      expiryDate: {
+        allowNull: true,
+        type: Sequelize.DATE
+      },
+      remaining: {
         type: Sequelize.INTEGER(5)
       },
       status: {
@@ -41,6 +56,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('Features');
+    await queryInterface.dropTable('UserFeatures');
   }
 };

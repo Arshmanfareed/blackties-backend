@@ -113,7 +113,7 @@ router.get('/feature', auth, purchaseController.getListOfAvailableFeatures)
 
 /**
  * @swagger
- * /purchase/feature:
+ * /purchase/feature/{id}:
  *   post:
  *     summary: Purchase (unlock) features using wallet money. 
  *     consumes:
@@ -126,17 +126,11 @@ router.get('/feature', auth, purchaseController.getListOfAvailableFeatures)
  *       required: true
  *       type: string
  *       description: an authorization header
- *     requestBody:
+ *     - name: id
+ *       in: path
  *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - productId
- *             properties:
- *               productId:
- *                 type: string
+ *       type: number
+ *       description: Id of the feature
  *     tags:
  *     - Purchase
  *     operationId: purchaseIndividualFeature
@@ -146,6 +140,6 @@ router.get('/feature', auth, purchaseController.getListOfAvailableFeatures)
  *         description: ''
  *         headers: {}
  */
-router.post('/feature', auth, purchaseController.purchaseIndividualFeature)
+router.post('/feature/:id', auth, purchaseController.purchaseIndividualFeature)
 
 module.exports = router

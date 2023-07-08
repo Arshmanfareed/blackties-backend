@@ -2,6 +2,7 @@ const db = require('../../models')
 const constants = require('../../config/constants')
 const stipeUtils = require('../../utils/stripe')
 const moment = require('moment')
+const helperFunctions = require('../../helpers')
 
 module.exports = {
   createStripePurchaseLink: async (body, hostAddress, userId) => {
@@ -93,8 +94,45 @@ module.exports = {
     const session = await stipeUtils.createCheckoutSession(payload, hostAddress)
     return { sessionUrl: session.url }
   },
-  purchaseIndividualFeature: async (userId, body) => {
-    return true
+  purchaseIndividualFeature: async (userId, featureId) => {
+    const t = await db.sequelize.transaction()
+    try {
+      // check if user has enough money to purchase this
+      const userWallet = await db.Wallet.findOne({ where: { userId } })
+      const feature = await db.Feature.findOne({ where: { id: featureId } })
+      if (userWallet.amount < feature.price) {
+        throw new Error('You don\'t have enough balance in your wallet, please topup you wallet.')
+      }
+      // check if this purchase already exist
+      const userFeature = await db.UserFeature.findOne({
+        where: {
+          userId,
+          featureType: feature.featureType,
+          validityType: constants.featureValidity.COUNT,
+          status: 1
+        }
+      })
+      if (userFeature) {
+        if (feature.validityType === constants.featureValidity.LIFETIME) {
+          await db.UserFeature.update({ status: 0 }, { where: { id: userFeature.id } })
+          await helperFunctions.createUserFeature(userId, featureId, feature.featureType, feature.validityType, null, null, t)
+        } else {
+          await db.UserFeature.increment('remaining', { by: feature.count, where: { id: userFeature.id }, transaction: t })
+        }
+      } else { // create feature if not exist before
+        await helperFunctions.createUserFeature(userId, featureId, feature.featureType, feature.validityType, null, feature?.count || null, t)
+      }
+      // create entry in purchase table to keep track of user spend transactions
+      await db.Transaction.create({ userId, featureId, amount: feature.price, type: 'PURCHASE', status: true })
+      // deduct money from user wallet
+      await db.Wallet.decrement('amount', { by: feature.price, where: { userId }, transaction: t })
+      await t.commit()
+      return true
+    } catch (error) {
+      console.log(error)
+      await t.rollback()
+      throw new Error(error.message)
+    }
   },
   getListOfAvailableFeatures: async (gender) => {
     return db.Feature.findAndCountAll({ where: { gender: gender ? [gender, 'both'] : ['male', 'female', 'both'] } })
