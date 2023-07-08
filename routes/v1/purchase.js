@@ -142,4 +142,30 @@ router.get('/feature', auth, purchaseController.getListOfAvailableFeatures)
  */
 router.post('/feature/:id', auth, purchaseController.purchaseIndividualFeature)
 
+/**
+ * @swagger
+ * /purchase/user-features:
+ *   get:
+ *     summary: Get details of user purchases
+ *     consumes:
+ *      - application/json
+ *     produces:
+ *      - application/json
+ *     parameters:
+ *     - name: x-auth-token
+ *       in: header
+ *       required: true
+ *       type: string
+ *       description: an authorization header
+ *     tags:
+ *     - Purchase
+ *     operationId: getUserFeatures
+ *     deprecated: false
+ *     responses:
+ *       '200':
+ *         description: ''
+ *         headers: {}
+ */
+router.get('/user-features', auth, purchaseController.getUserFeatures)
+
 module.exports = router

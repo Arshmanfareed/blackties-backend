@@ -137,4 +137,12 @@ module.exports = {
   getListOfAvailableFeatures: async (gender) => {
     return db.Feature.findAndCountAll({ where: { gender: gender ? [gender, 'both'] : ['male', 'female', 'both'] } })
   },
+  getUserFeatures: async (userId) => {
+    return db.UserFeature.findAll({
+      where: {
+        userId,
+        status: 1
+      }
+    })
+  },
 }
