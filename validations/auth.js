@@ -6,6 +6,7 @@ module.exports = {
     const schema = Joi.object({
       email: Joi.string().email().required().label('Email').messages({
         'any.required': `{#label} is Required`,
+        'string.email': 'Enter a valid email',
       }),
       code: Joi.number().required().label('Code').messages({
         'any.required': `{#label} is Required`,
@@ -25,6 +26,7 @@ module.exports = {
     const schema = Joi.object({
       email: Joi.string().email().required().label('Email').messages({
         'any.required': `{#label} is Required`,
+        'string.email': 'Enter a valid email',
       }),
       password: Joi.string().required().label('Password').messages({
         'any.required': `{#label} is Required`,
@@ -80,6 +82,7 @@ module.exports = {
       }),
       email: Joi.string().required().label('Email').messages({
         'any.required': `{#label} is Required`,
+        'string.email': 'Enter a valid email',
       }),
       password: Joi.string().min(8).max(50).required().label('Password').messages({
         'any.required': `{#label} is Required`,
