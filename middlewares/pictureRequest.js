@@ -53,6 +53,10 @@ module.exports = async (req, res, next) => {
       }
       next()
     } else if (sex === gender.FEMALE) {
+      // check for membership
+      if (isPremium && userMembership === membership.GOLD) {
+        return next()
+      }
       // check for request picture feature if unlocked
       await handleFemaleUser(req, res, next, userId);
     }
