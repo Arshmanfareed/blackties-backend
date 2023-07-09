@@ -2,6 +2,7 @@ const router = require('express').Router()
 const { profileController, userController } = require('../../controllers')
 const auth = require('../../middlewares/auth')
 const seeWhoViewedMyProfile = require('../../middlewares/seeWhoViewedMyProfile')
+const seeWhoSavedMyProfile = require('../../middlewares/seeWhoSavedMyProfile')
 
 
 /**
@@ -54,7 +55,7 @@ router.get('/my-request/saved-profiles', auth, profileController.getMySavedProfi
  *         description: ''
  *         headers: {}
  */
-router.get('/incoming-request/saved-profiles', auth, profileController.getUsersWhoSavedMyProfile)
+router.get('/incoming-request/saved-profiles', auth, seeWhoSavedMyProfile, profileController.getUsersWhoSavedMyProfile)
 
 /**
  * @swagger
