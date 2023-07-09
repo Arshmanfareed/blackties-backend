@@ -1,6 +1,8 @@
 const router = require('express').Router()
 const { profileController, userController } = require('../../controllers')
 const auth = require('../../middlewares/auth')
+const seeWhoViewedMyProfile = require('../../middlewares/seeWhoViewedMyProfile')
+
 
 /**
  * @swagger
@@ -244,7 +246,7 @@ router.get('/incoming-request/rejected-profiles', auth, userController.getProfil
  *         description: ''
  *         headers: {}
  */
-router.get('/users-visit', auth, userController.getUsersWhoSeenMyProfile)
+router.get('/users-visit', auth, seeWhoViewedMyProfile, userController.getUsersWhoSeenMyProfile)
 
 /**
  * @swagger
