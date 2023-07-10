@@ -5,7 +5,7 @@ const { Op } = require('sequelize')
 const pushNotification = require('../../utils/push-notification')
 
 module.exports = {
-  requestContactDetails: async (requesterUserId, requesteeUserId, body) => {
+  requestContactDetails: async (requesterUserId, requesteeUserId, body, countBasedFeature) => {
     /*
       You will not be able to request the contact details of another user, unless you cancel the present request
       You will need to wait at least 24 hours to be able to cancel this request
@@ -81,6 +81,10 @@ module.exports = {
       }
       // generate notification
       await db.Notification.create(notificationPayload, { transaction: t })
+      // decrement count  by 1 if user uses count based feature
+      if (countBasedFeature) {
+        await db.UserFeature.decrement('remaining', { by: 1, where: { id: countBasedFeature.id }, transaction: t })
+      }
       // push notification
       const { fcmToken } = await db.User.findOne({ where: { id: notificationPayload.userId }, attributes: ['fcmToken'] })
       pushNotification.sendNotificationSingle(fcmToken, notificationPayload.notificationType, notificationPayload.notificationType)
