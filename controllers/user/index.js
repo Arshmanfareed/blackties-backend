@@ -66,9 +66,9 @@ module.exports = {
     return responseFunctions._200(res, data, 'Data fetched successfully')
   },
   requestPicture: async (req, res) => {
-    const { id: requesterUserId } = req.user
+    const { id: requesterUserId, countBasedFeature } = req.user
     const { id: requesteeUserId } = req.params
-    const [err, data] = await to(userService.requestPicture(requesterUserId, requesteeUserId))
+    const [err, data] = await to(userService.requestPicture(requesterUserId, requesteeUserId, countBasedFeature))
     if (err) {
       return responseFunctions._400(res, err.message)
     }

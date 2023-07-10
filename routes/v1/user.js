@@ -2,6 +2,7 @@ const router = require('express').Router()
 const { userController } = require('../../controllers')
 const auth = require('../../middlewares/auth')
 const { uploadUserMedia } = require('../../utils/file-upload')
+const pictureRequest = require('../../middlewares/pictureRequest')
 
 /**
  * @swagger
@@ -240,7 +241,7 @@ router.get('/block-list', auth, userController.getListOfBlockedUsers)
  *         description: ''
  *         headers: {}
  */
-router.post('/:id/request/picture', auth, userController.requestPicture)
+router.post('/:id/request/picture', auth, pictureRequest, userController.requestPicture)
 
 /**
  * @swagger

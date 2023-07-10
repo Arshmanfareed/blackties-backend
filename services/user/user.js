@@ -177,7 +177,7 @@ module.exports = {
       }
     })
   },
-  requestPicture: async (requesterUserId, requesteeUserId) => {
+  requestPicture: async (requesterUserId, requesteeUserId, countBasedFeature) => {
     const t = await db.sequelize.transaction()
     try {
       const alreadyRequested = await db.PictureRequest.findOne({ where: { requesterUserId, requesteeUserId, status: requestStatus.PENDING } })
@@ -194,6 +194,10 @@ module.exports = {
         notificationType: notificationType.PICTURE_REQUEST,
         status: 0
       }, { transaction: t })
+      // decrement count  by 1 if user uses count based feature
+      if (countBasedFeature) {
+        await db.UserFeature.decrement('remaining', { by: 1, where: { id: countBasedFeature.id }, transaction: t })
+      }
       // push notification
       const { fcmToken } = await db.User.findOne({ where: { id: requesteeUserId }, attributes: ['fcmToken'] })
       pushNotification.sendNotificationSingle(fcmToken, notificationType.PICTURE_REQUEST, notificationType.PICTURE_REQUEST)
