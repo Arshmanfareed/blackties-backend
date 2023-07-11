@@ -29,6 +29,8 @@ const auth = require('../../middlewares/auth')
  *           schema:
  *             type: object
  *             properties:
+ *               loggedInUserId:
+ *                 type: integer
  *               isGold:
  *                 type: boolean
  *               usernameOrCode:
