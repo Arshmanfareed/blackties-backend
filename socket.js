@@ -60,12 +60,14 @@ function socketInit(server) {
     socket.on('disconnect', async () => {
       try {
         // set socket id of diconnecting user to null 
-        const userId = socket.user.id
+        const { id: userId } = socket.user
         console.log("*********** socket disconnected => ", socket.id, " == userId => ", userId);
-        onlineUsers[userId] = { isOnline: false, socketId: null, lastSeen: new Date() }
-        io.emit('is-online', { recipientId: userId, isOnline: false, lastSeen: new Date() });
-        await db.User.update({ socketId: null }, { where: { id: userId } })
-        await db.UserSetting.update({ lastSeen: new Date() }, { where: { userId } })
+        if (userId) {
+          onlineUsers[userId] = { isOnline: false, socketId: null, lastSeen: new Date() }
+          io.emit('is-online', { recipientId: userId, isOnline: false, lastSeen: new Date() });
+          await db.User.update({ socketId: null }, { where: { id: userId } })
+          await db.UserSetting.update({ lastSeen: new Date() }, { where: { userId } })
+        }
       } catch (error) {
         printErrorLog('disconnect', error.message)
       }
