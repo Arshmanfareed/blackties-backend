@@ -129,7 +129,7 @@ module.exports = {
       include: {
         model: db.User,
         as: 'savedUser',
-        attributes: ['id', 'email', 'username', 'language', 'createdAt'],
+        attributes: ['id', 'email', 'username', 'language', 'code', 'createdAt'],
         include: {
           model: db.Profile
         }
@@ -142,7 +142,7 @@ module.exports = {
       include: {
         model: db.User,
         as: 'user',
-        attributes: ['id', 'email', 'username', 'language', 'createdAt'],
+        attributes: ['id', 'email', 'username', 'language', 'code', 'createdAt'],
         include: {
           model: db.Profile
         }
