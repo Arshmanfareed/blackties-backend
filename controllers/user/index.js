@@ -170,9 +170,9 @@ module.exports = {
   },
   requestExtraInfo: async (req, res) => {
     const { body, user, params } = req
-    const { id: requesterUserId } = user
+    const { id: requesterUserId, countBasedFeature } = user
     const { id: requesteeUserId } = params
-    const [err, data] = await to(userService.requestExtraInfo(requesterUserId, requesteeUserId, body))
+    const [err, data] = await to(userService.requestExtraInfo(requesterUserId, requesteeUserId, body, countBasedFeature))
     if (err) {
       return responseFunctions._400(res, err.message)
     }

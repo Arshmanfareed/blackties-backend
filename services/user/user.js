@@ -383,7 +383,7 @@ module.exports = {
       where: { id: notificationIds }
     })
   },
-  requestExtraInfo: async (requesterUserId, requesteeUserId, body) => {
+  requestExtraInfo: async (requesterUserId, requesteeUserId, body, countBasedFeature) => {
     const { questions } = body
     const t = await db.sequelize.transaction()
     try {
@@ -432,6 +432,10 @@ module.exports = {
         notificationType: notificationType.QUESTION_RECEIVED,
         status: 0
       }, { transaction: t })
+      // decrement count  by 1 if user uses count based feature
+      if (countBasedFeature) {
+        await db.UserFeature.decrement('remaining', { by: 1, where: { id: countBasedFeature.id }, transaction: t })
+      }
       // push notification
       const { fcmToken } = await db.User.findOne({ where: { id: requesteeUserId }, attributes: ['fcmToken'] })
       pushNotification.sendNotificationSingle(fcmToken, notificationType.QUESTION_RECEIVED, notificationType.QUESTION_RECEIVED)
