@@ -7,7 +7,7 @@ const helperFunctions = require('../../helpers')
 module.exports = {
   listAllProfiles: async (body, limit, offset) => {
     const today = new Date();
-    const { gender, sortBy, sortOrder, age, nationality, country, city, height, weight, ethnicity, healthStatus, language, skinColor, religiosity, tribialAffiliation, education, financialStatus, maritalStatus, usernameOrCode, isGold } = body
+    const { loggedInUserId, gender, sortBy, sortOrder, age, nationality, country, city, height, weight, ethnicity, healthStatus, language, skinColor, religiosity, tribialAffiliation, education, financialStatus, maritalStatus, usernameOrCode, isGold } = body
     const { REGULAR, SILVER, GOLD } = constants.membership
     const whereFilterProfile = {
       height: { [Op.between]: [height[0], height[1]] },
@@ -31,6 +31,22 @@ module.exports = {
       sortOrderQuery = [sortBy, sortOrder]
     }
     const usernameOrCodeQuery = usernameOrCode ? `%${usernameOrCode}%` : "%%";
+    const userAttributesToSelect = [
+      'id',
+      'email',
+      'username',
+      'status',
+      'createdAt',
+      'code',
+      [Sequelize.literal(`TIMESTAMPDIFF(YEAR, dateOfBirth, '${today.toISOString()}')`), 'age'],
+    ]
+    if (loggedInUserId) {
+      userAttributesToSelect.push(
+        [
+          Sequelize.literal(`EXISTS(SELECT 1 FROM SavedProfiles WHERE userId = ${loggedInUserId} AND savedUserId = User.id)`), 'isSaved'
+        ]
+      )
+    }
     const users = await db.User.findAll({
       where: {
         role: constants.roles.USER,
@@ -39,15 +55,7 @@ module.exports = {
           code: { [Op.like]: usernameOrCodeQuery },
         }
       },
-      attributes: [
-        'id',
-        'email',
-        'username',
-        'status',
-        'createdAt',
-        'code',
-        [Sequelize.literal(`TIMESTAMPDIFF(YEAR, dateOfBirth, '${today.toISOString()}')`), 'age']
-      ],
+      attributes: userAttributesToSelect,
       include: [
         {
           model: db.Profile,
