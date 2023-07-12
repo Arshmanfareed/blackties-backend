@@ -3,6 +3,8 @@ const { userController } = require('../../controllers')
 const auth = require('../../middlewares/auth')
 const { uploadUserMedia } = require('../../utils/file-upload')
 const pictureRequest = require('../../middlewares/pictureRequest')
+const contactDetailsRequest = require('../../middlewares/contactDetailsRequest')
+const extraInformationRequest = require('../../middlewares/extraInformationRequest')
 
 /**
  * @swagger
@@ -58,7 +60,7 @@ const pictureRequest = require('../../middlewares/pictureRequest')
  *         description: ''
  *         headers: {}
  */
-router.post('/:id/request/contact-details', auth, userController.requestContactDetails)
+router.post('/:id/request/contact-details', auth, contactDetailsRequest, userController.requestContactDetails)
 
 /**
  * @swagger
@@ -448,7 +450,7 @@ router.patch('/:id/cancel-match', auth, userController.cancelMatch)
  *         description: ''
  *         headers: {}
  */
-router.post('/:id/request/extra-info', auth, userController.requestExtraInfo)
+router.post('/:id/request/extra-info', auth, extraInformationRequest, userController.requestExtraInfo)
 
 /**
  * @swagger
