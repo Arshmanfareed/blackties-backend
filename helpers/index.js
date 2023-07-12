@@ -51,7 +51,11 @@ const helperFunctions = {
         },
         {
           model: db.UserLanguage
-        }
+        },
+        {
+          model: db.UserSetting,
+          attributes: { exclude: ['id', 'userId', 'createdAt', 'updatedAt'] }
+        },
       ]
     })
   },
