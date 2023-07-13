@@ -1,7 +1,7 @@
 const { requestStatus, gender, notificationType } = require('../../config/constants')
 const helperFunctions = require('../../helpers')
 const db = require('../../models')
-const { Op } = require('sequelize')
+const { Op, Sequelize } = require('sequelize')
 const pushNotification = require('../../utils/push-notification')
 
 module.exports = {
@@ -251,7 +251,15 @@ module.exports = {
       include: {
         model: db.User,
         as: 'requesteeUser',
-        attributes: ['id', 'email', 'username', 'code'],
+        attributes: [
+          'id',
+          'email',
+          'username',
+          'code',
+          [
+            Sequelize.literal(`EXISTS(SELECT 1 FROM SavedProfiles WHERE userId = ${userId} AND savedUserId = requesteeUser.id)`), 'isSaved'
+          ],
+        ],
         include: [
           {
             model: db.Profile
@@ -283,7 +291,15 @@ module.exports = {
       include: {
         model: db.User,
         as: 'requesterUser',
-        attributes: ['id', 'email', 'username', 'code'],
+        attributes: [
+          'id',
+          'email',
+          'username',
+          'code',
+          [
+            Sequelize.literal(`EXISTS(SELECT 1 FROM SavedProfiles WHERE userId = ${userId} AND savedUserId = requesterUser.id)`), 'isSaved'
+          ],
+        ],
         include: [
           {
             model: db.Profile
@@ -309,7 +325,14 @@ module.exports = {
       include: {
         model: db.User,
         as: 'pictureRequesterUser',
-        attributes: ['id', 'username', 'code'],
+        attributes: [
+          'id',
+          'username',
+          'code',
+          [
+            Sequelize.literal(`EXISTS(SELECT 1 FROM SavedProfiles WHERE userId = ${userId} AND savedUserId = pictureRequesterUser.id)`), 'isSaved'
+          ],
+        ],
         include: [
           {
             model: db.Profile
@@ -332,7 +355,15 @@ module.exports = {
       include: {
         model: db.User,
         as: 'requesteeUser',
-        attributes: ['id', 'email', 'username', 'code'],
+        attributes: [
+          'id',
+          'email',
+          'username',
+          'code',
+          [
+            Sequelize.literal(`EXISTS(SELECT 1 FROM SavedProfiles WHERE userId = ${userId} AND savedUserId = requesteeUser.id)`), 'isSaved'
+          ],
+        ],
         include: [
           {
             model: db.Profile
@@ -356,7 +387,15 @@ module.exports = {
       include: {
         model: db.User,
         as: 'requesterUser',
-        attributes: ['id', 'email', 'username', 'code'],
+        attributes: [
+          'id',
+          'email',
+          'username',
+          'code',
+          [
+            Sequelize.literal(`EXISTS(SELECT 1 FROM SavedProfiles WHERE userId = ${userId} AND savedUserId = requesterUser.id)`), 'isSaved'
+          ],
+        ],
         include: [
           {
             model: db.Profile
@@ -537,7 +576,15 @@ module.exports = {
       include: {
         model: db.User,
         as: 'viewerUser',
-        attributes: ['id', 'email', 'username', 'code'],
+        attributes: [
+          'id',
+          'email',
+          'username',
+          'code',
+          [
+            Sequelize.literal(`EXISTS(SELECT 1 FROM SavedProfiles WHERE userId = ${userId} AND savedUserId = viewerUser.id)`), 'isSaved'
+          ],
+        ],
         include: [
           {
             model: db.Profile,
@@ -561,7 +608,15 @@ module.exports = {
       include: {
         model: db.User,
         as: 'requesteeUser',
-        attributes: ['id', 'email', 'username', 'code'],
+        attributes: [
+          'id',
+          'email',
+          'username',
+          'code',
+          [
+            Sequelize.literal(`EXISTS(SELECT 1 FROM SavedProfiles WHERE userId = ${userId} AND savedUserId = requesteeUser.id)`), 'isSaved'
+          ],
+        ],
         include: [
           {
             model: db.Profile
@@ -585,7 +640,15 @@ module.exports = {
       include: {
         model: db.User,
         as: 'requesterUser',
-        attributes: ['id', 'email', 'username', 'code'],
+        attributes: [
+          'id',
+          'email',
+          'username',
+          'code',
+          [
+            Sequelize.literal(`EXISTS(SELECT 1 FROM SavedProfiles WHERE userId = ${userId} AND savedUserId = requesterUser.id)`), 'isSaved'
+          ],
+        ],
         include: [
           {
             model: db.Profile
