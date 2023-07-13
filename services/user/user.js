@@ -252,9 +252,15 @@ module.exports = {
         model: db.User,
         as: 'requesteeUser',
         attributes: ['id', 'email', 'username', 'code'],
-        include: {
-          model: db.Profile
-        }
+        include: [
+          {
+            model: db.Profile
+          },
+          {
+            model: db.UserSetting,
+            attributes: ['isPremium', 'membership']
+          },
+        ]
       }
     })
   },
@@ -278,9 +284,15 @@ module.exports = {
         model: db.User,
         as: 'requesterUser',
         attributes: ['id', 'email', 'username', 'code'],
-        include: {
-          model: db.Profile
-        }
+        include: [
+          {
+            model: db.Profile
+          },
+          {
+            model: db.UserSetting,
+            attributes: ['isPremium', 'membership']
+          },
+        ]
       }
     })
   },
@@ -298,9 +310,15 @@ module.exports = {
         model: db.User,
         as: 'pictureRequesterUser',
         attributes: ['id', 'username', 'code'],
-        include: {
-          model: db.Profile
-        },
+        include: [
+          {
+            model: db.Profile
+          },
+          {
+            model: db.UserSetting,
+            attributes: ['isPremium', 'membership']
+          },
+        ]
       },
     })
   },
@@ -315,9 +333,15 @@ module.exports = {
         model: db.User,
         as: 'requesteeUser',
         attributes: ['id', 'email', 'username', 'code'],
-        include: {
-          model: db.Profile
-        }
+        include: [
+          {
+            model: db.Profile
+          },
+          {
+            model: db.UserSetting,
+            attributes: ['isPremium', 'membership']
+          },
+        ]
       }
     })
     return rejectedContactDetails
@@ -333,9 +357,15 @@ module.exports = {
         model: db.User,
         as: 'requesterUser',
         attributes: ['id', 'email', 'username', 'code'],
-        include: {
-          model: db.Profile
-        }
+        include: [
+          {
+            model: db.Profile
+          },
+          {
+            model: db.UserSetting,
+            attributes: ['isPremium', 'membership']
+          },
+        ]
       }
     })
     return rejectedContactDetails
@@ -508,9 +538,15 @@ module.exports = {
         model: db.User,
         as: 'viewerUser',
         attributes: ['id', 'email', 'username', 'code'],
-        include: {
-          model: db.Profile,
-        },
+        include: [
+          {
+            model: db.Profile,
+          },
+          {
+            model: db.UserSetting,
+            attributes: ['isPremium', 'membership']
+          },
+        ]
       }
     })
   },
@@ -526,9 +562,15 @@ module.exports = {
         model: db.User,
         as: 'requesteeUser',
         attributes: ['id', 'email', 'username', 'code'],
-        include: {
-          model: db.Profile
-        }
+        include: [
+          {
+            model: db.Profile
+          },
+          {
+            model: db.UserSetting,
+            attributes: ['isPremium', 'membership']
+          },
+        ]
       }
     })
   },
@@ -544,9 +586,15 @@ module.exports = {
         model: db.User,
         as: 'requesterUser',
         attributes: ['id', 'email', 'username', 'code'],
-        include: {
-          model: db.Profile
-        }
+        include: [
+          {
+            model: db.Profile
+          },
+          {
+            model: db.UserSetting,
+            attributes: ['isPremium', 'membership']
+          },
+        ]
       }
     })
   },
