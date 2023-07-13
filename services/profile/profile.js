@@ -148,7 +148,17 @@ module.exports = {
       include: {
         model: db.User,
         as: 'user',
-        attributes: ['id', 'email', 'username', 'language', 'code', 'createdAt'],
+        attributes: [
+          'id',
+          'email',
+          'username',
+          'language',
+          'code',
+          'createdAt',
+          [
+            Sequelize.literal(`EXISTS(SELECT 1 FROM SavedProfiles WHERE userId = ${userId} AND savedUserId = user.id)`), 'isSaved'
+          ],
+        ],
         include: [
           {
             model: db.Profile
@@ -173,7 +183,16 @@ module.exports = {
         {
           model: db.User,
           as: 'user',
-          attributes: ['id', 'username', 'email', 'createdAt', 'code'],
+          attributes: [
+            'id',
+            'username',
+            'email',
+            'createdAt',
+            'code',
+            [
+              Sequelize.literal(`EXISTS(SELECT 1 FROM SavedProfiles WHERE userId = ${userId} AND savedUserId = user.id)`), 'isSaved'
+            ],
+          ],
           include: [
             {
               model: db.Profile
