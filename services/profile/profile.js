@@ -130,9 +130,15 @@ module.exports = {
         model: db.User,
         as: 'savedUser',
         attributes: ['id', 'email', 'username', 'language', 'code', 'createdAt'],
-        include: {
-          model: db.Profile
-        }
+        include: [
+          {
+            model: db.Profile
+          },
+          {
+            model: db.UserSetting,
+            attributes: ['isPremium', 'membership']
+          },
+        ]
       }
     })
   },
@@ -143,9 +149,15 @@ module.exports = {
         model: db.User,
         as: 'user',
         attributes: ['id', 'email', 'username', 'language', 'code', 'createdAt'],
-        include: {
-          model: db.Profile
-        }
+        include: [
+          {
+            model: db.Profile
+          },
+          {
+            model: db.UserSetting,
+            attributes: ['isPremium', 'membership']
+          },
+        ]
       }
     })
   },
@@ -162,17 +174,29 @@ module.exports = {
           model: db.User,
           as: 'user',
           attributes: ['id', 'username', 'email', 'createdAt', 'code'],
-          include: {
-            model: db.Profile
-          },
+          include: [
+            {
+              model: db.Profile
+            },
+            {
+              model: db.UserSetting,
+              attributes: ['isPremium', 'membership']
+            },
+          ],
         },
         {
           model: db.User,
           as: 'otherUser',
           attributes: ['id', 'username', 'email', 'createdAt', 'code'],
-          include: {
-            model: db.Profile
-          },
+          include: [
+            {
+              model: db.Profile
+            },
+            {
+              model: db.UserSetting,
+              attributes: ['isPremium', 'membership']
+            },
+          ],
         }
       ]
     })
@@ -196,13 +220,29 @@ module.exports = {
     let user, extraInfoRequest, pictureRequest, contactDetailsRequest;
     user = db.User.findOne({
       where: { id: otherUserId },
-      attributes: ['id', 'username', 'email', 'code', 'createdAt'],
+      attributes: [
+        'id',
+        'username',
+        'email',
+        'code',
+        'createdAt',
+        [
+          Sequelize.literal(`EXISTS(SELECT 1 FROM SavedProfiles WHERE userId = ${loginUserId} AND savedUserId = ${otherUserId})`), 'isSaved'
+        ],
+        [
+          Sequelize.literal(`EXISTS(SELECT 1 FROM BlockedUsers WHERE blockerUserId = ${loginUserId} AND blockedUserId = ${otherUserId})`), 'isBlocked'
+        ]
+      ],
       include: [
         {
           model: db.Profile
         },
         {
           model: db.UserLanguage
+        },
+        {
+          model: db.UserSetting,
+          attributes: ['isPremium', 'membership']
         },
       ]
     })
