@@ -674,13 +674,20 @@ module.exports = {
     })
   },
   updateUser: async (userId, body) => {
-    const { email } = body
+    const { email, phoneNo } = body
+    const verificationCode = Math.floor(100000 + Math.random() * 900000)
     if (email) { // check if updating email not exist before or used by someone else
       const userExist = await db.User.findOne({ where: { email } })
       if (userExist && userExist.id !== userId) {
         throw new Error('Email already exist.')
       }
+      // send verification email to user.
     }
-    return db.User.update({ ...body }, { where: { id: userId } })
+    if (phoneNo) {
+      // generate otp
+      await db.User.update({ otp: verificationCode, otpExpiry: new Date() }, { where: { id: userId } })
+      // send otp to user on phoneNo if user verify otp then we need to add/update phoneNo
+    }
+    return { verificationCode }
   },
 }
