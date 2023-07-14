@@ -9,9 +9,9 @@ const helpers = require('../../helpers')
 
 module.exports = {
   verifyCode: async (body) => {
-    const { email, code } = body
+    const { userId, code, phoneNo } = body
     let user = await db.User.findOne({
-      where: { email, deletedAt: { [Op.eq]: null } },
+      where: { id: userId, deletedAt: { [Op.eq]: null } },
       attributes: { exclude: ['password'] },
     })
     if (!user) {
@@ -26,15 +26,12 @@ module.exports = {
         // check for expiry
         throw new Error('Code is expired.')
       }
-      // remove the code
+      // remove the code and update the phoneNo
       await db.User.update(
-        { otp: null, otpExpiry: null },
+        { otp: null, otpExpiry: null, phoneNo },
         { where: { id: user.id } }
       )
-      // generate JWT
-      user = user.toJSON()
-      const dataForToken = { ...user }
-      return { ...user, JWTToken: generateJWT(dataForToken) }
+      return user
     } else {
       throw Error('Invalid code.')
     }

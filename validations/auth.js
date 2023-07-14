@@ -4,10 +4,13 @@ const { gender } = require('../config/constants')
 module.exports = {
   validateVerifyCode: function (obj) {
     const schema = Joi.object({
-      email: Joi.string().email().required().label('Email').messages({
+      userId: Joi.number().required().label('userId').messages({
         'any.required': `{#label} is Required`,
       }),
-      code: Joi.number().required().label('Code').messages({
+      phoneNo: Joi.string().required().label('Phone No').messages({
+        'any.required': `{#label} is Required`,
+      }),
+      code: Joi.string().required().label('Code').messages({
         'any.required': `{#label} is Required`,
       }),
     })

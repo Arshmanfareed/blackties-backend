@@ -19,13 +19,13 @@ const auth = require('../../middlewares/auth')
  *         application/json:
  *           schema:
  *             type: object
- *             required:
- *               - email
  *             properties:
- *               email:
+ *               userId:
+ *                 type: integer
+ *               phoneNo:
  *                 type: string
  *               code:
- *                 type: integer
+ *                 type: string
  *     tags:
  *     - Auth
  *     operationId: verifyCode
