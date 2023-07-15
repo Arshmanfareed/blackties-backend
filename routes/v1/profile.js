@@ -348,11 +348,11 @@ router.post('/:id/save/toggle', auth, profileController.saveOrUnsaveProfile)
  *     tags:
  *     - Profile
  *     parameters:
- *     - name: x-auth-token
- *       in: header
- *       required: true
+ *     - name: loggedInUserId
+ *       in: query
+ *       required: false
  *       type: string
- *       description: an authorization header
+ *       description: Id of logged in user
  *     - name: id
  *       in: path
  *       required: true
@@ -365,6 +365,6 @@ router.post('/:id/save/toggle', auth, profileController.saveOrUnsaveProfile)
  *         description: ''
  *         headers: {}
  */
-router.get('/user/:id', auth, profileController.getUserProfileWithDetails)
+router.get('/user/:id', profileController.getUserProfileWithDetails)
 
 module.exports = router

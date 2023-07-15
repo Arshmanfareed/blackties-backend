@@ -236,22 +236,29 @@ module.exports = {
     return matchesProfiles
   },
   getUserProfileWithDetails: async (loginUserId, otherUserId) => {
-    let user, extraInfoRequest, pictureRequest, contactDetailsRequest;
-    user = db.User.findOne({
-      where: { id: otherUserId },
-      attributes: [
-        'id',
-        'username',
-        'email',
-        'code',
-        'createdAt',
+    let extraInfoRequest = pictureRequest = contactDetailsRequest = null;
+    const userAttributes = [
+      'id',
+      'username',
+      'email',
+      'code',
+      'createdAt',
+    ]
+    if (loginUserId) {
+      userAttributes.push(
         [
           Sequelize.literal(`EXISTS(SELECT 1 FROM SavedProfiles WHERE userId = ${loginUserId} AND savedUserId = ${otherUserId})`), 'isSaved'
-        ],
+        ]
+      );
+      userAttributes.push(
         [
           Sequelize.literal(`EXISTS(SELECT 1 FROM BlockedUsers WHERE blockerUserId = ${loginUserId} AND blockedUserId = ${otherUserId})`), 'isBlocked'
         ]
-      ],
+      );
+    }
+    const user = await db.User.findOne({
+      where: { id: otherUserId },
+      attributes: userAttributes,
       include: [
         {
           model: db.Profile
@@ -265,6 +272,9 @@ module.exports = {
         },
       ]
     })
+    if (!loginUserId) {
+      return { user, extraInfoRequest, pictureRequest, contactDetailsRequest }
+    }
     const requestsWhereClause = {
       [Op.or]: [
         { requesterUserId: loginUserId, requesteeUserId: otherUserId },
@@ -289,8 +299,8 @@ module.exports = {
         model: db.ContactDetails
       }
     })
-    const promiseResolved = await Promise.all([user, extraInfoRequest, pictureRequest, contactDetailsRequest]);
-    [user, extraInfoRequest, pictureRequest, contactDetailsRequest] = promiseResolved
+    const promiseResolved = await Promise.all([extraInfoRequest, pictureRequest, contactDetailsRequest]);
+    [extraInfoRequest, pictureRequest, contactDetailsRequest] = promiseResolved
     return { user, pictureRequest, extraInfoRequest, contactDetailsRequest }
   },
 }
