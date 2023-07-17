@@ -86,6 +86,10 @@ module.exports = (sequelize, DataTypes) => {
       User.hasMany(models.ExtraInfoRequest, {
         foreignKey: 'requesteeUserId',
       })
+
+      User.hasOne(models.NotificationSetting, {
+        foreignKey: 'userId',
+      })
     }
   }
   User.init(

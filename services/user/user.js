@@ -699,6 +699,15 @@ module.exports = {
     return { verificationCode }
   },
   getNotificationToggles: async (userId) => {
-    return ['getNotificationToggles']
+    return db.NotificationSetting.findOne({
+      attributes: { exclude: ['createdAt', 'updatedAt'] },
+      where: { userId },
+    })
+  },
+  updateNotificationToggles: async (userId, body) => {
+    return db.NotificationSetting.update(
+      { ...body },
+      { where: { userId }, }
+    )
   },
 }

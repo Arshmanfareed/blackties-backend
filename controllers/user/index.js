@@ -257,4 +257,13 @@ module.exports = {
     }
     return responseFunctions._200(res, data, 'Data fetched successfully')
   },
+  updateNotificationToggles: async (req, res) => {
+    const { id: userId } = req.user
+    const { body } = req
+    const [err, data] = await to(userService.updateNotificationToggles(userId, body))
+    if (err) {
+      return responseFunctions._400(res, err.message)
+    }
+    return responseFunctions._200(res, data, 'Notification setting updated.')
+  },
 }
