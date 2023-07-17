@@ -174,7 +174,15 @@ module.exports = {
       include: {
         model: db.User,
         as: 'blockedUser',
-        attributes: ['id', 'email', 'username'],
+        attributes: [
+          'id',
+          'email',
+          'username',
+          'code',
+          [
+            Sequelize.literal(`EXISTS(SELECT 1 FROM SavedProfiles WHERE userId = ${blockerUserId} AND savedUserId = blockedUser.id)`), 'isSaved'
+          ],
+        ],
         include: {
           model: db.Profile
         }
