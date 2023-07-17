@@ -698,4 +698,7 @@ module.exports = {
     }
     return { verificationCode }
   },
+  getNotificationToggles: async (userId) => {
+    return ['getNotificationToggles']
+  },
 }

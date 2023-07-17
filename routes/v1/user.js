@@ -600,4 +600,30 @@ router.post('/:id/seen', auth, userController.addSeenToUserProfile)
  */
 router.patch('/', auth, userController.updateUser)
 
+/**
+ * @swagger
+ * /user/notification-toggle:
+ *   get:
+ *     summary: Get list of notification toggles
+ *     consumes:
+ *      - application/json
+ *     produces:
+ *      - application/json
+ *     tags:
+ *     - User
+ *     parameters:
+ *     - name: x-auth-token
+ *       in: header
+ *       required: true
+ *       type: string
+ *       description: an authorization header
+ *     operationId: getNotificationToggles
+ *     deprecated: false
+ *     responses:
+ *       '200':
+ *         description: ''
+ *         headers: {}
+ */
+router.get('/notification-toggle', auth, userController.getNotificationToggles)
+
 module.exports = router
