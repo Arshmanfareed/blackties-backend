@@ -56,6 +56,7 @@ module.exports = {
       const profileCreated = await db.Profile.create({ userId, sex, dateOfBirth, height, weight, country, city, nationality, religiosity, education, skinColor, ethnicity, maritalStatus, tribe }, { transaction: t })
       await db.Wallet.create({ userId, amount: 0 }, { transaction: t })
       await db.UserSetting.create({ userId, isNotificationEnabled: true, isPremium: false, membership: membership.REGULAR, lastSeen: new Date() }, { transaction: t })
+      await db.NotificationSetting.create({ userId }, { transaction: t })
       await t.commit()
       // send OTP or verification link
       helpers.sendAccountActivationLink(email, userCreated.id, verificationCode)
