@@ -282,6 +282,18 @@ module.exports = {
             model: db.UserSetting,
             attributes: ['isPremium', 'membership']
           },
+          {
+            model: db.BlockedUser,
+            as: 'blockedUser',
+            where: { blockerUserId: userId },
+            required: false,
+          },
+          {
+            model: db.BlockedUser,
+            as: 'blockerUser',
+            where: { blockedUserId: userId },
+            required: false,
+          },
         ]
       }
     })
@@ -322,6 +334,18 @@ module.exports = {
             model: db.UserSetting,
             attributes: ['isPremium', 'membership']
           },
+          {
+            model: db.BlockedUser,
+            as: 'blockedUser',
+            where: { blockerUserId: userId },
+            required: false,
+          },
+          {
+            model: db.BlockedUser,
+            as: 'blockerUser',
+            where: { blockedUserId: userId },
+            required: false,
+          },
         ]
       }
     })
@@ -355,6 +379,18 @@ module.exports = {
             model: db.UserSetting,
             attributes: ['isPremium', 'membership']
           },
+          {
+            model: db.BlockedUser,
+            as: 'blockedUser',
+            where: { blockerUserId: userId },
+            required: false,
+          },
+          {
+            model: db.BlockedUser,
+            as: 'blockerUser',
+            where: { blockedUserId: userId },
+            required: false,
+          },
         ]
       },
     })
@@ -385,6 +421,18 @@ module.exports = {
           {
             model: db.UserSetting,
             attributes: ['isPremium', 'membership']
+          },
+          {
+            model: db.BlockedUser,
+            as: 'blockedUser',
+            where: { blockerUserId: userId },
+            required: false,
+          },
+          {
+            model: db.BlockedUser,
+            as: 'blockerUser',
+            where: { blockedUserId: userId },
+            required: false,
           },
         ]
       }
@@ -417,6 +465,18 @@ module.exports = {
           {
             model: db.UserSetting,
             attributes: ['isPremium', 'membership']
+          },
+          {
+            model: db.BlockedUser,
+            as: 'blockedUser',
+            where: { blockerUserId: userId },
+            required: false,
+          },
+          {
+            model: db.BlockedUser,
+            as: 'blockerUser',
+            where: { blockedUserId: userId },
+            required: false,
           },
         ]
       }
@@ -607,6 +667,18 @@ module.exports = {
             model: db.UserSetting,
             attributes: ['isPremium', 'membership']
           },
+          {
+            model: db.BlockedUser,
+            as: 'blockedUser',
+            where: { blockerUserId: userId },
+            required: false,
+          },
+          {
+            model: db.BlockedUser,
+            as: 'blockerUser',
+            where: { blockedUserId: userId },
+            required: false,
+          },
         ]
       }
     })
@@ -639,6 +711,18 @@ module.exports = {
             model: db.UserSetting,
             attributes: ['isPremium', 'membership']
           },
+          {
+            model: db.BlockedUser,
+            as: 'blockedUser',
+            where: { blockerUserId: userId },
+            required: false,
+          },
+          {
+            model: db.BlockedUser,
+            as: 'blockerUser',
+            where: { blockedUserId: userId },
+            required: false,
+          },
         ]
       }
     })
@@ -670,6 +754,18 @@ module.exports = {
           {
             model: db.UserSetting,
             attributes: ['isPremium', 'membership']
+          },
+          {
+            model: db.BlockedUser,
+            as: 'blockedUser',
+            where: { blockerUserId: userId },
+            required: false,
+          },
+          {
+            model: db.BlockedUser,
+            as: 'blockerUser',
+            where: { blockedUserId: userId },
+            required: false,
           },
         ]
       }
