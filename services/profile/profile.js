@@ -138,6 +138,18 @@ module.exports = {
             model: db.UserSetting,
             attributes: ['isPremium', 'membership']
           },
+          {
+            model: db.BlockedUser,
+            as: 'blockedUser',
+            where: { blockerUserId: userId },
+            required: false,
+          },
+          {
+            model: db.BlockedUser,
+            as: 'blockerUser',
+            where: { blockedUserId: userId },
+            required: false,
+          },
         ]
       }
     })
@@ -167,11 +179,33 @@ module.exports = {
             model: db.UserSetting,
             attributes: ['isPremium', 'membership']
           },
+          {
+            model: db.BlockedUser,
+            as: 'blockedUser',
+            where: { blockerUserId: userId },
+            required: false,
+          },
+          {
+            model: db.BlockedUser,
+            as: 'blockerUser',
+            where: { blockedUserId: userId },
+            required: false,
+          },
         ]
       }
     })
   },
   getMyMatchesProfiles: async (userId) => {
+    const userAttributes = [
+      'id',
+      'username',
+      'email',
+      'createdAt',
+      'code',
+      [
+        Sequelize.literal(`EXISTS(SELECT 1 FROM SavedProfiles WHERE userId = ${userId} AND savedUserId = user.id)`), 'isSaved'
+      ],
+    ]
     let matchesProfiles = await db.Match.findAll({
       where: {
         [Op.or]: [
@@ -183,16 +217,7 @@ module.exports = {
         {
           model: db.User,
           as: 'user',
-          attributes: [
-            'id',
-            'username',
-            'email',
-            'createdAt',
-            'code',
-            [
-              Sequelize.literal(`EXISTS(SELECT 1 FROM SavedProfiles WHERE userId = ${userId} AND savedUserId = user.id)`), 'isSaved'
-            ],
-          ],
+          attributes: userAttributes,
           include: [
             {
               model: db.Profile
@@ -200,13 +225,25 @@ module.exports = {
             {
               model: db.UserSetting,
               attributes: ['isPremium', 'membership']
+            },
+            {
+              model: db.BlockedUser,
+              as: 'blockedUser',
+              where: { blockerUserId: userId },
+              required: false,
+            },
+            {
+              model: db.BlockedUser,
+              as: 'blockerUser',
+              where: { blockedUserId: userId },
+              required: false,
             },
           ],
         },
         {
           model: db.User,
           as: 'otherUser',
-          attributes: ['id', 'username', 'email', 'createdAt', 'code'],
+          attributes: userAttributes,
           include: [
             {
               model: db.Profile
@@ -214,6 +251,18 @@ module.exports = {
             {
               model: db.UserSetting,
               attributes: ['isPremium', 'membership']
+            },
+            {
+              model: db.BlockedUser,
+              as: 'blockedUser',
+              where: { blockerUserId: userId },
+              required: false,
+            },
+            {
+              model: db.BlockedUser,
+              as: 'blockerUser',
+              where: { blockedUserId: userId },
+              required: false,
             },
           ],
         }
@@ -244,33 +293,44 @@ module.exports = {
       'code',
       'createdAt',
     ]
+    let includeTables = [
+      {
+        model: db.Profile
+      },
+      {
+        model: db.UserLanguage
+      },
+      {
+        model: db.UserSetting,
+        attributes: ['isPremium', 'membership']
+      },
+    ]
     if (loginUserId) {
       userAttributes.push(
         [
           Sequelize.literal(`EXISTS(SELECT 1 FROM SavedProfiles WHERE userId = ${loginUserId} AND savedUserId = ${otherUserId})`), 'isSaved'
         ]
       );
-      userAttributes.push(
-        [
-          Sequelize.literal(`EXISTS(SELECT 1 FROM BlockedUsers WHERE blockerUserId = ${loginUserId} AND blockedUserId = ${otherUserId})`), 'isBlocked'
-        ]
-      );
+      includeTables = [
+        ...includeTables,
+        {
+          model: db.BlockedUser,
+          as: 'blockedUser',
+          where: { blockerUserId: loginUserId },
+          required: false,
+        },
+        {
+          model: db.BlockedUser,
+          as: 'blockerUser',
+          where: { blockedUserId: loginUserId },
+          required: false,
+        }
+      ]
     }
     const user = await db.User.findOne({
       where: { id: otherUserId },
       attributes: userAttributes,
-      include: [
-        {
-          model: db.Profile
-        },
-        {
-          model: db.UserLanguage
-        },
-        {
-          model: db.UserSetting,
-          attributes: ['isPremium', 'membership']
-        },
-      ]
+      include: includeTables,
     })
     if (!loginUserId) {
       return { user, extraInfoRequest, pictureRequest, contactDetailsRequest }

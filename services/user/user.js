@@ -183,9 +183,15 @@ module.exports = {
             Sequelize.literal(`EXISTS(SELECT 1 FROM SavedProfiles WHERE userId = ${blockerUserId} AND savedUserId = blockedUser.id)`), 'isSaved'
           ],
         ],
-        include: {
-          model: db.Profile
-        }
+        include: [
+          {
+            model: db.Profile
+          },
+          {
+            model: db.UserSetting,
+            attributes: ['isPremium', 'membership'],
+          },
+        ]
       }
     })
   },
@@ -284,6 +290,18 @@ module.exports = {
             model: db.UserSetting,
             attributes: ['isPremium', 'membership']
           },
+          {
+            model: db.BlockedUser,
+            as: 'blockedUser',
+            where: { blockerUserId: userId },
+            required: false,
+          },
+          {
+            model: db.BlockedUser,
+            as: 'blockerUser',
+            where: { blockedUserId: userId },
+            required: false,
+          },
         ]
       }
     })
@@ -324,6 +342,18 @@ module.exports = {
             model: db.UserSetting,
             attributes: ['isPremium', 'membership']
           },
+          {
+            model: db.BlockedUser,
+            as: 'blockedUser',
+            where: { blockerUserId: userId },
+            required: false,
+          },
+          {
+            model: db.BlockedUser,
+            as: 'blockerUser',
+            where: { blockedUserId: userId },
+            required: false,
+          },
         ]
       }
     })
@@ -357,6 +387,18 @@ module.exports = {
             model: db.UserSetting,
             attributes: ['isPremium', 'membership']
           },
+          {
+            model: db.BlockedUser,
+            as: 'blockedUser',
+            where: { blockerUserId: userId },
+            required: false,
+          },
+          {
+            model: db.BlockedUser,
+            as: 'blockerUser',
+            where: { blockedUserId: userId },
+            required: false,
+          },
         ]
       },
     })
@@ -387,6 +429,18 @@ module.exports = {
           {
             model: db.UserSetting,
             attributes: ['isPremium', 'membership']
+          },
+          {
+            model: db.BlockedUser,
+            as: 'blockedUser',
+            where: { blockerUserId: userId },
+            required: false,
+          },
+          {
+            model: db.BlockedUser,
+            as: 'blockerUser',
+            where: { blockedUserId: userId },
+            required: false,
           },
         ]
       }
@@ -419,6 +473,18 @@ module.exports = {
           {
             model: db.UserSetting,
             attributes: ['isPremium', 'membership']
+          },
+          {
+            model: db.BlockedUser,
+            as: 'blockedUser',
+            where: { blockerUserId: userId },
+            required: false,
+          },
+          {
+            model: db.BlockedUser,
+            as: 'blockerUser',
+            where: { blockedUserId: userId },
+            required: false,
           },
         ]
       }
@@ -613,6 +679,18 @@ module.exports = {
             model: db.UserSetting,
             attributes: ['isPremium', 'membership']
           },
+          {
+            model: db.BlockedUser,
+            as: 'blockedUser',
+            where: { blockerUserId: userId },
+            required: false,
+          },
+          {
+            model: db.BlockedUser,
+            as: 'blockerUser',
+            where: { blockedUserId: userId },
+            required: false,
+          },
         ]
       }
     })
@@ -645,6 +723,18 @@ module.exports = {
             model: db.UserSetting,
             attributes: ['isPremium', 'membership']
           },
+          {
+            model: db.BlockedUser,
+            as: 'blockedUser',
+            where: { blockerUserId: userId },
+            required: false,
+          },
+          {
+            model: db.BlockedUser,
+            as: 'blockerUser',
+            where: { blockedUserId: userId },
+            required: false,
+          },
         ]
       }
     })
@@ -676,6 +766,18 @@ module.exports = {
           {
             model: db.UserSetting,
             attributes: ['isPremium', 'membership']
+          },
+          {
+            model: db.BlockedUser,
+            as: 'blockedUser',
+            where: { blockerUserId: userId },
+            required: false,
+          },
+          {
+            model: db.BlockedUser,
+            as: 'blockerUser',
+            where: { blockedUserId: userId },
+            required: false,
           },
         ]
       }

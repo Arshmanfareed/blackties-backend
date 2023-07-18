@@ -19,10 +19,12 @@ module.exports = (sequelize, DataTypes) => {
 
       User.hasMany(models.BlockedUser, {
         foreignKey: 'blockerUserId',
+        as: 'blockerUser',
       })
 
       User.hasMany(models.BlockedUser, {
         foreignKey: 'blockedUserId',
+        as: 'blockedUser',
       })
 
       User.hasMany(models.SavedProfile, {
