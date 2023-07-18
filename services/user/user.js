@@ -179,9 +179,15 @@ module.exports = {
             Sequelize.literal(`EXISTS(SELECT 1 FROM SavedProfiles WHERE userId = ${blockerUserId} AND savedUserId = blockedUser.id)`), 'isSaved'
           ],
         ],
-        include: {
-          model: db.Profile
-        }
+        include: [
+          {
+            model: db.Profile
+          },
+          {
+            model: db.UserSetting,
+            attributes: ['isPremium', 'membership'],
+          },
+        ]
       }
     })
   },
