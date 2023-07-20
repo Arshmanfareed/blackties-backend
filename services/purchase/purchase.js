@@ -145,4 +145,7 @@ module.exports = {
       }
     })
   },
+  getSubscriptionPlans: async (gender) => {
+    return db.SubscriptionPlan.findAndCountAll({ where: { gender: gender ? [gender, 'both'] : ['male', 'female'] } })
+  },
 }

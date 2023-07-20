@@ -62,4 +62,12 @@ module.exports = {
     }
     return responseFunctions._200(res, data, 'Data fetched successfully')
   },
+  getSubscriptionPlans: async (req, res) => {
+    const { gender } = req.query
+    const [err, data] = await to(purchaseService.getSubscriptionPlans(gender))
+    if (err) {
+      return responseFunctions._400(res, err.message)
+    }
+    return responseFunctions._200(res, data, 'Data fetched successfully')
+  },
 }

@@ -168,4 +168,35 @@ router.post('/feature/:id', auth, purchaseController.purchaseIndividualFeature)
  */
 router.get('/user-features', auth, purchaseController.getUserFeatures)
 
+/**
+ * @swagger
+ * /purchase/subscription-plans:
+ *   get:
+ *     summary: Get list of available subscription plans 
+ *     consumes:
+ *      - application/json
+ *     produces:
+ *      - application/json
+ *     parameters:
+ *     - name: x-auth-token
+ *       in: header
+ *       required: true
+ *       type: string
+ *       description: an authorization header
+ *     - name: gender
+ *       in: query
+ *       required: false
+ *       type: number
+ *       description: Gender (male, female)
+ *     tags:
+ *     - Purchase
+ *     operationId: getSubscriptionPlans
+ *     deprecated: false
+ *     responses:
+ *       '200':
+ *         description: ''
+ *         headers: {}
+ */
+router.get('/subscription-plans', auth, purchaseController.getSubscriptionPlans)
+
 module.exports = router
