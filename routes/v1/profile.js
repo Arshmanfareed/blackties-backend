@@ -29,9 +29,11 @@ const auth = require('../../middlewares/auth')
  *           schema:
  *             type: object
  *             properties:
+ *               loggedInUserId:
+ *                 type: integer
  *               isGold:
  *                 type: boolean
- *               username:
+ *               usernameOrCode:
  *                 type: string
  *               gender:
  *                 type: string
@@ -167,6 +169,8 @@ router.get('/me', auth, profileController.getMyProfile)
  *           schema:
  *             type: object
  *             properties:
+ *               username:
+ *                 type: string
  *               dateOfBirth:
  *                 type: string
  *                 format: date
@@ -272,6 +276,26 @@ router.get('/me', auth, profileController.getMyProfile)
  *                 type: array
  *                 items:
  *                   type: string
+ *               description:
+ *                 type: string
+ *               work:
+ *                 type: string
+ *               workFunction:
+ *                 type: string
+ *               clothing:
+ *                 type: string
+ *               quranMemorization:
+ *                 type: string
+ *               polygamy:
+ *                 type: string
+ *               dislikes:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *               interests:
+ *                 type: array
+ *                 items:
+ *                   type: string
  *     operationId: updateProfile
  *     deprecated: false
  *     responses:
@@ -324,11 +348,11 @@ router.post('/:id/save/toggle', auth, profileController.saveOrUnsaveProfile)
  *     tags:
  *     - Profile
  *     parameters:
- *     - name: x-auth-token
- *       in: header
- *       required: true
+ *     - name: loggedInUserId
+ *       in: query
+ *       required: false
  *       type: string
- *       description: an authorization header
+ *       description: Id of logged in user
  *     - name: id
  *       in: path
  *       required: true
@@ -341,6 +365,6 @@ router.post('/:id/save/toggle', auth, profileController.saveOrUnsaveProfile)
  *         description: ''
  *         headers: {}
  */
-router.get('/user/:id', auth, profileController.getUserProfileWithDetails)
+router.get('/user/:id', profileController.getUserProfileWithDetails)
 
 module.exports = router

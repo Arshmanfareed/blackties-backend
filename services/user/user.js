@@ -1,11 +1,12 @@
 const { requestStatus, gender, notificationType, socketEvents } = require('../../config/constants')
 const helperFunctions = require('../../helpers')
 const db = require('../../models')
-const { Op } = require('sequelize')
+const { Op, Sequelize } = require('sequelize')
+const pushNotification = require('../../utils/push-notification')
 const socketFunctions = require('../../socket')
 
 module.exports = {
-  requestContactDetails: async (requesterUserId, requesteeUserId, body) => {
+  requestContactDetails: async (requesterUserId, requesteeUserId, body, countBasedFeature) => {
     /*
       You will not be able to request the contact details of another user, unless you cancel the present request
       You will need to wait at least 24 hours to be able to cancel this request
@@ -81,6 +82,13 @@ module.exports = {
       }
       // generate notification
       await db.Notification.create(notificationPayload, { transaction: t })
+      // decrement count  by 1 if user uses count based feature
+      if (countBasedFeature) {
+        await db.UserFeature.decrement('remaining', { by: 1, where: { id: countBasedFeature.id }, transaction: t })
+      }
+      // push notification
+      const { fcmToken } = await db.User.findOne({ where: { id: notificationPayload.userId }, attributes: ['fcmToken'] })
+      pushNotification.sendNotificationSingle(fcmToken, notificationPayload.notificationType, notificationPayload.notificationType)
       await t.commit()
       return request
     } catch (error) {
@@ -132,6 +140,9 @@ module.exports = {
         // generate notification of match
         notificationPayload['notificationType'] = notificationType.MATCH_CREATED
         await db.Notification.create(notificationPayload, { transaction: t })
+        // push notification
+        const { fcmToken } = await db.User.findOne({ where: { id: notificationPayload.userId }, attributes: ['fcmToken'] })
+        pushNotification.sendNotificationSingle(fcmToken, notificationPayload.notificationType, notificationPayload.notificationType)
       } else { // rejected 
         requestUpdatePayload['status'] = requestStatus.REJECTED
         notificationPayload['notificationType'] = contactDetailsRequest.isFromFemale ? notificationType.CONTACT_DETAILS_SENT_REJECTED : notificationType.CONTACT_DETAILS_REQUEST_REJECTED
@@ -164,14 +175,28 @@ module.exports = {
       include: {
         model: db.User,
         as: 'blockedUser',
-        attributes: ['id', 'email', 'username'],
-        include: {
-          model: db.Profile
-        }
+        attributes: [
+          'id',
+          'email',
+          'username',
+          'code',
+          [
+            Sequelize.literal(`EXISTS(SELECT 1 FROM SavedProfiles WHERE userId = ${blockerUserId} AND savedUserId = blockedUser.id)`), 'isSaved'
+          ],
+        ],
+        include: [
+          {
+            model: db.Profile
+          },
+          {
+            model: db.UserSetting,
+            attributes: ['isPremium', 'membership'],
+          },
+        ]
       }
     })
   },
-  requestPicture: async (requesterUserId, requesteeUserId) => {
+  requestPicture: async (requesterUserId, requesteeUserId, countBasedFeature) => {
     const t = await db.sequelize.transaction()
     try {
       const alreadyRequested = await db.PictureRequest.findOne({ where: { requesterUserId, requesteeUserId, status: requestStatus.PENDING } })
@@ -188,6 +213,13 @@ module.exports = {
         notificationType: notificationType.PICTURE_REQUEST,
         status: 0
       }, { transaction: t })
+      // decrement count  by 1 if user uses count based feature
+      if (countBasedFeature) {
+        await db.UserFeature.decrement('remaining', { by: 1, where: { id: countBasedFeature.id }, transaction: t })
+      }
+      // push notification
+      const { fcmToken } = await db.User.findOne({ where: { id: requesteeUserId }, attributes: ['fcmToken'] })
+      pushNotification.sendNotificationSingle(fcmToken, notificationType.PICTURE_REQUEST, notificationType.PICTURE_REQUEST)
       await t.commit()
       socketFunctions.transmitDataOnRealtime(socketEvents.PICTURE_REQUEST, requesteeUserId, pictureRequest)
       return pictureRequest
@@ -200,7 +232,6 @@ module.exports = {
     // update picture request
     await db.PictureRequest.update(dataToUpdate, { where: { id: requestId } })
     const updatedRequest = await db.PictureRequest.findOne({ where: { id: requestId } })
-    const requesteeUser = await db.User.findOne({ where: { id: updatedRequest.requesteeUserId } })
     const notificationPayload = {
       userId: updatedRequest.requesterUserId,
       resourceId: updatedRequest.requesteeUserId,
@@ -209,6 +240,9 @@ module.exports = {
     }
     if (dataToUpdate?.status === requestStatus.ACCEPTED) {
       notificationPayload['notificationType'] = notificationType.PICTURE_SENT
+      // push notification
+      const { fcmToken } = await db.User.findOne({ where: { id: notificationPayload.userId }, attributes: ['fcmToken'] })
+      pushNotification.sendNotificationSingle(fcmToken, notificationPayload.notificationType, notificationPayload.notificationType)
     } else if (dataToUpdate?.status === requestStatus.REJECTED) {
       notificationPayload['notificationType'] = notificationType.PICTURE_REQUEST_REJECTED
     } else {
@@ -241,10 +275,36 @@ module.exports = {
       include: {
         model: db.User,
         as: 'requesteeUser',
-        attributes: ['id', 'email', 'username', 'code'],
-        include: {
-          model: db.Profile
-        }
+        attributes: [
+          'id',
+          'email',
+          'username',
+          'code',
+          [
+            Sequelize.literal(`EXISTS(SELECT 1 FROM SavedProfiles WHERE userId = ${userId} AND savedUserId = requesteeUser.id)`), 'isSaved'
+          ],
+        ],
+        include: [
+          {
+            model: db.Profile
+          },
+          {
+            model: db.UserSetting,
+            attributes: ['isPremium', 'membership']
+          },
+          {
+            model: db.BlockedUser,
+            as: 'blockedUser',
+            where: { blockerUserId: userId },
+            required: false,
+          },
+          {
+            model: db.BlockedUser,
+            as: 'blockerUser',
+            where: { blockedUserId: userId },
+            required: false,
+          },
+        ]
       }
     })
   },
@@ -267,10 +327,36 @@ module.exports = {
       include: {
         model: db.User,
         as: 'requesterUser',
-        attributes: ['id', 'email', 'username', 'code'],
-        include: {
-          model: db.Profile
-        }
+        attributes: [
+          'id',
+          'email',
+          'username',
+          'code',
+          [
+            Sequelize.literal(`EXISTS(SELECT 1 FROM SavedProfiles WHERE userId = ${userId} AND savedUserId = requesterUser.id)`), 'isSaved'
+          ],
+        ],
+        include: [
+          {
+            model: db.Profile
+          },
+          {
+            model: db.UserSetting,
+            attributes: ['isPremium', 'membership']
+          },
+          {
+            model: db.BlockedUser,
+            as: 'blockedUser',
+            where: { blockerUserId: userId },
+            required: false,
+          },
+          {
+            model: db.BlockedUser,
+            as: 'blockerUser',
+            where: { blockedUserId: userId },
+            required: false,
+          },
+        ]
       }
     })
   },
@@ -287,10 +373,35 @@ module.exports = {
       include: {
         model: db.User,
         as: 'pictureRequesterUser',
-        attributes: ['id', 'username', 'code'],
-        include: {
-          model: db.Profile
-        },
+        attributes: [
+          'id',
+          'username',
+          'code',
+          [
+            Sequelize.literal(`EXISTS(SELECT 1 FROM SavedProfiles WHERE userId = ${userId} AND savedUserId = pictureRequesterUser.id)`), 'isSaved'
+          ],
+        ],
+        include: [
+          {
+            model: db.Profile
+          },
+          {
+            model: db.UserSetting,
+            attributes: ['isPremium', 'membership']
+          },
+          {
+            model: db.BlockedUser,
+            as: 'blockedUser',
+            where: { blockerUserId: userId },
+            required: false,
+          },
+          {
+            model: db.BlockedUser,
+            as: 'blockerUser',
+            where: { blockedUserId: userId },
+            required: false,
+          },
+        ]
       },
     })
   },
@@ -304,10 +415,36 @@ module.exports = {
       include: {
         model: db.User,
         as: 'requesteeUser',
-        attributes: ['id', 'email', 'username', 'code'],
-        include: {
-          model: db.Profile
-        }
+        attributes: [
+          'id',
+          'email',
+          'username',
+          'code',
+          [
+            Sequelize.literal(`EXISTS(SELECT 1 FROM SavedProfiles WHERE userId = ${userId} AND savedUserId = requesteeUser.id)`), 'isSaved'
+          ],
+        ],
+        include: [
+          {
+            model: db.Profile
+          },
+          {
+            model: db.UserSetting,
+            attributes: ['isPremium', 'membership']
+          },
+          {
+            model: db.BlockedUser,
+            as: 'blockedUser',
+            where: { blockerUserId: userId },
+            required: false,
+          },
+          {
+            model: db.BlockedUser,
+            as: 'blockerUser',
+            where: { blockedUserId: userId },
+            required: false,
+          },
+        ]
       }
     })
     return rejectedContactDetails
@@ -322,10 +459,36 @@ module.exports = {
       include: {
         model: db.User,
         as: 'requesterUser',
-        attributes: ['id', 'email', 'username', 'code'],
-        include: {
-          model: db.Profile
-        }
+        attributes: [
+          'id',
+          'email',
+          'username',
+          'code',
+          [
+            Sequelize.literal(`EXISTS(SELECT 1 FROM SavedProfiles WHERE userId = ${userId} AND savedUserId = requesterUser.id)`), 'isSaved'
+          ],
+        ],
+        include: [
+          {
+            model: db.Profile
+          },
+          {
+            model: db.UserSetting,
+            attributes: ['isPremium', 'membership']
+          },
+          {
+            model: db.BlockedUser,
+            as: 'blockedUser',
+            where: { blockerUserId: userId },
+            required: false,
+          },
+          {
+            model: db.BlockedUser,
+            as: 'blockerUser',
+            where: { blockedUserId: userId },
+            required: false,
+          },
+        ]
       }
     })
     return rejectedContactDetails
@@ -355,6 +518,9 @@ module.exports = {
       notificationType: notificationType.MATCH_CANCELLED,
       status: false,
     })
+    // push notification
+    const { fcmToken } = await db.User.findOne({ where: { id: otherUserId }, attributes: ['fcmToken'] })
+    pushNotification.sendNotificationSingle(fcmToken, notificationType.MATCH_CANCELLED, notificationType.MATCH_CANCELLED)
     return true
   },
   markNotificationAsReadOrUnread: async (notificationIds, status) => {
@@ -362,7 +528,7 @@ module.exports = {
       where: { id: notificationIds }
     })
   },
-  requestExtraInfo: async (requesterUserId, requesteeUserId, body) => {
+  requestExtraInfo: async (requesterUserId, requesteeUserId, body, countBasedFeature) => {
     const { questions } = body
     const t = await db.sequelize.transaction()
     try {
@@ -411,6 +577,13 @@ module.exports = {
         notificationType: notificationType.QUESTION_RECEIVED,
         status: 0
       }, { transaction: t })
+      // decrement count  by 1 if user uses count based feature
+      if (countBasedFeature) {
+        await db.UserFeature.decrement('remaining', { by: 1, where: { id: countBasedFeature.id }, transaction: t })
+      }
+      // push notification
+      const { fcmToken } = await db.User.findOne({ where: { id: requesteeUserId }, attributes: ['fcmToken'] })
+      pushNotification.sendNotificationSingle(fcmToken, notificationType.QUESTION_RECEIVED, notificationType.QUESTION_RECEIVED)
       await t.commit()
       return true
     } catch (error) {
@@ -459,6 +632,9 @@ module.exports = {
         notificationType: notificationType.QUESTION_ANSWERED,
         status: 0
       }, { transaction: t })
+      // push notification
+      const { fcmToken } = await db.User.findOne({ where: { id: updatedQuestion.askingUserId }, attributes: ['fcmToken'] })
+      pushNotification.sendNotificationSingle(fcmToken, notificationType.QUESTION_ANSWERED, notificationType.QUESTION_ANSWERED)
       await t.commit()
       return true
     } catch (error) {
@@ -488,10 +664,36 @@ module.exports = {
       include: {
         model: db.User,
         as: 'viewerUser',
-        attributes: ['id', 'email', 'username', 'code'],
-        include: {
-          model: db.Profile,
-        },
+        attributes: [
+          'id',
+          'email',
+          'username',
+          'code',
+          [
+            Sequelize.literal(`EXISTS(SELECT 1 FROM SavedProfiles WHERE userId = ${userId} AND savedUserId = viewerUser.id)`), 'isSaved'
+          ],
+        ],
+        include: [
+          {
+            model: db.Profile,
+          },
+          {
+            model: db.UserSetting,
+            attributes: ['isPremium', 'membership']
+          },
+          {
+            model: db.BlockedUser,
+            as: 'blockedUser',
+            where: { blockerUserId: userId },
+            required: false,
+          },
+          {
+            model: db.BlockedUser,
+            as: 'blockerUser',
+            where: { blockedUserId: userId },
+            required: false,
+          },
+        ]
       }
     })
   },
@@ -506,10 +708,36 @@ module.exports = {
       include: {
         model: db.User,
         as: 'requesteeUser',
-        attributes: ['id', 'email', 'username', 'code'],
-        include: {
-          model: db.Profile
-        }
+        attributes: [
+          'id',
+          'email',
+          'username',
+          'code',
+          [
+            Sequelize.literal(`EXISTS(SELECT 1 FROM SavedProfiles WHERE userId = ${userId} AND savedUserId = requesteeUser.id)`), 'isSaved'
+          ],
+        ],
+        include: [
+          {
+            model: db.Profile
+          },
+          {
+            model: db.UserSetting,
+            attributes: ['isPremium', 'membership']
+          },
+          {
+            model: db.BlockedUser,
+            as: 'blockedUser',
+            where: { blockerUserId: userId },
+            required: false,
+          },
+          {
+            model: db.BlockedUser,
+            as: 'blockerUser',
+            where: { blockedUserId: userId },
+            required: false,
+          },
+        ]
       }
     })
   },
@@ -524,21 +752,54 @@ module.exports = {
       include: {
         model: db.User,
         as: 'requesterUser',
-        attributes: ['id', 'email', 'username', 'code'],
-        include: {
-          model: db.Profile
-        }
+        attributes: [
+          'id',
+          'email',
+          'username',
+          'code',
+          [
+            Sequelize.literal(`EXISTS(SELECT 1 FROM SavedProfiles WHERE userId = ${userId} AND savedUserId = requesterUser.id)`), 'isSaved'
+          ],
+        ],
+        include: [
+          {
+            model: db.Profile
+          },
+          {
+            model: db.UserSetting,
+            attributes: ['isPremium', 'membership']
+          },
+          {
+            model: db.BlockedUser,
+            as: 'blockedUser',
+            where: { blockerUserId: userId },
+            required: false,
+          },
+          {
+            model: db.BlockedUser,
+            as: 'blockerUser',
+            where: { blockedUserId: userId },
+            required: false,
+          },
+        ]
       }
     })
   },
   updateUser: async (userId, body) => {
-    const { email } = body
+    const { email, phoneNo } = body
+    const verificationCode = Math.floor(100000 + Math.random() * 900000)
     if (email) { // check if updating email not exist before or used by someone else
       const userExist = await db.User.findOne({ where: { email } })
       if (userExist && userExist.id !== userId) {
         throw new Error('Email already exist.')
       }
+      // send verification email to user.
     }
-    return db.User.update({ ...body }, { where: { id: userId } })
+    if (phoneNo) {
+      // generate otp
+      await db.User.update({ otp: verificationCode, otpExpiry: new Date() }, { where: { id: userId } })
+      // send otp to user on phoneNo if user verify otp then we need to add/update phoneNo
+    }
+    return { verificationCode }
   },
 }

@@ -42,6 +42,34 @@ const helperFunctions = {
     }
     return true
   },
+  getUserProfile: async (userId) => {
+    return db.User.findOne({
+      where: { id: userId },
+      include: [
+        {
+          model: db.Profile
+        },
+        {
+          model: db.UserLanguage
+        },
+        {
+          model: db.UserSetting,
+          attributes: { exclude: ['id', 'userId', 'createdAt', 'updatedAt'] }
+        },
+      ]
+    })
+  },
+  createUserFeature: async (userId, featureId, featureType, validityType, expiryDate, remaining, t) => {
+    return db.UserFeature.create({
+      userId,
+      featureId,
+      featureType,
+      validityType,
+      expiryDate,
+      remaining,
+      status: 1,
+    }, { transaction: t })
+  }
 }
 
 module.exports = helperFunctions

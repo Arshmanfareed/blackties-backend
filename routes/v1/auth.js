@@ -19,13 +19,13 @@ const auth = require('../../middlewares/auth')
  *         application/json:
  *           schema:
  *             type: object
- *             required:
- *               - email
  *             properties:
- *               email:
+ *               userId:
+ *                 type: integer
+ *               phoneNo:
  *                 type: string
  *               code:
- *                 type: integer
+ *                 type: string
  *     tags:
  *     - Auth
  *     operationId: verifyCode
@@ -142,6 +142,8 @@ router.get('/health-check', (req, res) => { return res.status(200).send({ succes
  *               email:
  *                 type: string
  *               password:
+ *                 type: string
+ *               fcmToken:
  *                 type: string
  *     tags:
  *     - Auth

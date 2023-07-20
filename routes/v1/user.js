@@ -2,6 +2,9 @@ const router = require('express').Router()
 const { userController } = require('../../controllers')
 const auth = require('../../middlewares/auth')
 const { uploadUserMedia } = require('../../utils/file-upload')
+const pictureRequest = require('../../middlewares/pictureRequest')
+const contactDetailsRequest = require('../../middlewares/contactDetailsRequest')
+const extraInformationRequest = require('../../middlewares/extraInformationRequest')
 
 /**
  * @swagger
@@ -57,7 +60,7 @@ const { uploadUserMedia } = require('../../utils/file-upload')
  *         description: ''
  *         headers: {}
  */
-router.post('/:id/request/contact-details', auth, userController.requestContactDetails)
+router.post('/:id/request/contact-details', auth, contactDetailsRequest, userController.requestContactDetails)
 
 /**
  * @swagger
@@ -240,7 +243,7 @@ router.get('/block-list', auth, userController.getListOfBlockedUsers)
  *         description: ''
  *         headers: {}
  */
-router.post('/:id/request/picture', auth, userController.requestPicture)
+router.post('/:id/request/picture', auth, pictureRequest, userController.requestPicture)
 
 /**
  * @swagger
@@ -447,7 +450,7 @@ router.patch('/:id/cancel-match', auth, userController.cancelMatch)
  *         description: ''
  *         headers: {}
  */
-router.post('/:id/request/extra-info', auth, userController.requestExtraInfo)
+router.post('/:id/request/extra-info', auth, extraInformationRequest, userController.requestExtraInfo)
 
 /**
  * @swagger

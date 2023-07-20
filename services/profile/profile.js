@@ -2,11 +2,12 @@ const db = require('../../models')
 const constants = require('../../config/constants')
 const { Op, where, Sequelize } = require('sequelize')
 const { getPaginatedResult } = require('../../utils/array-paginate')
+const helperFunctions = require('../../helpers')
 
 module.exports = {
   listAllProfiles: async (body, limit, offset) => {
     const today = new Date();
-    const { gender, sortBy, sortOrder, age, nationality, country, city, height, weight, ethnicity, healthStatus, language, skinColor, religiosity, tribialAffiliation, education, financialStatus, maritalStatus, username, isGold } = body
+    const { loggedInUserId, gender, sortBy, sortOrder, age, nationality, country, city, height, weight, ethnicity, healthStatus, language, skinColor, religiosity, tribialAffiliation, education, financialStatus, maritalStatus, usernameOrCode, isGold } = body
     const { REGULAR, SILVER, GOLD } = constants.membership
     const whereFilterProfile = {
       height: { [Op.between]: [height[0], height[1]] },
@@ -29,21 +30,32 @@ module.exports = {
     if (sortBy != 'lastSeen') {
       sortOrderQuery = [sortBy, sortOrder]
     }
-    const usernameQuery = username ? `%${username}%` : "%%";
+    const usernameOrCodeQuery = usernameOrCode ? `%${usernameOrCode}%` : "%%";
+    const userAttributesToSelect = [
+      'id',
+      'email',
+      'username',
+      'status',
+      'createdAt',
+      'code',
+      [Sequelize.literal(`TIMESTAMPDIFF(YEAR, dateOfBirth, '${today.toISOString()}')`), 'age'],
+    ]
+    if (loggedInUserId) {
+      userAttributesToSelect.push(
+        [
+          Sequelize.literal(`EXISTS(SELECT 1 FROM SavedProfiles WHERE userId = ${loggedInUserId} AND savedUserId = User.id)`), 'isSaved'
+        ]
+      )
+    }
     const users = await db.User.findAll({
       where: {
         role: constants.roles.USER,
-        username: { [Op.like]: usernameQuery }
+        [Op.or]: {
+          username: { [Op.like]: usernameOrCodeQuery },
+          code: { [Op.like]: usernameOrCodeQuery },
+        }
       },
-      attributes: [
-        'id',
-        'email',
-        'username',
-        'status',
-        'createdAt',
-        'code',
-        [Sequelize.literal(`TIMESTAMPDIFF(YEAR, dateOfBirth, '${today.toISOString()}')`), 'age']
-      ],
+      attributes: userAttributesToSelect,
       include: [
         {
           model: db.Profile,
@@ -73,22 +85,12 @@ module.exports = {
     return { count: users.length, rows: paginatedRecords }
   },
   getUserProfile: async (userId) => {
-    return db.User.findOne({
-      where: { id: userId },
-      include: [
-        {
-          model: db.Profile
-        },
-        {
-          model: db.UserLanguage
-        }
-      ]
-    })
+    return helperFunctions.getUserProfile(userId)
   },
   updateProfile: async (body, userId) => {
     const t = await db.sequelize.transaction()
     try {
-      const { userLanguages } = body
+      const { userLanguages, username } = body
       if (userLanguages) {
         await db.UserLanguage.destroy({ where: { userId } })
         if (userLanguages.length > 0) {
@@ -97,14 +99,18 @@ module.exports = {
         }
         delete body['language']
       }
+      if (username) {
+        await db.User.update({ username }, { where: { id: userId }, transaction: t })
+        delete body.username
+      }
       if (Object.keys(body).length > 0) {
         await db.Profile.update({ ...body }, { where: { userId }, transaction: t })
       }
       await t.commit()
-      return true
+      return helperFunctions.getUserProfile(userId)
     } catch (error) {
-      await t.rollback()
       console.log(error)
+      await t.rollback()
       return false
     }
   },
@@ -123,10 +129,28 @@ module.exports = {
       include: {
         model: db.User,
         as: 'savedUser',
-        attributes: ['id', 'email', 'username', 'language', 'createdAt'],
-        include: {
-          model: db.Profile
-        }
+        attributes: ['id', 'email', 'username', 'language', 'code', 'createdAt'],
+        include: [
+          {
+            model: db.Profile
+          },
+          {
+            model: db.UserSetting,
+            attributes: ['isPremium', 'membership']
+          },
+          {
+            model: db.BlockedUser,
+            as: 'blockedUser',
+            where: { blockerUserId: userId },
+            required: false,
+          },
+          {
+            model: db.BlockedUser,
+            as: 'blockerUser',
+            where: { blockedUserId: userId },
+            required: false,
+          },
+        ]
       }
     })
   },
@@ -136,14 +160,52 @@ module.exports = {
       include: {
         model: db.User,
         as: 'user',
-        attributes: ['id', 'email', 'username', 'language', 'createdAt'],
-        include: {
-          model: db.Profile
-        }
+        attributes: [
+          'id',
+          'email',
+          'username',
+          'language',
+          'code',
+          'createdAt',
+          [
+            Sequelize.literal(`EXISTS(SELECT 1 FROM SavedProfiles WHERE userId = ${userId} AND savedUserId = user.id)`), 'isSaved'
+          ],
+        ],
+        include: [
+          {
+            model: db.Profile
+          },
+          {
+            model: db.UserSetting,
+            attributes: ['isPremium', 'membership']
+          },
+          {
+            model: db.BlockedUser,
+            as: 'blockedUser',
+            where: { blockerUserId: userId },
+            required: false,
+          },
+          {
+            model: db.BlockedUser,
+            as: 'blockerUser',
+            where: { blockedUserId: userId },
+            required: false,
+          },
+        ]
       }
     })
   },
   getMyMatchesProfiles: async (userId) => {
+    const userAttributes = [
+      'id',
+      'username',
+      'email',
+      'createdAt',
+      'code',
+      [
+        Sequelize.literal(`EXISTS(SELECT 1 FROM SavedProfiles WHERE userId = ${userId} AND savedUserId = user.id)`), 'isSaved'
+      ],
+    ]
     let matchesProfiles = await db.Match.findAll({
       where: {
         [Op.or]: [
@@ -155,18 +217,54 @@ module.exports = {
         {
           model: db.User,
           as: 'user',
-          attributes: ['id', 'username', 'email', 'createdAt', 'code'],
-          include: {
-            model: db.Profile
-          },
+          attributes: userAttributes,
+          include: [
+            {
+              model: db.Profile
+            },
+            {
+              model: db.UserSetting,
+              attributes: ['isPremium', 'membership']
+            },
+            {
+              model: db.BlockedUser,
+              as: 'blockedUser',
+              where: { blockerUserId: userId },
+              required: false,
+            },
+            {
+              model: db.BlockedUser,
+              as: 'blockerUser',
+              where: { blockedUserId: userId },
+              required: false,
+            },
+          ],
         },
         {
           model: db.User,
           as: 'otherUser',
-          attributes: ['id', 'username', 'email', 'createdAt', 'code'],
-          include: {
-            model: db.Profile
-          },
+          attributes: userAttributes,
+          include: [
+            {
+              model: db.Profile
+            },
+            {
+              model: db.UserSetting,
+              attributes: ['isPremium', 'membership']
+            },
+            {
+              model: db.BlockedUser,
+              as: 'blockedUser',
+              where: { blockerUserId: userId },
+              required: false,
+            },
+            {
+              model: db.BlockedUser,
+              as: 'blockerUser',
+              where: { blockedUserId: userId },
+              required: false,
+            },
+          ],
         }
       ]
     })
@@ -187,19 +285,56 @@ module.exports = {
     return matchesProfiles
   },
   getUserProfileWithDetails: async (loginUserId, otherUserId) => {
-    let user, extraInfoRequest, pictureRequest, contactDetailsRequest;
-    user = db.User.findOne({
-      where: { id: otherUserId },
-      attributes: ['id', 'username', 'email', 'code', 'createdAt'],
-      include: [
+    let extraInfoRequest = pictureRequest = contactDetailsRequest = null;
+    const userAttributes = [
+      'id',
+      'username',
+      'email',
+      'code',
+      'createdAt',
+    ]
+    let includeTables = [
+      {
+        model: db.Profile
+      },
+      {
+        model: db.UserLanguage
+      },
+      {
+        model: db.UserSetting,
+        attributes: ['isPremium', 'membership']
+      },
+    ]
+    if (loginUserId) {
+      userAttributes.push(
+        [
+          Sequelize.literal(`EXISTS(SELECT 1 FROM SavedProfiles WHERE userId = ${loginUserId} AND savedUserId = ${otherUserId})`), 'isSaved'
+        ]
+      );
+      includeTables = [
+        ...includeTables,
         {
-          model: db.Profile
+          model: db.BlockedUser,
+          as: 'blockedUser',
+          where: { blockerUserId: loginUserId },
+          required: false,
         },
         {
-          model: db.UserLanguage
-        },
+          model: db.BlockedUser,
+          as: 'blockerUser',
+          where: { blockedUserId: loginUserId },
+          required: false,
+        }
       ]
+    }
+    const user = await db.User.findOne({
+      where: { id: otherUserId },
+      attributes: userAttributes,
+      include: includeTables,
     })
+    if (!loginUserId) {
+      return { user, extraInfoRequest, pictureRequest, contactDetailsRequest }
+    }
     const requestsWhereClause = {
       [Op.or]: [
         { requesterUserId: loginUserId, requesteeUserId: otherUserId },
@@ -224,8 +359,8 @@ module.exports = {
         model: db.ContactDetails
       }
     })
-    const promiseResolved = await Promise.all([user, extraInfoRequest, pictureRequest, contactDetailsRequest]);
-    [user, extraInfoRequest, pictureRequest, contactDetailsRequest] = promiseResolved
+    const promiseResolved = await Promise.all([extraInfoRequest, pictureRequest, contactDetailsRequest]);
+    [extraInfoRequest, pictureRequest, contactDetailsRequest] = promiseResolved
     return { user, pictureRequest, extraInfoRequest, contactDetailsRequest }
   },
 }

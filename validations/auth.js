@@ -4,10 +4,14 @@ const { gender } = require('../config/constants')
 module.exports = {
   validateVerifyCode: function (obj) {
     const schema = Joi.object({
-      email: Joi.string().email().required().label('Email').messages({
+      userId: Joi.number().required().label('userId').messages({
+        'any.required': `{#label} is Required`,
+        'string.email': 'Enter a valid email',
+      }),
+      phoneNo: Joi.string().required().label('Phone No').messages({
         'any.required': `{#label} is Required`,
       }),
-      code: Joi.number().required().label('Code').messages({
+      code: Joi.string().required().label('Code').messages({
         'any.required': `{#label} is Required`,
       }),
     })
@@ -25,6 +29,7 @@ module.exports = {
     const schema = Joi.object({
       email: Joi.string().email().required().label('Email').messages({
         'any.required': `{#label} is Required`,
+        'string.email': 'Enter a valid email',
       }),
       password: Joi.string().required().label('Password').messages({
         'any.required': `{#label} is Required`,
@@ -80,6 +85,7 @@ module.exports = {
       }),
       email: Joi.string().required().label('Email').messages({
         'any.required': `{#label} is Required`,
+        'string.email': 'Enter a valid email',
       }),
       password: Joi.string().min(8).max(50).required().label('Password').messages({
         'any.required': `{#label} is Required`,

@@ -9,9 +9,9 @@ const helpers = require('../../helpers')
 
 module.exports = {
   verifyCode: async (body) => {
-    const { email, code } = body
+    const { userId, code, phoneNo } = body
     let user = await db.User.findOne({
-      where: { email, deletedAt: { [Op.eq]: null } },
+      where: { id: userId, deletedAt: { [Op.eq]: null } },
       attributes: { exclude: ['password'] },
     })
     if (!user) {
@@ -26,15 +26,12 @@ module.exports = {
         // check for expiry
         throw new Error('Code is expired.')
       }
-      // remove the code
+      // remove the code and update the phoneNo
       await db.User.update(
-        { otp: null, otpExpiry: null },
+        { otp: null, otpExpiry: null, phoneNo },
         { where: { id: user.id } }
       )
-      // generate JWT
-      user = user.toJSON()
-      const dataForToken = { ...user }
-      return { ...user, JWTToken: generateJWT(dataForToken) }
+      return user
     } else {
       throw Error('Invalid code.')
     }
@@ -49,12 +46,12 @@ module.exports = {
       const { email, username, password, sex, dateOfBirth, height, weight, country, city, nationality, religiosity, education, skinColor, ethnicity, maritalStatus, language, tribe } = body
       let userExistByEmail = await db.User.findOne({ where: { email /* [Op.or]: [{ email }, { username }] */ } })
       if (userExistByEmail) {
-        throw new Error("User already exist with this email")
+        throw new Error("An account using this email already exists")
       }
       const salt = await bcryptjs.genSalt(10);
       const hashedPassword = await bcryptjs.hash(password, salt)
       const userCode = await helpers.generateUserCode(sex)
-      const userCreated = await db.User.create({ email, username, password: hashedPassword, status: status.UNVERIFIED, otp: verificationCode, otpExpiry: new Date(), language, code: userCode }, { transaction: t })
+      let userCreated = await db.User.create({ email, username, password: hashedPassword, status: status.UNVERIFIED, otp: verificationCode, otpExpiry: new Date(), language, code: userCode }, { transaction: t })
       const { id: userId } = userCreated
       const profileCreated = await db.Profile.create({ userId, sex, dateOfBirth, height, weight, country, city, nationality, religiosity, education, skinColor, ethnicity, maritalStatus, tribe }, { transaction: t })
       await db.Wallet.create({ userId, amount: 0 }, { transaction: t })
@@ -62,14 +59,18 @@ module.exports = {
       await t.commit()
       // send OTP or verification link
       helpers.sendAccountActivationLink(email, userCreated.id, verificationCode)
-      return { userCreated, profileCreated }
+      // auth token
+      userCreated = JSON.parse(JSON.stringify(userCreated))
+      delete userCreated.password
+      return { userCreated, profileCreated, JWTToken: generateJWT(userCreated) }
     } catch (error) {
+      console.log(error);
       await t.rollback()
       throw new Error(error.message)
     }
   },
   login: async (body) => {
-    const { email, password } = body
+    const { email, password, fcmToken } = body
     let user = await db.User.findOne({
       where: { email },
       include: [
@@ -92,6 +93,10 @@ module.exports = {
     const isCorrectPassword = await bcryptjs.compare(password, user.password)
     if (!isCorrectPassword) {
       throw new Error('Incorrect email or password')
+    }
+    // update fcmToken in db
+    if (fcmToken) {
+      await db.User.update({ fcmToken }, { where: { id: user.id } })
     }
     user = JSON.parse(JSON.stringify(user))
     delete user['password']
