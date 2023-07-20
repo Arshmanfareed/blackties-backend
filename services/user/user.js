@@ -238,6 +238,7 @@ module.exports = {
       resourceType: 'USER',
       status: 0
     }
+    const recipientUserId = updatedRequest.requesterUserId;
     if (dataToUpdate?.status === requestStatus.ACCEPTED) {
       notificationPayload['notificationType'] = notificationType.PICTURE_SENT
       // push notification
@@ -246,10 +247,13 @@ module.exports = {
     } else if (dataToUpdate?.status === requestStatus.REJECTED) {
       notificationPayload['notificationType'] = notificationType.PICTURE_REQUEST_REJECTED
     } else {
+      // picture is viewed by the targetted user
+      socketFunctions.transmitDataOnRealtime(socketEvents.PICTURE_REQUEST_RESPOND, updatedRequest.requesteeUserId, dataToUpdate)
       return true
     }
     // create notification and notifiy user about request accept or reject status
     await db.Notification.create(notificationPayload)
+    socketFunctions.transmitDataOnRealtime(socketEvents.PICTURE_REQUEST_RESPOND, recipientUserId, dataToUpdate)
     return true
   },
   getUserNotifications: async (userId, limit, offset, queryStatus) => {

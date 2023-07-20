@@ -59,6 +59,7 @@ module.exports = {
   },
   socketEvents: {
     PICTURE_REQUEST: 'picture-request',
+    PICTURE_REQUEST_RESPOND: 'picture-request-respond',
   },
   apiPrefix: '/dev/mahaba/api/v1',
 }
