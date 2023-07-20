@@ -818,4 +818,20 @@ module.exports = {
       { where: { userId }, }
     )
   },
+  getUserWalletAndMembership: async (userId) => {
+    return db.User.findOne({
+      attributes: [],
+      where: { id: userId },
+      include: [
+        {
+          model: db.Wallet,
+          attributes: ['userId', 'amount']
+        },
+        {
+          model: db.UserSetting,
+          attributes: ['isPremium', 'membership']
+        }
+      ]
+    })
+  },
 }

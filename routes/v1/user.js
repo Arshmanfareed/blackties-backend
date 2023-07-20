@@ -602,6 +602,32 @@ router.patch('/', auth, userController.updateUser)
 
 /**
  * @swagger
+ * /user/wallet:
+ *   get:
+ *     summary: Get Walet and membership details
+ *     consumes:
+ *      - application/json
+ *     produces:
+ *      - application/json
+ *     tags:
+ *     - User
+ *     parameters:
+ *     - name: x-auth-token
+ *       in: header
+ *       required: true
+ *       type: string
+ *       description: an authorization header
+ *     deprecated: false
+ *     operationId: getUserWalletAndMembership
+ *     responses:
+ *       '200':
+ *         description: ''
+ *         headers: {}
+ */
+router.get('/wallet', auth, userController.getUserWalletAndMembership)
+
+/**
+ * @swagger
  * /user/notification-toggle:
  *   get:
  *     summary: Get list of notification toggles
@@ -688,6 +714,5 @@ router.get('/notification-toggle', auth, userController.getNotificationToggles)
  *         headers: {}
  */
 router.put('/notification-toggle', auth, userController.updateNotificationToggles)
-
 
 module.exports = router
