@@ -40,12 +40,39 @@ module.exports = {
       'code',
       [Sequelize.literal(`TIMESTAMPDIFF(YEAR, dateOfBirth, '${today.toISOString()}')`), 'age'],
     ]
+    const includeTables = [
+      {
+        model: db.Profile,
+        where: whereFilterProfile,
+      },
+      {
+        model: db.UserLanguage,
+        ...(language.length > 0 ? { where: { language } } : {}),
+      },
+      {
+        model: db.UserSetting,
+        attributes: ['isPremium', 'membership', 'lastSeen'],
+        where: { membership: isGold ? 'Gold' : [REGULAR, SILVER, GOLD] },
+      },
+    ]
     if (loggedInUserId) {
       userAttributesToSelect.push(
         [
           Sequelize.literal(`EXISTS(SELECT 1 FROM SavedProfiles WHERE userId = ${loggedInUserId} AND savedUserId = User.id)`), 'isSaved'
         ]
-      )
+      );
+      includeTables.push({
+        model: db.BlockedUser,
+        as: 'blockedUser',
+        where: { blockerUserId: loggedInUserId },
+        required: false,
+      });
+      includeTables.push({
+        model: db.BlockedUser,
+        as: 'blockerUser',
+        where: { blockedUserId: loggedInUserId },
+        required: false,
+      })
     }
     const users = await db.User.findAll({
       where: {
@@ -56,21 +83,7 @@ module.exports = {
         }
       },
       attributes: userAttributesToSelect,
-      include: [
-        {
-          model: db.Profile,
-          where: whereFilterProfile,
-        },
-        {
-          model: db.UserLanguage,
-          ...(language.length > 0 ? { where: { language } } : {}),
-        },
-        {
-          model: db.UserSetting,
-          attributes: ['isPremium', 'membership', 'lastSeen'],
-          where: { membership: isGold ? 'Gold' : [REGULAR, SILVER, GOLD] },
-        },
-      ],
+      include: includeTables,
       having: {
         'age': {
           [Op.gte]: age[0],
