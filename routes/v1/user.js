@@ -597,4 +597,30 @@ router.post('/:id/seen', auth, userController.addSeenToUserProfile)
  */
 router.patch('/', auth, userController.updateUser)
 
+/**
+ * @swagger
+ * /user/wallet:
+ *   get:
+ *     summary: Get Walet and membership details
+ *     consumes:
+ *      - application/json
+ *     produces:
+ *      - application/json
+ *     tags:
+ *     - User
+ *     parameters:
+ *     - name: x-auth-token
+ *       in: header
+ *       required: true
+ *       type: string
+ *       description: an authorization header
+ *     deprecated: false
+ *     operationId: getUserWalletAndMembership
+ *     responses:
+ *       '200':
+ *         description: ''
+ *         headers: {}
+ */
+router.get('/wallet', auth, userController.getUserWalletAndMembership)
+
 module.exports = router
