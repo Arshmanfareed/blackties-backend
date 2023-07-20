@@ -57,5 +57,9 @@ module.exports = {
     SEE_WHO_SAVED_MY_PROFILE: 'SEE_WHO_SAVED_MY_PROFILE',
     PICTURE_REQUEST: 'PICTURE_REQUEST',
   },
+  socketEvents: {
+    PICTURE_REQUEST: 'picture-request',
+    PICTURE_REQUEST_RESPOND: 'picture-request-respond',
+  },
   apiPrefix: '/dev/mahaba/api/v1',
 }

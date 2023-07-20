@@ -1,8 +1,9 @@
-const { requestStatus, gender, notificationType } = require('../../config/constants')
+const { requestStatus, gender, notificationType, socketEvents } = require('../../config/constants')
 const helperFunctions = require('../../helpers')
 const db = require('../../models')
 const { Op, Sequelize } = require('sequelize')
 const pushNotification = require('../../utils/push-notification')
+const socketFunctions = require('../../socket')
 
 module.exports = {
   requestContactDetails: async (requesterUserId, requesteeUserId, body, countBasedFeature) => {
@@ -220,6 +221,7 @@ module.exports = {
       const { fcmToken } = await db.User.findOne({ where: { id: requesteeUserId }, attributes: ['fcmToken'] })
       pushNotification.sendNotificationSingle(fcmToken, notificationType.PICTURE_REQUEST, notificationType.PICTURE_REQUEST)
       await t.commit()
+      socketFunctions.transmitDataOnRealtime(socketEvents.PICTURE_REQUEST, requesteeUserId, pictureRequest)
       return pictureRequest
     } catch (error) {
       await t.rollback()
@@ -236,6 +238,7 @@ module.exports = {
       resourceType: 'USER',
       status: 0
     }
+    const recipientUserId = updatedRequest.requesterUserId;
     if (dataToUpdate?.status === requestStatus.ACCEPTED) {
       notificationPayload['notificationType'] = notificationType.PICTURE_SENT
       // push notification
@@ -244,10 +247,13 @@ module.exports = {
     } else if (dataToUpdate?.status === requestStatus.REJECTED) {
       notificationPayload['notificationType'] = notificationType.PICTURE_REQUEST_REJECTED
     } else {
+      // picture is viewed by the targetted user
+      socketFunctions.transmitDataOnRealtime(socketEvents.PICTURE_REQUEST_RESPOND, updatedRequest.requesteeUserId, dataToUpdate)
       return true
     }
     // create notification and notifiy user about request accept or reject status
     await db.Notification.create(notificationPayload)
+    socketFunctions.transmitDataOnRealtime(socketEvents.PICTURE_REQUEST_RESPOND, recipientUserId, dataToUpdate)
     return true
   },
   getUserNotifications: async (userId, limit, offset, queryStatus) => {
