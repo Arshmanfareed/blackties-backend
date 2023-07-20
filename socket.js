@@ -60,12 +60,14 @@ function socketInit(server) {
     socket.on('disconnect', async () => {
       try {
         // set socket id of diconnecting user to null 
-        const userId = socket.user.id
+        const { id: userId } = socket.user
         console.log("*********** socket disconnected => ", socket.id, " == userId => ", userId);
-        onlineUsers[userId] = { isOnline: false, socketId: null, lastSeen: new Date() }
-        io.emit('is-online', { recipientId: userId, isOnline: false, lastSeen: new Date() });
-        await db.User.update({ socketId: null }, { where: { id: userId } })
-        await db.UserSetting.update({ lastSeen: new Date() }, { where: { userId } })
+        if (userId) {
+          onlineUsers[userId] = { isOnline: false, socketId: null, lastSeen: new Date() }
+          io.emit('is-online', { recipientId: userId, isOnline: false, lastSeen: new Date() });
+          await db.User.update({ socketId: null }, { where: { id: userId } })
+          await db.UserSetting.update({ lastSeen: new Date() }, { where: { userId } })
+        }
       } catch (error) {
         printErrorLog('disconnect', error.message)
       }
@@ -77,10 +79,19 @@ function socketInit(server) {
 
 // separate events that would be trigger from controller on certain actions
 function someTestEvent(data) {
-  io.emit('test-event', data);
+  io.emit('test-event', data)
+}
+
+function transmitDataOnRealtime(eventName, userId, data) {
+  const receiverUser = onlineUsers[userId]
+  if (receiverUser?.socketId) {
+    console.log(`emit: sending data to userId: ${userId} on event: ${eventName} with data: ${JSON.stringify(data)}`)
+    io.to(receiverUser.socketId).emit(eventName, data);
+  }
 }
 
 module.exports = {
   socketInit,
   someTestEvent,
+  transmitDataOnRealtime
 }

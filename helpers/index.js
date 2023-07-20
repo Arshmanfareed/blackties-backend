@@ -59,6 +59,17 @@ const helperFunctions = {
       ]
     })
   },
+  createUserFeature: async (userId, featureId, featureType, validityType, expiryDate, remaining, t) => {
+    return db.UserFeature.create({
+      userId,
+      featureId,
+      featureType,
+      validityType,
+      expiryDate,
+      remaining,
+      status: 1,
+    }, { transaction: t })
+  }
 }
 
 module.exports = helperFunctions

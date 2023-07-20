@@ -5,9 +5,11 @@ module.exports = (socket, next) => {
   try {
     const { token } = socket.handshake.query
     if (!token) {
-      const err = new Error("Unauthorized");
-      err.data = { content: "Missing Auth Token" }; // additional details
-      next(err);
+      // const err = new Error("Unauthorized");
+      // err.data = { content: "Missing Auth Token" }; // additional details
+      // next(err);
+      socket.user = {}
+      next()
     } else {
       // verifing auth token
       const decoded = jwt.verify(token, JWT_SECRET_KEY);

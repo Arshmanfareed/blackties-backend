@@ -2,6 +2,9 @@ const router = require('express').Router()
 const { userController } = require('../../controllers')
 const auth = require('../../middlewares/auth')
 const { uploadUserMedia } = require('../../utils/file-upload')
+const pictureRequest = require('../../middlewares/pictureRequest')
+const contactDetailsRequest = require('../../middlewares/contactDetailsRequest')
+const extraInformationRequest = require('../../middlewares/extraInformationRequest')
 
 /**
  * @swagger
@@ -57,7 +60,7 @@ const { uploadUserMedia } = require('../../utils/file-upload')
  *         description: ''
  *         headers: {}
  */
-router.post('/:id/request/contact-details', auth, userController.requestContactDetails)
+router.post('/:id/request/contact-details', auth, contactDetailsRequest, userController.requestContactDetails)
 
 /**
  * @swagger
@@ -240,7 +243,7 @@ router.get('/block-list', auth, userController.getListOfBlockedUsers)
  *         description: ''
  *         headers: {}
  */
-router.post('/:id/request/picture', auth, userController.requestPicture)
+router.post('/:id/request/picture', auth, pictureRequest, userController.requestPicture)
 
 /**
  * @swagger
@@ -447,7 +450,7 @@ router.patch('/:id/cancel-match', auth, userController.cancelMatch)
  *         description: ''
  *         headers: {}
  */
-router.post('/:id/request/extra-info', auth, userController.requestExtraInfo)
+router.post('/:id/request/extra-info', auth, extraInformationRequest, userController.requestExtraInfo)
 
 /**
  * @swagger
@@ -622,5 +625,94 @@ router.patch('/', auth, userController.updateUser)
  *         headers: {}
  */
 router.get('/wallet', auth, userController.getUserWalletAndMembership)
+
+/**
+ * @swagger
+ * /user/notification-toggle:
+ *   get:
+ *     summary: Get list of notification toggles
+ *     consumes:
+ *      - application/json
+ *     produces:
+ *      - application/json
+ *     tags:
+ *     - User
+ *     parameters:
+ *     - name: x-auth-token
+ *       in: header
+ *       required: true
+ *       type: string
+ *       description: an authorization header
+ *     operationId: getNotificationToggles
+ *     deprecated: false
+ *     responses:
+ *       '200':
+ *         description: ''
+ *         headers: {}
+ */
+router.get('/notification-toggle', auth, userController.getNotificationToggles)
+
+/**
+ * @swagger
+ * /user/notification-toggle:
+ *   put:
+ *     summary: update (enable/disable) notification toggles
+ *     consumes:
+ *      - application/json
+ *     produces:
+ *      - application/json
+ *     tags:
+ *     - User
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               receiveQuestion:
+ *                 type: boolean
+ *                 default: false
+ *               receiveAnswer:
+ *                 type: boolean
+ *                 default: false
+ *               receivePictureRequest:
+ *                 type: boolean
+ *                 default: false
+ *               contactDetailsRequest:
+ *                 type: boolean
+ *                 default: false
+ *               getMatched:
+ *                 type: boolean
+ *                 default: false
+ *               matchCancelled:
+ *                 type: boolean
+ *                 default: false
+ *               strugglesToConnect:
+ *                 type: boolean
+ *                 default: false
+ *               restrictPushNotificationOfMyNationality:
+ *                 type: boolean
+ *                 default: false
+ *               emailNotification:
+ *                 type: boolean
+ *                 default: false
+ *               restrictEmailNotificationOfMyNationality:
+ *                 type: boolean
+ *                 default: false
+ *     parameters:
+ *     - name: x-auth-token
+ *       in: header
+ *       required: true
+ *       type: string
+ *       description: an authorization header
+ *     operationId: updateNotificationToggles
+ *     deprecated: false
+ *     responses:
+ *       '200':
+ *         description: ''
+ *         headers: {}
+ */
+router.put('/notification-toggle', auth, userController.updateNotificationToggles)
 
 module.exports = router

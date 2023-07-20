@@ -80,4 +80,123 @@ router.get('/stripe-cancel', purchaseController.cancelStripePurchase)
  */
 router.post('/premium', auth, purchaseController.buyPremiumMembership)
 
+/**
+ * @swagger
+ * /purchase/feature:
+ *   get:
+ *     summary: Get list of features 
+ *     consumes:
+ *      - application/json
+ *     produces:
+ *      - application/json
+ *     parameters:
+ *     - name: x-auth-token
+ *       in: header
+ *       required: true
+ *       type: string
+ *       description: an authorization header
+ *     - name: gender
+ *       in: query
+ *       required: false
+ *       type: number
+ *       description: Gender (male, female)
+ *     tags:
+ *     - Purchase
+ *     operationId: getListOfAvailableFeatures
+ *     deprecated: false
+ *     responses:
+ *       '200':
+ *         description: ''
+ *         headers: {}
+ */
+router.get('/feature', auth, purchaseController.getListOfAvailableFeatures)
+
+/**
+ * @swagger
+ * /purchase/feature/{id}:
+ *   post:
+ *     summary: Purchase (unlock) features using wallet money. 
+ *     consumes:
+ *      - application/json
+ *     produces:
+ *      - application/json
+ *     parameters:
+ *     - name: x-auth-token
+ *       in: header
+ *       required: true
+ *       type: string
+ *       description: an authorization header
+ *     - name: id
+ *       in: path
+ *       required: true
+ *       type: number
+ *       description: Id of the feature
+ *     tags:
+ *     - Purchase
+ *     operationId: purchaseIndividualFeature
+ *     deprecated: false
+ *     responses:
+ *       '200':
+ *         description: ''
+ *         headers: {}
+ */
+router.post('/feature/:id', auth, purchaseController.purchaseIndividualFeature)
+
+/**
+ * @swagger
+ * /purchase/user-features:
+ *   get:
+ *     summary: Get details of user purchases
+ *     consumes:
+ *      - application/json
+ *     produces:
+ *      - application/json
+ *     parameters:
+ *     - name: x-auth-token
+ *       in: header
+ *       required: true
+ *       type: string
+ *       description: an authorization header
+ *     tags:
+ *     - Purchase
+ *     operationId: getUserFeatures
+ *     deprecated: false
+ *     responses:
+ *       '200':
+ *         description: ''
+ *         headers: {}
+ */
+router.get('/user-features', auth, purchaseController.getUserFeatures)
+
+/**
+ * @swagger
+ * /purchase/subscription-plans:
+ *   get:
+ *     summary: Get list of available subscription plans 
+ *     consumes:
+ *      - application/json
+ *     produces:
+ *      - application/json
+ *     parameters:
+ *     - name: x-auth-token
+ *       in: header
+ *       required: true
+ *       type: string
+ *       description: an authorization header
+ *     - name: gender
+ *       in: query
+ *       required: false
+ *       type: number
+ *       description: Gender (male, female)
+ *     tags:
+ *     - Purchase
+ *     operationId: getSubscriptionPlans
+ *     deprecated: false
+ *     responses:
+ *       '200':
+ *         description: ''
+ *         headers: {}
+ */
+router.get('/subscription-plans', auth, purchaseController.getSubscriptionPlans)
+
 module.exports = router

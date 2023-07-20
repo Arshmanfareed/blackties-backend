@@ -7,13 +7,13 @@ const { requestStatus } = require('../../config/constants')
 module.exports = {
   requestContactDetails: async (req, res) => {
     const { id: requesteeUserId } = req.params
-    const { id: requesterUserId } = req.user
+    const { id: requesterUserId, countBasedFeature } = req.user
     const { body } = req
     const { error } = userValidations.validateRequestContactDetails(body)
     if (error) {
       return responseFunctions._400(res, error.details[0].message)
     }
-    const [err, data] = await to(userService.requestContactDetails(requesterUserId, requesteeUserId, body))
+    const [err, data] = await to(userService.requestContactDetails(requesterUserId, requesteeUserId, body, countBasedFeature))
     if (err) {
       return responseFunctions._400(res, err.message)
     }
@@ -66,9 +66,9 @@ module.exports = {
     return responseFunctions._200(res, data, 'Data fetched successfully')
   },
   requestPicture: async (req, res) => {
-    const { id: requesterUserId } = req.user
+    const { id: requesterUserId, countBasedFeature } = req.user
     const { id: requesteeUserId } = req.params
-    const [err, data] = await to(userService.requestPicture(requesterUserId, requesteeUserId))
+    const [err, data] = await to(userService.requestPicture(requesterUserId, requesteeUserId, countBasedFeature))
     if (err) {
       return responseFunctions._400(res, err.message)
     }
@@ -170,9 +170,9 @@ module.exports = {
   },
   requestExtraInfo: async (req, res) => {
     const { body, user, params } = req
-    const { id: requesterUserId } = user
+    const { id: requesterUserId, countBasedFeature } = user
     const { id: requesteeUserId } = params
-    const [err, data] = await to(userService.requestExtraInfo(requesterUserId, requesteeUserId, body))
+    const [err, data] = await to(userService.requestExtraInfo(requesterUserId, requesteeUserId, body, countBasedFeature))
     if (err) {
       return responseFunctions._400(res, err.message)
     }
@@ -256,5 +256,22 @@ module.exports = {
       return responseFunctions._400(res, err.message)
     }
     return responseFunctions._200(res, data, 'Data fetched successfully')
+  },
+  getNotificationToggles: async (req, res) => {
+    const { id: userId } = req.user
+    const [err, data] = await to(userService.getNotificationToggles(userId))
+    if (err) {
+      return responseFunctions._400(res, err.message)
+    }
+    return responseFunctions._200(res, data, 'Data fetched successfully')
+  },
+  updateNotificationToggles: async (req, res) => {
+    const { id: userId } = req.user
+    const { body } = req
+    const [err, data] = await to(userService.updateNotificationToggles(userId, body))
+    if (err) {
+      return responseFunctions._400(res, err.message)
+    }
+    return responseFunctions._200(res, data, 'Notification setting updated.')
   },
 }

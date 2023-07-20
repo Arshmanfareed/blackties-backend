@@ -1,11 +1,12 @@
-const { requestStatus, gender, notificationType } = require('../../config/constants')
+const { requestStatus, gender, notificationType, socketEvents } = require('../../config/constants')
 const helperFunctions = require('../../helpers')
 const db = require('../../models')
 const { Op, Sequelize } = require('sequelize')
 const pushNotification = require('../../utils/push-notification')
+const socketFunctions = require('../../socket')
 
 module.exports = {
-  requestContactDetails: async (requesterUserId, requesteeUserId, body) => {
+  requestContactDetails: async (requesterUserId, requesteeUserId, body, countBasedFeature) => {
     /*
       You will not be able to request the contact details of another user, unless you cancel the present request
       You will need to wait at least 24 hours to be able to cancel this request
@@ -81,6 +82,10 @@ module.exports = {
       }
       // generate notification
       await db.Notification.create(notificationPayload, { transaction: t })
+      // decrement count  by 1 if user uses count based feature
+      if (countBasedFeature) {
+        await db.UserFeature.decrement('remaining', { by: 1, where: { id: countBasedFeature.id }, transaction: t })
+      }
       // push notification
       const { fcmToken } = await db.User.findOne({ where: { id: notificationPayload.userId }, attributes: ['fcmToken'] })
       pushNotification.sendNotificationSingle(fcmToken, notificationPayload.notificationType, notificationPayload.notificationType)
@@ -191,7 +196,7 @@ module.exports = {
       }
     })
   },
-  requestPicture: async (requesterUserId, requesteeUserId) => {
+  requestPicture: async (requesterUserId, requesteeUserId, countBasedFeature) => {
     const t = await db.sequelize.transaction()
     try {
       const alreadyRequested = await db.PictureRequest.findOne({ where: { requesterUserId, requesteeUserId, status: requestStatus.PENDING } })
@@ -208,10 +213,15 @@ module.exports = {
         notificationType: notificationType.PICTURE_REQUEST,
         status: 0
       }, { transaction: t })
+      // decrement count  by 1 if user uses count based feature
+      if (countBasedFeature) {
+        await db.UserFeature.decrement('remaining', { by: 1, where: { id: countBasedFeature.id }, transaction: t })
+      }
       // push notification
       const { fcmToken } = await db.User.findOne({ where: { id: requesteeUserId }, attributes: ['fcmToken'] })
       pushNotification.sendNotificationSingle(fcmToken, notificationType.PICTURE_REQUEST, notificationType.PICTURE_REQUEST)
       await t.commit()
+      socketFunctions.transmitDataOnRealtime(socketEvents.PICTURE_REQUEST, requesteeUserId, pictureRequest)
       return pictureRequest
     } catch (error) {
       await t.rollback()
@@ -228,6 +238,7 @@ module.exports = {
       resourceType: 'USER',
       status: 0
     }
+    const recipientUserId = updatedRequest.requesterUserId;
     if (dataToUpdate?.status === requestStatus.ACCEPTED) {
       notificationPayload['notificationType'] = notificationType.PICTURE_SENT
       // push notification
@@ -236,10 +247,13 @@ module.exports = {
     } else if (dataToUpdate?.status === requestStatus.REJECTED) {
       notificationPayload['notificationType'] = notificationType.PICTURE_REQUEST_REJECTED
     } else {
+      // picture is viewed by the targetted user
+      socketFunctions.transmitDataOnRealtime(socketEvents.PICTURE_REQUEST_RESPOND, updatedRequest.requesteeUserId, dataToUpdate)
       return true
     }
     // create notification and notifiy user about request accept or reject status
     await db.Notification.create(notificationPayload)
+    socketFunctions.transmitDataOnRealtime(socketEvents.PICTURE_REQUEST_RESPOND, recipientUserId, dataToUpdate)
     return true
   },
   getUserNotifications: async (userId, limit, offset, queryStatus) => {
@@ -518,7 +532,7 @@ module.exports = {
       where: { id: notificationIds }
     })
   },
-  requestExtraInfo: async (requesterUserId, requesteeUserId, body) => {
+  requestExtraInfo: async (requesterUserId, requesteeUserId, body, countBasedFeature) => {
     const { questions } = body
     const t = await db.sequelize.transaction()
     try {
@@ -567,6 +581,10 @@ module.exports = {
         notificationType: notificationType.QUESTION_RECEIVED,
         status: 0
       }, { transaction: t })
+      // decrement count  by 1 if user uses count based feature
+      if (countBasedFeature) {
+        await db.UserFeature.decrement('remaining', { by: 1, where: { id: countBasedFeature.id }, transaction: t })
+      }
       // push notification
       const { fcmToken } = await db.User.findOne({ where: { id: requesteeUserId }, attributes: ['fcmToken'] })
       pushNotification.sendNotificationSingle(fcmToken, notificationType.QUESTION_RECEIVED, notificationType.QUESTION_RECEIVED)
@@ -772,14 +790,33 @@ module.exports = {
     })
   },
   updateUser: async (userId, body) => {
-    const { email } = body
+    const { email, phoneNo } = body
+    const verificationCode = Math.floor(100000 + Math.random() * 900000)
     if (email) { // check if updating email not exist before or used by someone else
       const userExist = await db.User.findOne({ where: { email } })
       if (userExist && userExist.id !== userId) {
         throw new Error('Email already exist.')
       }
+      // send verification email to user.
     }
-    return db.User.update({ ...body }, { where: { id: userId } })
+    if (phoneNo) {
+      // generate otp
+      await db.User.update({ otp: verificationCode, otpExpiry: new Date() }, { where: { id: userId } })
+      // send otp to user on phoneNo if user verify otp then we need to add/update phoneNo
+    }
+    return { verificationCode }
+  },
+  getNotificationToggles: async (userId) => {
+    return db.NotificationSetting.findOne({
+      attributes: { exclude: ['createdAt', 'updatedAt'] },
+      where: { userId },
+    })
+  },
+  updateNotificationToggles: async (userId, body) => {
+    return db.NotificationSetting.update(
+      { ...body },
+      { where: { userId }, }
+    )
   },
   getUserWalletAndMembership: async (userId) => {
     return db.User.findOne({
