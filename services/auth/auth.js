@@ -115,7 +115,11 @@ module.exports = {
     if (!userId || !code) return false
     const user = await db.User.findOne({ where: { id: userId } })
     if (user && user.otp == Number(code)) {
-      await db.User.update({ otp: null, status: status.ACTIVE }, { where: { id: userId } })
+      if (user.tempEmail) { // update email case
+        await db.User.update({ email: user.tempEmail, tempEmail: null, otp: null, status: status.ACTIVE }, { where: { id: userId } })
+      } else {
+        await db.User.update({ otp: null, status: status.ACTIVE }, { where: { id: userId } })
+      }
       return true
     }
     return false

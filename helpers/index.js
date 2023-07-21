@@ -7,7 +7,7 @@ const { gender } = require('../config/constants')
 const helperFunctions = {
   sendAccountActivationLink: async (email, userId, activationCode) => {
     // const activationLink = process.env.PAGES_LINK + "accountActivation.html?userId=" + userId + "&code=" + activationCode
-    const activationLink = process.env.BASE_URL_LOCAL + "/auth/account-activation/" + userId + "/" + activationCode
+    const activationLink = process.env.BASE_URL_DEV + "/auth/account-activation/" + userId + "/" + activationCode
     const emailBody = `
       Please click on this link to activate your account ${activationLink}
     `

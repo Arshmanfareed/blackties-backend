@@ -805,6 +805,11 @@ module.exports = {
         throw new Error('Email already exist.')
       }
       // send verification email to user.
+      const verificationCode = Math.floor(100000 + Math.random() * 900000)
+      await db.User.update({ tempEmail: email, otp: verificationCode }, { where: { id: userId } })
+      const activationLink = process.env.BASE_URL_DEV + "/auth/account-activation/" + userId + "/" + verificationCode
+      // send activation link on email of user
+      return { activationLink }
     }
     if (phoneNo) {
       // generate otp
