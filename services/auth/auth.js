@@ -31,7 +31,10 @@ module.exports = {
         { otp: null, otpExpiry: null, phoneNo },
         { where: { id: user.id } }
       )
-      return user
+      await db.UserSetting.update({
+        isPhoneVerified: true,
+      }, { where: { userId } })
+      return db.UserSetting.findOne({ where: { userId } })
     } else {
       throw Error('Invalid code.')
     }

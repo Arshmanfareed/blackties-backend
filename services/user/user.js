@@ -4,6 +4,7 @@ const db = require('../../models')
 const { Op, Sequelize } = require('sequelize')
 const pushNotification = require('../../utils/push-notification')
 const socketFunctions = require('../../socket')
+const bcryptjs = require("bcryptjs")
 
 module.exports = {
   requestContactDetails: async (requesterUserId, requesteeUserId, body, countBasedFeature) => {
@@ -790,7 +791,13 @@ module.exports = {
     })
   },
   updateUser: async (userId, body) => {
-    const { email, phoneNo } = body
+    const { email, phoneNo, password } = body
+    // check if password is correct or not
+    const user = await db.User.findOne({ where: { id: userId } })
+    const isCorrectPassword = await bcryptjs.compare(password, user.password)
+    if (!isCorrectPassword) {
+      throw new Error('Incorrect password')
+    }
     const verificationCode = Math.floor(100000 + Math.random() * 900000)
     if (email) { // check if updating email not exist before or used by someone else
       const userExist = await db.User.findOne({ where: { email } })

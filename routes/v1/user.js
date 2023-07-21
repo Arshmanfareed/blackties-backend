@@ -585,6 +585,8 @@ router.post('/:id/seen', auth, userController.addSeenToUserProfile)
  *                 type: string
  *               phoneNo:
  *                 type: string
+ *               password:
+ *                 type: string
  *     parameters:
  *     - name: x-auth-token
  *       in: header

@@ -103,6 +103,9 @@ module.exports = {
       phoneNo: Joi.string().label('Phone No.').messages({
         'any.required': `{#label} is Required`,
       }),
+      password: Joi.string().required().label('Password').messages({
+        'any.required': `{#label} is Required`,
+      }),
     })
     return schema.validate(obj, { allowUnknown: false })
   },
