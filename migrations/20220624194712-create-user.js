@@ -53,6 +53,9 @@ module.exports = {
         values: ['ACTIVE', 'INACTIVE', 'BANNED', 'COMPLETED', 'FAILED', 'UNVERIFIED',],
         default: 'ACTIVE',
       },
+      tempEmail: {
+        type: Sequelize.STRING(40),
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,
