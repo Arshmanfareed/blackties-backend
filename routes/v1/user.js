@@ -5,6 +5,7 @@ const { uploadUserMedia } = require('../../utils/file-upload')
 const pictureRequest = require('../../middlewares/pictureRequest')
 const contactDetailsRequest = require('../../middlewares/contactDetailsRequest')
 const extraInformationRequest = require('../../middlewares/extraInformationRequest')
+const answerQuestion = require('../../middlewares/answerQuestion')
 
 /**
  * @swagger
@@ -530,7 +531,7 @@ router.patch('/request/extra-info/:id/accept-reject', auth, userController.accep
  *         description: ''
  *         headers: {}
  */
-router.post('/extra-info/question/:id/answer', auth, userController.answerToQuestion)
+router.post('/extra-info/question/:id/answer', auth, answerQuestion, userController.answerToQuestion)
 
 /**
  * @swagger
