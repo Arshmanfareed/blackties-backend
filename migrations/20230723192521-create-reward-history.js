@@ -2,36 +2,31 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('Features', {
+    await queryInterface.createTable('RewardHistories', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      name: {
+      userId: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        onDelete: 'CASCADE',
+        references: {
+          model: 'Users',
+          key: 'id',
+          as: 'userId',
+        },
+      },
+      rewardType: {
         type: Sequelize.STRING(100)
       },
-      gender: {
-        type: Sequelize.STRING(10)
-      },
-      price: {
-        type: Sequelize.INTEGER(3)
-      },
-      isForPurchase: {
+      isPending: {
         type: Sequelize.BOOLEAN
       },
-      featureType: {
-        type: Sequelize.STRING(50)
-      },
-      validityType: {
-        type: Sequelize.STRING(20)
-      },
-      count: {
-        type: Sequelize.INTEGER(5)
-      },
       status: {
-        type: Sequelize.INTEGER(1)
+        type: Sequelize.BOOLEAN
       },
       createdAt: {
         allowNull: false,
@@ -44,6 +39,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('Features');
+    await queryInterface.dropTable('RewardHistories');
   }
 };

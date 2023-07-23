@@ -135,7 +135,12 @@ module.exports = {
     }
   },
   getListOfAvailableFeatures: async (gender) => {
-    return db.Feature.findAndCountAll({ where: { gender: gender ? [gender, 'both'] : ['male', 'female', 'both'] } })
+    return db.Feature.findAndCountAll({
+      where: {
+        gender: gender ? [gender, 'both'] : ['male', 'female', 'both'],
+        isForPurchase: true
+      }
+    })
   },
   getUserFeatures: async (userId) => {
     return db.UserFeature.findAll({

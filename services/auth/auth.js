@@ -34,6 +34,7 @@ module.exports = {
       await db.UserSetting.update({
         isPhoneVerified: true,
       }, { where: { userId } })
+      helpers.givePhoneVerifyReward(userId)
       return db.UserSetting.findOne({ where: { userId } })
     } else {
       throw Error('Invalid code.')
@@ -120,6 +121,8 @@ module.exports = {
       } else {
         await db.User.update({ otp: null, status: status.ACTIVE }, { where: { id: userId } })
       }
+      await db.UserSetting.update({ isEmailVerified: true }, { where: { userId } })
+      helpers.giveEmailVerifyReward(userId)
       return true
     }
     return false
