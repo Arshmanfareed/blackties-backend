@@ -4,6 +4,7 @@ const { Op, Sequelize, QueryTypes } = require('sequelize')
 const sendMail = require('../utils/send-mail')
 const { gender, rewardPurpose, featureTypes, featureValidity } = require('../config/constants')
 const moment = require('moment')
+const common = require('./common')
 
 const helperFunctions = {
   sendAccountActivationLink: async (email, userId, activationCode) => {
@@ -127,39 +128,22 @@ const helperFunctions = {
       if (isEmailVerified) {
         // if email verified then give reward 
         // give 2 days of answer
-        await db.RewardHistory.create({ userId, rewardType: rewardPurpose.PHONE_VERIFIED, isPending: false, status: true })
-        const today = new Date();
-        const twoDaysInMilliseconds = 2 * 24 * 60 * 60 * 1000;
-
-        // Find the user's feature where validityType is 'DAYS' and featureType is 'ANSWER_QUESTION'
-        const userFeature = await db.UserFeature.findOne({
-          where: {
-            userId,
-            featureType: featureTypes.ANSWER_QUESTION,
-            validityType: featureValidity.DAYS,
-          },
-        });
-
-        let updatedExpiry = new Date()
-        if (userFeature.expiryDate >= new Date()) {
-          updatedExpiry = moment(userFeature.expiryDate).clone().add(2, 'days');  // Add 2 days to the expiry date
-        } else {
-          updatedExpiry = new Date(today.getTime() + twoDaysInMilliseconds); // Add 2 days to the current date
-        }
-        // Update the database with the new expiry date and status
-        await db.UserFeature.update({
-          expiryDate: updatedExpiry, // new Date(new Date().getTime() + (2 * 24 * 60 * 60 * 1000)),
-          status: 1
-        }, {
-          where: {
-            userId,
-            featureType: featureTypes.ANSWER_QUESTION,
-            validityType: featureValidity.DAYS,
-          }
-        })
+        await common.insertOrUpdateReward(userId, rewardPurpose.PHONE_VERIFIED, 2)
       } else {
         // if email not verified then hold this reward
         await db.RewardHistory.create({ userId, rewardType: rewardPurpose.PHONE_VERIFIED, isPending: true, status: true })
+      }
+    }
+  },
+  giveDescriptionAddedReward: async (userId) => {
+    const rewaredGranted = await db.RewardHistory.findOne({ where: { userId, rewardType: rewardPurpose.DESCRIPTION_ADDED } })
+    if (!rewaredGranted) { // check if reward already given
+      const { isEmailVerified, isPhoneVerified } = await db.UserSetting.findOne({ where: { userId } })
+      if (isEmailVerified && isPhoneVerified) { // and isFilledAllInfo
+        await common.insertOrUpdateReward(userId, rewardPurpose.DESCRIPTION_ADDED, 2)
+      } else {
+        // if pre conditions do not meet then hold this reward
+        await db.RewardHistory.create({ userId, rewardType: rewardPurpose.DESCRIPTION_ADDED, isPending: true, status: true })
       }
     }
   },

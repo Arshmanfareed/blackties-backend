@@ -116,6 +116,12 @@ module.exports = {
         await db.User.update({ username }, { where: { id: userId }, transaction: t })
         delete body.username
       }
+      if (body?.description) { // add description reward only first time
+        const { description: descriptionBefore } = await db.Profile.findOne({ where: { userId } })
+        if (!descriptionBefore) {
+          await helperFunctions.giveDescriptionAddedReward(userId)
+        }
+      }
       if (Object.keys(body).length > 0) {
         await db.Profile.update({ ...body }, { where: { userId }, transaction: t })
       }
