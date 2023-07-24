@@ -147,5 +147,17 @@ const helperFunctions = {
       }
     }
   },
+  giveAllInfoFilledReward: async (userId) => {
+    const rewaredGranted = await db.RewardHistory.findOne({ where: { userId, rewardType: rewardPurpose.FILLED_ALL_INFO } })
+    if (!rewaredGranted) { // check if reward already given
+      const { isEmailVerified, isPhoneVerified } = await db.UserSetting.findOne({ where: { userId } })
+      if (isEmailVerified && isPhoneVerified) {
+        await common.insertOrUpdateReward(userId, rewardPurpose.FILLED_ALL_INFO, 1)
+      } else {
+        // if pre conditions do not meet then hold this reward
+        await db.RewardHistory.create({ userId, rewardType: rewardPurpose.FILLED_ALL_INFO, isPending: true, status: true })
+      }
+    }
+  },
 }
 module.exports = helperFunctions
