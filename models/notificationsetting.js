@@ -20,43 +20,43 @@ module.exports = (sequelize, DataTypes) => {
     userId: DataTypes.INTEGER,
     receiveQuestion: {
       type: DataTypes.BOOLEAN,
-      defaultValue: false,
+      defaultValue: true,
     },
     receiveAnswer: {
       type: DataTypes.BOOLEAN,
-      defaultValue: false,
+      defaultValue: true,
     },
     receivePictureRequest: {
       type: DataTypes.BOOLEAN,
-      defaultValue: false,
+      defaultValue: true,
     },
     contactDetailsRequest: {
       type: DataTypes.BOOLEAN,
-      defaultValue: false,
+      defaultValue: true,
     },
     getMatched: {
       type: DataTypes.BOOLEAN,
-      defaultValue: false,
+      defaultValue: true,
     },
     matchCancelled: {
       type: DataTypes.BOOLEAN,
-      defaultValue: false,
+      defaultValue: true,
     },
     strugglesToConnect: {
       type: DataTypes.BOOLEAN,
-      defaultValue: false,
+      defaultValue: true,
     },
     restrictPushNotificationOfMyNationality: {
       type: DataTypes.BOOLEAN,
-      defaultValue: false,
+      defaultValue: true,
     },
     emailNotification: {
       type: DataTypes.BOOLEAN,
-      defaultValue: false,
+      defaultValue: true,
     },
     restrictEmailNotificationOfMyNationality: {
       type: DataTypes.BOOLEAN,
-      defaultValue: false,
+      defaultValue: true,
     }
   }, {
     sequelize,
