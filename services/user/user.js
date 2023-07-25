@@ -812,6 +812,11 @@ module.exports = {
       return { activationLink }
     }
     if (phoneNo) {
+      // check for phone number already exist or not
+      const phoneNumberExist = await db.User.findOne({ where: { phoneNo } })
+      if (phoneNumberExist) {
+        throw new Error('This phone number is already used by another user')
+      }
       // generate otp
       await db.User.update({ otp: verificationCode, otpExpiry: new Date() }, { where: { id: userId } })
       // send otp to user on phoneNo if user verify otp then we need to add/update phoneNo
