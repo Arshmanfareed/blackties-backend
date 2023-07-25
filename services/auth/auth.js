@@ -83,8 +83,7 @@ module.exports = {
           attributes: ['amount']
         },
         {
-          model: db.UserSetting,
-          attributes: ['isPremium', 'membership']
+          model: db.UserSetting
         },
         {
           model: db.Profile
