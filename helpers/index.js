@@ -126,9 +126,35 @@ const helperFunctions = {
     if (!rewaredGranted) {
       const { isEmailVerified } = await db.UserSetting.findOne({ where: { userId } })
       if (isEmailVerified) {
-        // if email verified then give reward 
+        // if email verified then give reward
+        // chech for pending reward in sequence
+        const pendingRewardIds = []
+        const filledAllInfoPendingReward = await db.RewardHistory.findOne({
+          where: {
+            userId,
+            isPending: true,
+            rewardType: rewardPurpose.FILLED_ALL_INFO
+          }
+        })
+        let noOfDays = 2; // phone verify reward initially
+        if (filledAllInfoPendingReward) {
+          noOfDays += 1
+          pendingRewardIds.push(filledAllInfoPendingReward.id) // pending reward 
+          const addedDescriptionPendingReward = await db.RewardHistory.findOne({
+            where: {
+              userId,
+              isPending: true,
+              rewardType: rewardPurpose.DESCRIPTION_ADDED
+            }
+          })
+          if (addedDescriptionPendingReward) {
+            noOfDays += 2
+            pendingRewardIds.push(addedDescriptionPendingReward.id) // pending reward 
+          }
+          await db.RewardHistory.update({ isPending: false }, { where: { id: pendingRewardIds } })
+        }
         // give 2 days of answer
-        await common.insertOrUpdateReward(userId, rewardPurpose.PHONE_VERIFIED, 2)
+        await common.insertOrUpdateReward(userId, rewardPurpose.PHONE_VERIFIED, noOfDays)
       } else {
         // if email not verified then hold this reward
         await db.RewardHistory.create({ userId, rewardType: rewardPurpose.PHONE_VERIFIED, isPending: true, status: true })
@@ -138,8 +164,8 @@ const helperFunctions = {
   giveDescriptionAddedReward: async (userId) => {
     const rewaredGranted = await db.RewardHistory.findOne({ where: { userId, rewardType: rewardPurpose.DESCRIPTION_ADDED } })
     if (!rewaredGranted) { // check if reward already given
-      const { isEmailVerified, isPhoneVerified } = await db.UserSetting.findOne({ where: { userId } })
-      if (isEmailVerified && isPhoneVerified) { // and isFilledAllInfo
+      const { isEmailVerified, isPhoneVerified, isFilledAllInfo } = await db.UserSetting.findOne({ where: { userId } })
+      if (isEmailVerified && isPhoneVerified && isFilledAllInfo) {
         await common.insertOrUpdateReward(userId, rewardPurpose.DESCRIPTION_ADDED, 2)
       } else {
         // if pre conditions do not meet then hold this reward
@@ -152,7 +178,20 @@ const helperFunctions = {
     if (!rewaredGranted) { // check if reward already given
       const { isEmailVerified, isPhoneVerified } = await db.UserSetting.findOne({ where: { userId } })
       if (isEmailVerified && isPhoneVerified) {
-        await common.insertOrUpdateReward(userId, rewardPurpose.FILLED_ALL_INFO, 1)
+        // chech for pending reward in sequence
+        const addedDescriptionPendingReward = await db.RewardHistory.findOne({
+          where: {
+            userId,
+            isPending: true,
+            rewardType: rewardPurpose.DESCRIPTION_ADDED
+          }
+        })
+        let noOfDays = 1; // phone verify reward initially
+        if (addedDescriptionPendingReward) {
+          noOfDays += 2
+          await db.RewardHistory.update({ isPending: false }, { where: { id: addedDescriptionPendingReward.id } })
+        }
+        await common.insertOrUpdateReward(userId, rewardPurpose.FILLED_ALL_INFO, noOfDays)
       } else {
         // if pre conditions do not meet then hold this reward
         await db.RewardHistory.create({ userId, rewardType: rewardPurpose.FILLED_ALL_INFO, isPending: true, status: true })
