@@ -4,10 +4,10 @@ const { Op } = require('sequelize')
 
 module.exports = {
   getActiveUsers: async (query) => {
-    const { limit, offset, search } = query
+    const { limit, offset, search, status: queryStatus } = query
     const whereOnUser = {
       role: roles.USER,
-      status: status.ACTIVE,
+      status: queryStatus || status.ACTIVE,
       username: { [Op.like]: search ? `%${search}%` : "%%" },
     }
     const count = await db.User.count({ where: whereOnUser })

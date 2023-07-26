@@ -25,6 +25,11 @@ const auth = require('../../middlewares/auth')
  *       required: false
  *       type: string
  *       description: Search
+ *     - name: status
+ *       in: query
+ *       required: false
+ *       type: string
+ *       description: ACTIVE for active user DEACTIVATED for deactivated users
  *     - name: limit
  *       in: query
  *       required: false
