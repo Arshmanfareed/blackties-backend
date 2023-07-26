@@ -88,6 +88,9 @@ module.exports = {
         {
           model: db.Profile
         },
+        {
+          model: db.DeactivatedUser
+        },
       ]
     })
     if (!user) {
@@ -96,6 +99,9 @@ module.exports = {
     const isCorrectPassword = await bcryptjs.compare(password, user.password)
     if (!isCorrectPassword) {
       throw new Error('Incorrect email or password')
+    }
+    if (user.status === status.DEACTIVATED) { // deactivated user
+      return user
     }
     // update fcmToken in db
     if (fcmToken) {
@@ -173,8 +179,13 @@ module.exports = {
     const t = await db.sequelize.transaction()
     try {
       const { reason, feedback } = body
+      // update user status in db
       await db.User.update({ status: status.DEACTIVATED }, { where: { id: userId }, transaction: t })
+      // store reason and feedback
       await db.DeactivatedUser.create({ userId, reason, feedback }, { transaction: t })
+      // reject incoming request
+      // cancelled the requests this user made with other users
+      // match is cancelled
       await t.commit()
       return true
     } catch (error) {

@@ -92,6 +92,10 @@ module.exports = (sequelize, DataTypes) => {
       User.hasOne(models.NotificationSetting, {
         foreignKey: 'userId',
       })
+
+      User.hasOne(models.DeactivatedUser, {
+        foreignKey: 'userId',
+      })
     }
   }
   User.init(
