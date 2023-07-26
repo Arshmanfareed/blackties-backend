@@ -15,17 +15,18 @@ async function handleMaleUser(req, res, next, userId) {
   if (lifeTimeAnswerFeature) {
     return next()
   }
-  const timeLimitAnswerFeature = await db.UserFeature.findOne({
+  const timeLimitAnswerFeature = await db.UserFeature.findAll({
     where: {
       userId,
       featureType: featureTypes.ANSWER_QUESTION,
       status: 1,
+      validityType: featureValidity.DAYS,
       expiryDate: {
         [Op.gte]: new Date()
       }
     }
   });
-  if (!timeLimitAnswerFeature) {
+  if (timeLimitAnswerFeature.length === 0) {
     throw new Error('You have to unlock answer question feature.')
   } else {
     return next()

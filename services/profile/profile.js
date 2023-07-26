@@ -116,10 +116,20 @@ module.exports = {
         await db.User.update({ username }, { where: { id: userId }, transaction: t })
         delete body.username
       }
+      const { description: descriptionBefore } = await db.Profile.findOne({ where: { userId } })
       if (Object.keys(body).length > 0) {
         await db.Profile.update({ ...body }, { where: { userId }, transaction: t })
       }
       await t.commit()
+      if (body?.description) { // add description reward only first time
+        if (!descriptionBefore) {
+          await helperFunctions.giveDescriptionAddedReward(userId)
+        }
+      }
+      if (body?.isFilledAllInfo) { // Fill in all your information (Unlocks 1 day of answers)
+        await db.UserSetting.update({ isFilledAllInfo: true }, { where: { userId } })
+        await helperFunctions.giveAllInfoFilledReward(userId)
+      }
       return helperFunctions.getUserProfile(userId)
     } catch (error) {
       console.log(error)

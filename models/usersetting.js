@@ -33,6 +33,10 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.BOOLEAN,
       defaultValue: false,
     },
+    isFilledAllInfo: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+    },
     membership: DataTypes.STRING,
     lastSeen: DataTypes.DATE,
   }, {

@@ -61,5 +61,11 @@ module.exports = {
     PICTURE_REQUEST: 'picture-request',
     PICTURE_REQUEST_RESPOND: 'picture-request-respond',
   },
+  rewardPurpose: {
+    EMAIL_VERIFIED: 'EMAIL_VERIFIED',
+    PHONE_VERIFIED: 'PHONE_VERIFIED',
+    FILLED_ALL_INFO: 'FILLED_ALL_INFO',
+    DESCRIPTION_ADDED: 'DESCRIPTION_ADDED',
+  },
   apiPrefix: '/dev/mahaba/api/v1',
 }

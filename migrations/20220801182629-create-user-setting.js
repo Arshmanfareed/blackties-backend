@@ -30,6 +30,9 @@ module.exports = {
       isPhoneVerified: {
         type: Sequelize.BOOLEAN
       },
+      isFilledAllInfo: {
+        type: Sequelize.BOOLEAN
+      },
       membership: {
         type: Sequelize.STRING(30)
       },
