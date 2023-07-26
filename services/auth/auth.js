@@ -1,5 +1,5 @@
 const db = require('../../models')
-const { roles, status, membership } = require('../../config/constants')
+const { roles, status, membership, requestStatus } = require('../../config/constants')
 const moment = require('moment')
 const { Op } = require('sequelize')
 const bcryptjs = require("bcryptjs")
@@ -11,7 +11,7 @@ module.exports = {
   verifyCode: async (body) => {
     const { userId, code, phoneNo } = body
     let user = await db.User.findOne({
-      where: { id: userId, deletedAt: { [Op.eq]: null } },
+      where: { id: userId },
       attributes: { exclude: ['password'] },
     })
     if (!user) {
@@ -55,7 +55,7 @@ module.exports = {
       const salt = await bcryptjs.genSalt(10);
       const hashedPassword = await bcryptjs.hash(password, salt)
       const userCode = await helpers.generateUserCode(sex)
-      let userCreated = await db.User.create({ email, username, password: hashedPassword, status: status.UNVERIFIED, otp: verificationCode, otpExpiry: new Date(), language, code: userCode }, { transaction: t })
+      let userCreated = await db.User.create({ email, username, password: hashedPassword, status: status.ACTIVE, otp: verificationCode, otpExpiry: new Date(), language, code: userCode }, { transaction: t })
       const { id: userId } = userCreated
       const profileCreated = await db.Profile.create({ userId, sex, dateOfBirth, height, weight, country, city, nationality, religiosity, education, skinColor, ethnicity, maritalStatus, tribe }, { transaction: t })
       await db.Wallet.create({ userId, amount: 0 }, { transaction: t })
@@ -89,6 +89,9 @@ module.exports = {
         {
           model: db.Profile
         },
+        {
+          model: db.DeactivatedUser
+        },
       ]
     })
     if (!user) {
@@ -97,6 +100,9 @@ module.exports = {
     const isCorrectPassword = await bcryptjs.compare(password, user.password)
     if (!isCorrectPassword) {
       throw new Error('Incorrect email or password')
+    }
+    if (user.status === status.DEACTIVATED) { // deactivated user
+      return user
     }
     // update fcmToken in db
     if (fcmToken) {
@@ -171,5 +177,42 @@ module.exports = {
     await db.User.update({ password: hashedPassword }, { where: { id: userId } })
     await db.PasswordReset.destroy({ where: { userId } })
     return true
+  },
+  deactivateAccount: async (userId, body) => {
+    const t = await db.sequelize.transaction()
+    try {
+      const { reason, feedback } = body
+      await Promise.all([
+        // update user status in db
+        db.User.update({ status: status.DEACTIVATED }, { where: { id: userId }, transaction: t }),
+        // store reason and feedback
+        db.DeactivatedUser.create({ userId, reason, feedback }, { transaction: t }),
+        // reject incoming request
+        db.ContactDetailsRequest.update({ status: requestStatus.REJECTED }, { where: { requesteeUserId: userId }, transaction: t }),
+        db.PictureRequest.update({ status: requestStatus.REJECTED }, { where: { requesteeUserId: userId }, transaction: t }),
+        db.ExtraInfoRequest.update({ status: requestStatus.REJECTED }, { where: { requesteeUserId: userId }, transaction: t }),
+        // cancelled the requests this user made with other users
+        db.ContactDetailsRequest.update({ status: requestStatus.REJECTED }, { where: { requesterUserId: userId }, transaction: t }),
+        db.PictureRequest.update({ status: requestStatus.REJECTED }, { where: { requesterUserId: userId }, transaction: t }),
+        db.ExtraInfoRequest.update({ status: requestStatus.REJECTED }, { where: { requesterUserId: userId }, transaction: t }),
+        // match is cancelled
+        db.Match.update({ isCancelled: true, cancelledBy: userId }, {
+          where: {
+            isCancelled: false,
+            [Op.or]: {
+              userId,
+              otherUserId: userId,
+            }
+          },
+          transaction: t
+        })
+      ])
+      await t.commit()
+      return true
+    } catch (error) {
+      await t.rollback()
+      console.log(error)
+      throw new Error(error.message)
+    }
   },
 }

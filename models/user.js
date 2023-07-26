@@ -92,6 +92,10 @@ module.exports = (sequelize, DataTypes) => {
       User.hasOne(models.NotificationSetting, {
         foreignKey: 'userId',
       })
+
+      User.hasOne(models.DeactivatedUser, {
+        foreignKey: 'userId',
+      })
     }
   }
   User.init(
@@ -111,7 +115,6 @@ module.exports = (sequelize, DataTypes) => {
         defaultValue: 'ACTIVE',
       },
       socketId: DataTypes.STRING,
-      deletedAt: DataTypes.DATE,
       language: {
         type: DataTypes.STRING,
         defaultValue: 'en'

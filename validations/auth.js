@@ -133,5 +133,17 @@ module.exports = {
     })
     return schema.validate(obj, { allowUnknown: true })
   },
+  validateDeactivateAccount: function (obj) {
+    const schema = Joi.object({
+      reason: Joi.string().label('Reason').required().messages({
+        'any.required': `Please select {#label}`,
+        'string.empty': `Please select {#label}`,
+      }),
+      feedback: Joi.string().allow(null).required().label('Feedback').messages({
+        'any.required': `{#label} is Required`,
+      }),
+    })
+    return schema.validate(obj, { allowUnknown: true })
+  },
 }
 

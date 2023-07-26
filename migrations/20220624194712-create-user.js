@@ -50,7 +50,7 @@ module.exports = {
       status: {
         allowNull: false,
         type: Sequelize.ENUM,
-        values: ['ACTIVE', 'INACTIVE', 'BANNED', 'COMPLETED', 'FAILED', 'UNVERIFIED',],
+        values: ['ACTIVE', 'INACTIVE', 'BANNED', 'COMPLETED', 'FAILED', 'UNVERIFIED','DEACTIVATED'],
         default: 'ACTIVE',
       },
       tempEmail: {
@@ -62,10 +62,6 @@ module.exports = {
       },
       updatedAt: {
         allowNull: false,
-        type: Sequelize.DATE,
-      },
-      deletedAt: {
-        allowNull: true,
         type: Sequelize.DATE,
       },
     })

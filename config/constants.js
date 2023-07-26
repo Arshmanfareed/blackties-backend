@@ -10,6 +10,7 @@ module.exports = {
     COMPLETED: 'COMPLETED',
     FAILED: 'FAILED',
     UNVERIFIED: 'UNVERIFIED',
+    DEACTIVATED: 'DEACTIVATED',
   },
   gender: {
     MALE: 'male',
