@@ -1,5 +1,6 @@
 const router = require('express').Router()
 const { adminController } = require('../../controllers')
+const isAdmin = require('../../middlewares/isAdmin')
 const auth = require('../../middlewares/auth')
 
 /**
@@ -36,6 +37,6 @@ const auth = require('../../middlewares/auth')
  *         description: ''
  *         headers: {}
  */
-router.get('/active-users', adminController.getActiveUsers)
+router.get('/active-users', auth, isAdmin, adminController.getActiveUsers)
 
 module.exports = router
