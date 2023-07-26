@@ -17,9 +17,14 @@ const auth = require('../../middlewares/auth')
  *     parameters:
  *     - name: x-auth-token
  *       in: header
- *       required: false
+ *       required: true
  *       type: string
  *       description: an authorization header
+ *     - name: search
+ *       in: query
+ *       required: false
+ *       type: string
+ *       description: Search
  *     - name: limit
  *       in: query
  *       required: false
