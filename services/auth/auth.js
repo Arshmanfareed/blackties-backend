@@ -1,5 +1,5 @@
 const db = require('../../models')
-const { roles, status, membership } = require('../../config/constants')
+const { roles, status, membership, requestStatus } = require('../../config/constants')
 const moment = require('moment')
 const { Op } = require('sequelize')
 const bcryptjs = require("bcryptjs")
@@ -179,13 +179,31 @@ module.exports = {
     const t = await db.sequelize.transaction()
     try {
       const { reason, feedback } = body
-      // update user status in db
-      await db.User.update({ status: status.DEACTIVATED }, { where: { id: userId }, transaction: t })
-      // store reason and feedback
-      await db.DeactivatedUser.create({ userId, reason, feedback }, { transaction: t })
-      // reject incoming request
-      // cancelled the requests this user made with other users
-      // match is cancelled
+      await Promise.all([
+        // update user status in db
+        db.User.update({ status: status.DEACTIVATED }, { where: { id: userId }, transaction: t }),
+        // store reason and feedback
+        db.DeactivatedUser.create({ userId, reason, feedback }, { transaction: t }),
+        // reject incoming request
+        db.ContactDetailsRequest.update({ status: requestStatus.REJECTED }, { where: { requesteeUserId: userId }, transaction: t }),
+        db.PictureRequest.update({ status: requestStatus.REJECTED }, { where: { requesteeUserId: userId }, transaction: t }),
+        db.ExtraInfoRequest.update({ status: requestStatus.REJECTED }, { where: { requesteeUserId: userId }, transaction: t }),
+        // cancelled the requests this user made with other users
+        db.ContactDetailsRequest.update({ status: requestStatus.REJECTED }, { where: { requesterUserId: userId }, transaction: t }),
+        db.PictureRequest.update({ status: requestStatus.REJECTED }, { where: { requesterUserId: userId }, transaction: t }),
+        db.ExtraInfoRequest.update({ status: requestStatus.REJECTED }, { where: { requesterUserId: userId }, transaction: t }),
+        // match is cancelled
+        db.Match.update({ isCancelled: true, cancelledBy: userId }, {
+          where: {
+            isCancelled: false,
+            [Op.or]: {
+              userId,
+              otherUserId: userId,
+            }
+          },
+          transaction: t
+        })
+      ])
       await t.commit()
       return true
     } catch (error) {
