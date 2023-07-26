@@ -80,6 +80,7 @@ module.exports = {
         [Op.or]: {
           username: { [Op.like]: usernameOrCodeQuery },
           code: { [Op.like]: usernameOrCodeQuery },
+          status: constants.status.ACTIVE,
         }
       },
       attributes: userAttributesToSelect,
