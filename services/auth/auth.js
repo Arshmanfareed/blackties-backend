@@ -11,7 +11,7 @@ module.exports = {
   verifyCode: async (body) => {
     const { userId, code, phoneNo } = body
     let user = await db.User.findOne({
-      where: { id: userId, deletedAt: { [Op.eq]: null } },
+      where: { id: userId },
       attributes: { exclude: ['password'] },
     })
     if (!user) {
@@ -168,5 +168,19 @@ module.exports = {
     await db.User.update({ password: hashedPassword }, { where: { id: userId } })
     await db.PasswordReset.destroy({ where: { userId } })
     return true
+  },
+  deactivateAccount: async (userId, body) => {
+    const t = await db.sequelize.transaction()
+    try {
+      const { reason, feedback } = body
+      await db.User.update({ status: status.DEACTIVATED }, { where: { id: userId }, transaction: t })
+      await db.DeactivatedUser.create({ userId, reason, feedback }, { transaction: t })
+      await t.commit()
+      return true
+    } catch (error) {
+      await t.rollback()
+      console.log(error)
+      throw new Error(error.message)
+    }
   },
 }

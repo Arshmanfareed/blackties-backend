@@ -280,4 +280,41 @@ router.post('/change-password', auth, authController.changePassword)
  */
 router.patch('/logout', auth, authController.logout)
 
+/**
+ * @swagger
+ * /auth/deactivate:
+ *   post:
+ *     summary: Deactivate Account
+ *     consumes:
+ *      - application/json
+ *     produces:
+ *      - application/json
+ *     tags:
+ *     - Auth
+ *     operationId: deactivateAccount
+ *     deprecated: false
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               reason:
+ *                 type: string
+ *               feedback:
+ *                 type: string
+ *     parameters:
+ *     - name: x-auth-token
+ *       in: header
+ *       required: true
+ *       type: string
+ *       description: an authorization header
+ *     responses:
+ *       '200':
+ *         description: ''
+ *         headers: {}
+ */
+router.post('/deactivate', auth, authController.deactivateAccount)
+
 module.exports = router

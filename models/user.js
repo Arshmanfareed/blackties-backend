@@ -111,7 +111,6 @@ module.exports = (sequelize, DataTypes) => {
         defaultValue: 'ACTIVE',
       },
       socketId: DataTypes.STRING,
-      deletedAt: DataTypes.DATE,
       language: {
         type: DataTypes.STRING,
         defaultValue: 'en'
