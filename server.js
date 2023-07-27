@@ -16,6 +16,7 @@ const profileRoutes = require('./routes/v1/profile')
 const userRoutes = require('./routes/v1/user')
 const purchaseRoutes = require('./routes/v1/purchase')
 const dashboardRoutes = require('./routes/v1/dashboard')
+const adminRoutes = require('./routes/v1/admin')
 const { socketInit } = require('./socket')
 // require("./cron-job")
 
@@ -40,9 +41,7 @@ app.use(`${apiPrefix}/profile`, profileRoutes)
 app.use(`${apiPrefix}/user`, userRoutes)
 app.use(`${apiPrefix}/purchase`, purchaseRoutes)
 app.use(`${apiPrefix}/dashboard`, dashboardRoutes)
-
-
-
+app.use(`${apiPrefix}/admin`, adminRoutes)
 
 if (!jwtSecretKey) {
   console.error('FATAL ERROR: jwtSecretKey is not defined.')
