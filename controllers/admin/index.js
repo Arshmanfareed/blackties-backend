@@ -3,9 +3,9 @@ const { to } = require('../../utils/error-handler')
 const responseFunctions = require('../../utils/responses')
 
 module.exports = {
-  getActiveUsers: async (req, res) => {
+  getUsers: async (req, res) => {
     const { query } = req
-    const [err, data] = await to(adminService.getActiveUsers(query))
+    const [err, data] = await to(adminService.getUsers(query))
     if (err) {
       return responseFunctions._400(res, err.message)
     }

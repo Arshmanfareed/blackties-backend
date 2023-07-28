@@ -5,9 +5,9 @@ const auth = require('../../middlewares/auth')
 
 /**
  * @swagger
- * /admin/active-users:
+ * /admin/users:
  *   get:
- *     summary: Get active users list
+ *     summary: Get users list
  *     consumes:
  *      - application/json
  *     produces:
@@ -40,13 +40,13 @@ const auth = require('../../middlewares/auth')
  *       required: false
  *       type: number
  *       description: Offset
- *     operationId: getActiveUsers
+ *     operationId: getUsers
  *     deprecated: false
  *     responses:
  *       '200':
  *         description: ''
  *         headers: {}
  */
-router.get('/active-users', auth, isAdmin, adminController.getActiveUsers)
+router.get('/users', auth, isAdmin, adminController.getUsers)
 
 module.exports = router

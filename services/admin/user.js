@@ -3,7 +3,7 @@ const { roles, status } = require("../../config/constants")
 const { Op } = require('sequelize')
 
 module.exports = {
-  getActiveUsers: async (query) => {
+  getUsers: async (query) => {
     const { limit, offset, search, status: queryStatus } = query
     const whereOnUser = {
       role: roles.USER,
@@ -20,6 +20,10 @@ module.exports = {
         {
           model: db.BlockedUser,
           as: 'blockedUser',
+        },
+        {
+          model: db.DeactivatedUser,
+          attributes: ['reason', 'feedback', 'createdAt']
         }
       ]
     })

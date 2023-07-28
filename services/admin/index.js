@@ -1,3 +1,3 @@
 module.exports = {
-  getActiveUsers: require('./user').getActiveUsers,
+  getUsers: require('./user').getUsers,
 }
