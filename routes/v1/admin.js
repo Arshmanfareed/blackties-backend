@@ -93,4 +93,35 @@ router.get('/users', auth, isAdmin, adminController.getUsers)
  */
 router.post('/user/:id/suspend', auth, isAdmin, adminController.suspendUser)
 
+/**
+ * @swagger
+ * /admin/user/{id}/unsuspend:
+ *   post:
+ *     summary: unsuspend a user (reactivate)
+ *     consumes:
+ *      - application/json
+ *     produces:
+ *      - application/json
+ *     tags:
+ *     - Admin
+ *     parameters:
+ *     - name: x-auth-token
+ *       in: header
+ *       required: true
+ *       type: string
+ *       description: an authorization header
+ *     - name: id
+ *       in: path
+ *       required: true
+ *       type: string
+ *       description: Id of the user to unsuspend
+ *     operationId: unsuspendUser
+ *     deprecated: false
+ *     responses:
+ *       '200':
+ *         description: ''
+ *         headers: {}
+ */
+router.post('/user/:id/unsuspend', auth, isAdmin, adminController.unsuspendUser)
+
 module.exports = router

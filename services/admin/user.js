@@ -55,9 +55,22 @@ module.exports = {
       if (duration) {
         suspendEndDate = moment().add(duration, 'M')
       }
-      await db.SuspendedUser.create({ userId, reason, suspendEndDate }, { transaction: t })
+      await db.SuspendedUser.create({ userId, reason, suspendEndDate, status: true }, { transaction: t })
       await t.commit()
       // socket event to logout user automatically
+      return true
+    } catch (error) {
+      console.log(error)
+      await t.rollback()
+      throw new Error(error.message)
+    }
+  },
+  unsuspendUser: async (userId) => {
+    const t = await db.sequelize.transaction()
+    try {
+      await db.User.update({ status: status.ACTIVE }, { where: { id: userId }, transaction: t })
+      await db.SuspendedUser.destroy({ where: { userId }, transaction: t })
+      await t.commit()
       return true
     } catch (error) {
       console.log(error)
