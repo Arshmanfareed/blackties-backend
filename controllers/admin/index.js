@@ -11,4 +11,13 @@ module.exports = {
     }
     return responseFunctions._200(res, data, 'Data fetched successfully')
   },
+  suspendUser: async (req, res) => {
+    const { body, params } = req
+    const { id: userId } = params
+    const [err, data] = await to(adminService.suspendUser(userId, body))
+    if (err) {
+      return responseFunctions._400(res, err.message)
+    }
+    return responseFunctions._200(res, data, 'User suspended successfully')
+  },
 }

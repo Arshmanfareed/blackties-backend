@@ -96,6 +96,10 @@ module.exports = (sequelize, DataTypes) => {
       User.hasOne(models.DeactivatedUser, {
         foreignKey: 'userId',
       })
+
+      User.hasOne(models.SuspendedUser, {
+        foreignKey: 'userId',
+      })
     }
   }
   User.init(
