@@ -151,6 +151,16 @@ module.exports = {
     })
   },
   getSubscriptionPlans: async (gender) => {
-    return db.SubscriptionPlan.findAndCountAll({ where: { gender: gender ? [gender, 'both'] : ['male', 'female', 'both'] } })
+    return db.SubscriptionPlan.findAndCountAll({
+      where: {
+        gender: gender ? [gender, 'both'] : ['male', 'female', 'both']
+      },
+      include: [
+        {
+          model: db.SubscriptionFeatures,
+          attributes: ['id', 'subscriptionPlanId', 'featureName', 'featureType']
+        }
+      ]
+    })
   },
 }
