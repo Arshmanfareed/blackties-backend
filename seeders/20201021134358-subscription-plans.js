@@ -93,6 +93,26 @@ module.exports = {
         createdAt: new Date(),
         updatedAt: new Date()
       },
+      {
+        productId: null,
+        name: 'Regular',
+        gender: 'male',
+        duration: null, // days
+        price: null,
+        status: true,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      },
+      {
+        productId: null,
+        name: 'Regular',
+        gender: 'female',
+        duration: null, // days
+        price: null,
+        status: true,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      },
     ], {});
   },
 
