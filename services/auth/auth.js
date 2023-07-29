@@ -92,6 +92,9 @@ module.exports = {
         {
           model: db.DeactivatedUser
         },
+        {
+          model: db.SuspendedUser
+        }
       ]
     })
     if (!user) {
@@ -103,6 +106,12 @@ module.exports = {
     }
     if (user.status === status.DEACTIVATED) { // deactivated user
       return user
+    } else if (user.status === status.SUSPENDED) {
+      let errorMessage = 'Your account has been suspended'
+      if (user.SuspendedUser.duration) {
+        errorMessage += ` for ${user.SuspendedUser.duration} month(s).`
+      }
+      throw new Error(errorMessage)
     }
     // update fcmToken in db
     if (fcmToken) {

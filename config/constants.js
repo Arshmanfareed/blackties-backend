@@ -6,7 +6,7 @@ module.exports = {
   status: {
     INACTIVE: 'INACTIVE',
     ACTIVE: 'ACTIVE',
-    BANNED: 'BANNED',
+    SUSPENDED: 'SUSPENDED',
     COMPLETED: 'COMPLETED',
     FAILED: 'FAILED',
     UNVERIFIED: 'UNVERIFIED',

@@ -50,7 +50,7 @@ module.exports = {
       status: {
         allowNull: false,
         type: Sequelize.ENUM,
-        values: ['ACTIVE', 'INACTIVE', 'BANNED', 'COMPLETED', 'FAILED', 'UNVERIFIED','DEACTIVATED'],
+        values: ['ACTIVE', 'SUSPENDED', 'DEACTIVATED'],
         default: 'ACTIVE',
       },
       tempEmail: {
