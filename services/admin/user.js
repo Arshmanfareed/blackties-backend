@@ -55,7 +55,7 @@ module.exports = {
       if (duration) {
         suspendEndDate = moment().add(duration, 'M')
       }
-      await db.SuspendedUser.create({ userId, reason, suspendEndDate, status: true }, { transaction: t })
+      await db.SuspendedUser.create({ userId, reason, suspendEndDate, status: true, duration }, { transaction: t })
       await t.commit()
       // socket event to logout user automatically
       return true

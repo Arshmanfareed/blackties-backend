@@ -19,6 +19,9 @@ module.exports = {
           as: 'userId',
         },
       },
+      duration: { // in months
+        type: Sequelize.INTEGER(2)
+      },
       reason: {
         type: Sequelize.STRING(200)
       },

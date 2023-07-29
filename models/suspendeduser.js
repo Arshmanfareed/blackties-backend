@@ -18,6 +18,7 @@ module.exports = (sequelize, DataTypes) => {
   }
   SuspendedUser.init({
     userId: DataTypes.INTEGER,
+    duration: DataTypes.INTEGER,
     reason: DataTypes.STRING,
     suspendEndDate: DataTypes.DATE,
     status: DataTypes.BOOLEAN
