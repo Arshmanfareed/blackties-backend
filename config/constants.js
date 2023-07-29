@@ -2,6 +2,7 @@ module.exports = {
   roles: {
     USER: 'USER',
     ADMIN: 'ADMIN',
+    SUB_ADMIN: 'SUB_ADMIN',
   },
   status: {
     INACTIVE: 'INACTIVE',

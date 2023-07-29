@@ -124,4 +124,41 @@ router.post('/user/:id/suspend', auth, isAdmin, adminController.suspendUser)
  */
 router.post('/user/:id/unsuspend', auth, isAdmin, adminController.unsuspendUser)
 
+/**
+ * @swagger
+ * /admin/sub-admin:
+ *   post:
+ *     summary: Create a sub admin
+ *     consumes:
+ *      - application/json
+ *     produces:
+ *      - application/json
+ *     tags:
+ *     - Admin
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *             properties:
+ *               email:
+ *                 type: string
+ *     parameters:
+ *     - name: x-auth-token
+ *       in: header
+ *       required: true
+ *       type: string
+ *       description: an authorization header
+ *     operationId: createSubAdmin
+ *     deprecated: false
+ *     responses:
+ *       '200':
+ *         description: ''
+ *         headers: {}
+ */
+router.post('/sub-admin', auth, isAdmin, adminController.createSubAdmin)
+
 module.exports = router

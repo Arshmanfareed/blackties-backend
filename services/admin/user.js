@@ -2,6 +2,7 @@ const db = require('../../models')
 const { roles, status } = require("../../config/constants")
 const { Op } = require('sequelize')
 const moment = require('moment')
+const bcryptjs = require("bcryptjs")
 
 module.exports = {
   getUsers: async (query) => {
@@ -78,4 +79,21 @@ module.exports = {
       throw new Error(error.message)
     }
   },
+  createSubAdmin: async (email) => {
+    const emailExist = await db.User.findOne({ where: { email: email.toLowerCase() } })
+    if (emailExist) {
+      throw new Error('Email already in use.')
+    }
+    const salt = await bcryptjs.genSalt(10);
+    const randomPassword = await bcryptjs.hash(Math.random().toString(36).slice(-8), salt)
+    await db.User.create({
+      email,
+      username: email.split('@')[0],
+      role: roles.SUB_ADMIN,
+      password: randomPassword,
+      status: status.ACTIVE,
+    })
+    // send email for resetting password
+    return true
+  }
 }
