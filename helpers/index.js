@@ -58,6 +58,10 @@ const helperFunctions = {
           model: db.UserSetting,
           attributes: { exclude: ['id', 'userId', 'createdAt', 'updatedAt'] }
         },
+        {
+          model: db.LockedDescription,
+          attributes: ['id', 'reason', 'duration', 'unlockDate', 'createdAt']
+        }
       ]
     })
   },
