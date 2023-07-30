@@ -40,7 +40,7 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js",
+    "start": "export NODE_OPTIONS=--max-old-space-size=1024 && node server.js ",
     "dev": "nodemon server.js",
     "format:check": "prettier --check .",
     "format:write": "prettier --write .",
