@@ -95,5 +95,24 @@ module.exports = {
     })
     // send email for resetting password
     return true
-  }
+  },
+  deleteAndLockDescription: async (userId, body) => {
+    const t = await db.sequelize.transaction()
+    try {
+      const { duration, reason } = body
+      let unlockDate = moment().add(14, 'days')
+      if (duration) {
+        unlockDate = moment().add(duration, 'M')
+      }
+      await db.LockedDescription.create({ userId, reason, unlockDate, duration, status: true }, { transaction: t })
+      await db.Profile.update({ description: null }, { where: { userId }, transaction: t })
+      await t.commit()
+      // socket event to show red bar on user profile automatically
+      return true
+    } catch (error) {
+      console.log(error)
+      await t.rollback()
+      throw new Error(error.message)
+    }
+  },
 }
