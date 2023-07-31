@@ -45,7 +45,13 @@ const helperFunctions = {
     return true
   },
   getUserProfile: async (userId) => {
-    return db.User.findOne({
+    const userFeatures = await db.UserFeature.findAll({
+      where: {
+        userId,
+        status: 1
+      }
+    })
+    let user = await db.User.findOne({
       where: { id: userId },
       include: [
         {
@@ -57,9 +63,12 @@ const helperFunctions = {
         {
           model: db.UserSetting,
           attributes: { exclude: ['id', 'userId', 'createdAt', 'updatedAt'] }
-        },
+        }
       ]
     })
+    user = JSON.parse(JSON.stringify(user))
+    user['userFeatures'] = userFeatures
+    return user
   },
   createUserFeature: async (userId, featureId, featureType, validityType, expiryDate, remaining, t) => {
     return db.UserFeature.create({
