@@ -18,7 +18,7 @@ const purchaseRoutes = require('./routes/v1/purchase')
 const dashboardRoutes = require('./routes/v1/dashboard')
 const adminRoutes = require('./routes/v1/admin')
 const { socketInit } = require('./socket')
-// require("./cron-job")
+require("./cron-job")
 
 app.use(cors({
   origin: process.env.CORS_ORIGIN
