@@ -36,4 +36,22 @@ module.exports = {
     }
     return responseFunctions._200(res, data, 'Sub-admin created successfully')
   },
+  deleteAndLockDescription: async (req, res) => {
+    const { body, params } = req
+    const { id: userId } = params
+    const [err, data] = await to(adminService.deleteAndLockDescription(userId, body))
+    if (err) {
+      return responseFunctions._400(res, err.message)
+    }
+    return responseFunctions._200(res, data, 'Description locked successfully')
+  },
+  unlockDescription: async (req, res) => {
+    const { params } = req
+    const { id: userId } = params
+    const [err, data] = await to(adminService.unlockDescription(userId))
+    if (err) {
+      return responseFunctions._400(res, err.message)
+    }
+    return responseFunctions._200(res, data, 'Description unlocked successfully')
+  },
 }

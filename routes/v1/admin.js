@@ -161,4 +161,79 @@ router.post('/user/:id/unsuspend', auth, isAdmin, adminController.unsuspendUser)
  */
 router.post('/sub-admin', auth, isAdmin, adminController.createSubAdmin)
 
+/**
+ * @swagger
+ * /admin/user/{id}/lock-description:
+ *   post:
+ *     summary: delete and Lock description of user
+ *     consumes:
+ *      - application/json
+ *     produces:
+ *      - application/json
+ *     tags:
+ *     - Admin
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - duration
+ *             properties:
+ *               duration:
+ *                 type: number
+ *               reason:
+ *                 type: string
+ *     parameters:
+ *     - name: x-auth-token
+ *       in: header
+ *       required: true
+ *       type: string
+ *       description: an authorization header
+ *     - name: id
+ *       in: path
+ *       required: true
+ *       type: string
+ *       description: Id of the user to which you are deleting description
+ *     operationId: deleteAndLockDescription
+ *     deprecated: false
+ *     responses:
+ *       '200':
+ *         description: ''
+ *         headers: {}
+ */
+router.post('/user/:id/lock-description', auth, isAdmin, adminController.deleteAndLockDescription)
+
+/**
+ * @swagger
+ * /admin/user/{id}/unlock-description:
+ *   post:
+ *     summary: unlock description of user
+ *     consumes:
+ *      - application/json
+ *     produces:
+ *      - application/json
+ *     tags:
+ *     - Admin
+ *     parameters:
+ *     - name: x-auth-token
+ *       in: header
+ *       required: true
+ *       type: string
+ *       description: an authorization header
+ *     - name: id
+ *       in: path
+ *       required: true
+ *       type: string
+ *       description: Id of the user to which you are unlocking description
+ *     operationId: unlockDescription
+ *     deprecated: false
+ *     responses:
+ *       '200':
+ *         description: ''
+ *         headers: {}
+ */
+router.post('/user/:id/unlock-description', auth, isAdmin, adminController.unlockDescription)
+
 module.exports = router
