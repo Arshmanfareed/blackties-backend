@@ -28,4 +28,12 @@ module.exports = {
     }
     return responseFunctions._200(res, data, 'User unsuspended successfully')
   },
+  createSubAdmin: async (req, res) => {
+    const { email } = req.body
+    const [err, data] = await to(adminService.createSubAdmin(email))
+    if (err) {
+      return responseFunctions._400(res, err.message)
+    }
+    return responseFunctions._200(res, data, 'Sub-admin created successfully')
+  },
 }
