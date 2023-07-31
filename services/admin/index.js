@@ -4,4 +4,5 @@ module.exports = {
   unsuspendUser: require('./user').unsuspendUser,
   createSubAdmin: require('./user').createSubAdmin,
   deleteAndLockDescription: require('./user').deleteAndLockDescription,
+  unlockDescription: require('./user').unlockDescription,
 }

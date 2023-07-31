@@ -115,4 +115,8 @@ module.exports = {
       throw new Error(error.message)
     }
   },
+  unlockDescription: async (userId) => {
+    // socket event to enable edit description option on user side
+    return db.LockedDescription.destroy({ where: { userId } })
+  },
 }
