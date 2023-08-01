@@ -127,7 +127,7 @@ module.exports = {
     return user
   },
   activateAccount: async (userId, code) => {
-    if (!userId || !code) return false
+    if (!userId || !code) return { success: false }
     const user = await db.User.findOne({ where: { id: userId } })
     if (user && user.otp == Number(code)) {
       if (user.tempEmail) { // update email case
@@ -137,9 +137,10 @@ module.exports = {
       }
       await db.UserSetting.update({ isEmailVerified: true }, { where: { userId } })
       helpers.giveEmailVerifyReward(userId)
-      return true
+      const updatedUser = await db.User.findOne({ where: { id: userId } })
+      return { success: true, user: updatedUser }
     }
-    return false
+    return { success: true, user }
   },
   resetPassword: async (email) => {
     const user = await db.User.findOne({ where: { email }, attributes: { exclude: ['password'] } })
