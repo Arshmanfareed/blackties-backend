@@ -13,7 +13,7 @@ module.exports = {
           price_data: {
             currency: 'usd',
             product_data: {
-              name: `Topup Mahaba Wallet ${amount} USD`,
+              name: `Topup Mahaba Wallet`,
             },
             unit_amount: amount * 100, // multiplying it 100 because amount must be in cents
           },
