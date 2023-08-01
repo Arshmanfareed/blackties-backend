@@ -92,7 +92,7 @@ module.exports = {
     if (err) {
       return responseFunctions._400(res, err.message)
     }
-    const pageUrl = data ? process.env.ACCOUNT_ACTIVATION_SUCCESS : process.env.ACCOUNT_ACTIVATION_FAILURE;
+    const pageUrl = data.success ? `${process.env.ACCOUNT_ACTIVATION_SUCCESS}?email=${data?.user?.email}` : process.env.ACCOUNT_ACTIVATION_FAILURE;
     return res.redirect(pageUrl)
   },
   deactivateAccount: async (req, res) => {
