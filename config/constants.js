@@ -62,6 +62,7 @@ module.exports = {
   socketEvents: {
     PICTURE_REQUEST: 'picture-request',
     PICTURE_REQUEST_RESPOND: 'picture-request-respond',
+    NEW_NOTIFICATION: 'new-notification',
   },
   rewardPurpose: {
     EMAIL_VERIFIED: 'EMAIL_VERIFIED',
