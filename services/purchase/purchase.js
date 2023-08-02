@@ -146,13 +146,28 @@ module.exports = {
       throw new Error(error.message)
     }
   },
-  getListOfAvailableFeatures: async (gender) => {
-    return db.Feature.findAndCountAll({
+  getListOfAvailableFeatures: async (userId, gender) => {
+    let listOfFeatures = await db.Feature.findAll({
       where: {
         gender: gender ? [gender, 'both'] : ['male', 'female', 'both'],
         isForPurchase: true
+      },
+      attributes: { exclude: ['isForPurchase'] }
+    })
+    listOfFeatures = JSON.parse(JSON.stringify(listOfFeatures))
+    const userFeatures = await db.UserFeature.findAll({
+      where: {
+        userId,
+        status: 1
       }
     })
+    for (let feature of listOfFeatures) {
+      if (feature.validityType === constants.featureValidity.LIFETIME) {
+        const isPurchased = userFeatures.find(userFeat => userFeat.featureId === feature.id)
+        feature['isPurchased'] = isPurchased ? true : false
+      }
+    }
+    return listOfFeatures
   },
   getUserFeatures: async (userId) => {
     return db.UserFeature.findAll({
