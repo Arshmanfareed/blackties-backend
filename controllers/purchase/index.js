@@ -48,7 +48,8 @@ module.exports = {
   },
   getListOfAvailableFeatures: async (req, res) => {
     const { gender } = req.query
-    const [err, data] = await to(purchaseService.getListOfAvailableFeatures(gender))
+    const { id: userId } = req.user
+    const [err, data] = await to(purchaseService.getListOfAvailableFeatures(userId, gender))
     if (err) {
       return responseFunctions._400(res, err.message)
     }
