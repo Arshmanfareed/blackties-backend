@@ -200,10 +200,10 @@ module.exports = {
   requestPicture: async (requesterUserId, requesteeUserId, countBasedFeature) => {
     const t = await db.sequelize.transaction()
     try {
-      const alreadyRequested = await db.PictureRequest.findOne({ where: { requesterUserId, requesteeUserId, status: requestStatus.PENDING } })
-      if (alreadyRequested) {
-        throw new Error("you've already requested picture to this user.")
-      }
+      // const alreadyRequested = await db.PictureRequest.findOne({ where: { requesterUserId, requesteeUserId, status: requestStatus.PENDING } })
+      // if (alreadyRequested) {
+      //   throw new Error("you've already requested picture to this user.")
+      // }
       // create picture request
       const pictureRequest = await db.PictureRequest.create({ requesterUserId, requesteeUserId, status: requestStatus.PENDING }, { transaction: t })
       // create notification and notifiy other user about request
