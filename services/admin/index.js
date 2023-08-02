@@ -3,6 +3,7 @@ module.exports = {
   suspendUser: require('./user').suspendUser,
   unsuspendUser: require('./user').unsuspendUser,
   createSubAdmin: require('./user').createSubAdmin,
-  deleteAndLockDescription: require('./user').deleteAndLockDescription,
+  lockDescription: require('./user').lockDescription,
   unlockDescription: require('./user').unlockDescription,
+  deleteDescription: require('./user').deleteDescription,
 }
