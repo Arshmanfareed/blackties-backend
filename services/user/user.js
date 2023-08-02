@@ -205,7 +205,7 @@ module.exports = {
       //   throw new Error("you've already requested picture to this user.")
       // }
       // create picture request
-      const pictureRequest = await db.PictureRequest.create({ requesterUserId, requesteeUserId, status: requestStatus.PENDING }, { transaction: t })
+      let pictureRequest = await db.PictureRequest.create({ requesterUserId, requesteeUserId, status: requestStatus.PENDING }, { transaction: t })
       // create notification and notifiy other user about request
       await db.Notification.create({
         userId: requesteeUserId,
@@ -222,6 +222,12 @@ module.exports = {
       const { fcmToken } = await db.User.findOne({ where: { id: requesteeUserId }, attributes: ['fcmToken'] })
       pushNotification.sendNotificationSingle(fcmToken, notificationType.PICTURE_REQUEST, notificationType.PICTURE_REQUEST)
       await t.commit()
+      const requesterUser = await db.User.findOne({
+        where: { id: requesterUserId },
+        attributes: ['username', 'code'],
+      })
+      pictureRequest = JSON.parse(JSON.stringify(pictureRequest))
+      pictureRequest['requesterUser'] = requesterUser
       socketFunctions.transmitDataOnRealtime(socketEvents.PICTURE_REQUEST, requesteeUserId, pictureRequest)
       return pictureRequest
     } catch (error) {
