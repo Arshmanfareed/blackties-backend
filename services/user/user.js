@@ -200,14 +200,14 @@ module.exports = {
   requestPicture: async (requesterUserId, requesteeUserId, countBasedFeature) => {
     const t = await db.sequelize.transaction()
     try {
-      const alreadyRequested = await db.PictureRequest.findOne({ where: { requesterUserId, requesteeUserId, status: requestStatus.PENDING } })
-      if (alreadyRequested) {
-        throw new Error("you've already requested picture to this user.")
-      }
+      // const alreadyRequested = await db.PictureRequest.findOne({ where: { requesterUserId, requesteeUserId, status: requestStatus.PENDING } })
+      // if (alreadyRequested) {
+      //   throw new Error("you've already requested picture to this user.")
+      // }
       // create picture request
-      const pictureRequest = await db.PictureRequest.create({ requesterUserId, requesteeUserId, status: requestStatus.PENDING }, { transaction: t })
+      let pictureRequest = await db.PictureRequest.create({ requesterUserId, requesteeUserId, status: requestStatus.PENDING }, { transaction: t })
       // create notification and notifiy other user about request
-      await db.Notification.create({
+      const notification = await db.Notification.create({
         userId: requesteeUserId,
         resourceId: requesterUserId,
         resourceType: 'USER',
@@ -222,7 +222,16 @@ module.exports = {
       const { fcmToken } = await db.User.findOne({ where: { id: requesteeUserId }, attributes: ['fcmToken'] })
       pushNotification.sendNotificationSingle(fcmToken, notificationType.PICTURE_REQUEST, notificationType.PICTURE_REQUEST)
       await t.commit()
+      const requesterUser = await db.User.findOne({
+        where: { id: requesterUserId },
+        attributes: ['username', 'code'],
+      })
+      pictureRequest = JSON.parse(JSON.stringify(pictureRequest))
+      pictureRequest['requesterUser'] = requesterUser
+      // sending picture request on socket
       socketFunctions.transmitDataOnRealtime(socketEvents.PICTURE_REQUEST, requesteeUserId, pictureRequest)
+      // sending notification on socket
+      socketFunctions.transmitDataOnRealtime(socketEvents.NEW_NOTIFICATION, requesteeUserId, notification)
       return pictureRequest
     } catch (error) {
       await t.rollback()
@@ -253,8 +262,10 @@ module.exports = {
       return true
     }
     // create notification and notifiy user about request accept or reject status
-    await db.Notification.create(notificationPayload)
+    const notification = await db.Notification.create(notificationPayload)
     socketFunctions.transmitDataOnRealtime(socketEvents.PICTURE_REQUEST_RESPOND, recipientUserId, dataToUpdate)
+    // sending notification on socket
+    socketFunctions.transmitDataOnRealtime(socketEvents.NEW_NOTIFICATION, recipientUserId, notification)
     return true
   },
   getUserNotifications: async (userId, limit, offset, queryStatus) => {
