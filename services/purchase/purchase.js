@@ -13,7 +13,7 @@ module.exports = {
           price_data: {
             currency: 'usd',
             product_data: {
-              name: `Topup Mahaba Wallet ${amount} USD`,
+              name: `Top up Mahaba Wallet`,
             },
             unit_amount: amount * 100, // multiplying it 100 because amount must be in cents
           },
@@ -103,6 +103,18 @@ module.exports = {
       if (userWallet.amount < feature.price) {
         throw new Error('You don\'t have enough balance in your wallet, please topup you wallet.')
       }
+      // check if purchasing feature is a lifetime feature and user buying it again then stop buying
+      const userFeatureLifetime = await db.UserFeature.findOne({
+        where: {
+          userId,
+          featureId,
+          validityType: constants.featureValidity.LIFETIME,
+          status: 1
+        }
+      })
+      if (userFeatureLifetime) {
+        throw new Error('You have already purchased this feature.')
+      }
       // check if this purchase already exist
       const userFeature = await db.UserFeature.findOne({
         where: {
@@ -134,13 +146,28 @@ module.exports = {
       throw new Error(error.message)
     }
   },
-  getListOfAvailableFeatures: async (gender) => {
-    return db.Feature.findAndCountAll({
+  getListOfAvailableFeatures: async (userId, gender) => {
+    let listOfFeatures = await db.Feature.findAll({
       where: {
         gender: gender ? [gender, 'both'] : ['male', 'female', 'both'],
         isForPurchase: true
+      },
+      attributes: { exclude: ['isForPurchase'] }
+    })
+    listOfFeatures = JSON.parse(JSON.stringify(listOfFeatures))
+    const userFeatures = await db.UserFeature.findAll({
+      where: {
+        userId,
+        status: 1
       }
     })
+    for (let feature of listOfFeatures) {
+      if (feature.validityType === constants.featureValidity.LIFETIME) {
+        const isPurchased = userFeatures.find(userFeat => userFeat.featureId === feature.id)
+        feature['isPurchased'] = isPurchased ? true : false
+      }
+    }
+    return listOfFeatures
   },
   getUserFeatures: async (userId) => {
     return db.UserFeature.findAll({

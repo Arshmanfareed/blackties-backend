@@ -77,11 +77,11 @@ module.exports = {
     const users = await db.User.findAll({
       where: {
         role: constants.roles.USER,
+        status: constants.status.ACTIVE,
         [Op.or]: {
           username: { [Op.like]: usernameOrCodeQuery },
           code: { [Op.like]: usernameOrCodeQuery },
-          status: constants.status.ACTIVE,
-        }
+        },
       },
       attributes: userAttributesToSelect,
       include: includeTables,

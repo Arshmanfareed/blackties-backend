@@ -161,4 +161,110 @@ router.post('/user/:id/unsuspend', auth, isAdmin, adminController.unsuspendUser)
  */
 router.post('/sub-admin', auth, isAdmin, adminController.createSubAdmin)
 
+/**
+ * @swagger
+ * /admin/user/{id}/lock-description:
+ *   post:
+ *     summary: Lock description of user
+ *     consumes:
+ *      - application/json
+ *     produces:
+ *      - application/json
+ *     tags:
+ *     - Admin
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - duration
+ *             properties:
+ *               duration:
+ *                 type: number
+ *               reason:
+ *                 type: string
+ *     parameters:
+ *     - name: x-auth-token
+ *       in: header
+ *       required: true
+ *       type: string
+ *       description: an authorization header
+ *     - name: id
+ *       in: path
+ *       required: true
+ *       type: string
+ *       description: Id of the user to which you are locking description
+ *     operationId: lockDescription
+ *     deprecated: false
+ *     responses:
+ *       '200':
+ *         description: ''
+ *         headers: {}
+ */
+router.post('/user/:id/lock-description', auth, isAdmin, adminController.lockDescription)
+
+/**
+ * @swagger
+ * /admin/user/{id}/unlock-description:
+ *   post:
+ *     summary: unlock description of user
+ *     consumes:
+ *      - application/json
+ *     produces:
+ *      - application/json
+ *     tags:
+ *     - Admin
+ *     parameters:
+ *     - name: x-auth-token
+ *       in: header
+ *       required: true
+ *       type: string
+ *       description: an authorization header
+ *     - name: id
+ *       in: path
+ *       required: true
+ *       type: string
+ *       description: Id of the user to which you are unlocking description
+ *     operationId: unlockDescription
+ *     deprecated: false
+ *     responses:
+ *       '200':
+ *         description: ''
+ *         headers: {}
+ */
+router.post('/user/:id/unlock-description', auth, isAdmin, adminController.unlockDescription)
+
+/**
+ * @swagger
+ * /admin/user/{id}/delete-description:
+ *   patch:
+ *     summary: Delete description of user
+ *     consumes:
+ *      - application/json
+ *     produces:
+ *      - application/json
+ *     tags:
+ *     - Admin
+ *     parameters:
+ *     - name: x-auth-token
+ *       in: header
+ *       required: true
+ *       type: string
+ *       description: an authorization header
+ *     - name: id
+ *       in: path
+ *       required: true
+ *       type: string
+ *       description: Id of the user to which you are deleting description
+ *     operationId: deleteDescription
+ *     deprecated: false
+ *     responses:
+ *       '200':
+ *         description: ''
+ *         headers: {}
+ */
+router.patch('/user/:id/delete-description', auth, isAdmin, adminController.deleteDescription)
+
 module.exports = router

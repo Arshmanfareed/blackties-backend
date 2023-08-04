@@ -100,6 +100,10 @@ module.exports = (sequelize, DataTypes) => {
       User.hasOne(models.SuspendedUser, {
         foreignKey: 'userId',
       })
+
+      User.hasOne(models.LockedDescription, {
+        foreignKey: 'userId',
+      })
     }
   }
   User.init(
