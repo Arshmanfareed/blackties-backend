@@ -27,4 +27,17 @@ module.exports = {
       console.log("Error in unsuspendUsers cron: ", error)
     }
   },
+  unlockDescription: async () => {
+    try {
+      await db.LockedDescription.destroy({
+        where: {
+          unlockDate: {
+            [Op.lte]: new Date()
+          }
+        }
+      })
+    } catch (error) {
+      console.log("Error in unlockDescription cron: ", error)
+    }
+  },
 }
