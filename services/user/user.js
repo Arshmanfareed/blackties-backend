@@ -622,7 +622,7 @@ module.exports = {
       await db.ExtraInfoRequest.update({ status: updateStatus }, { where: { id: requestId }, transaction: t })
       const updatedRequest = await db.ExtraInfoRequest.findOne({ where: { id: requestId } })
       if (status === REJECTED) { // notification for rejected request
-        await db.Notification.create({
+        const notification = await db.Notification.create({
           userId: updatedRequest.requesterUserId,
           resourceId: updatedRequest.requesteeUserId,
           resourceType: 'USER',
@@ -631,6 +631,8 @@ module.exports = {
         }, { transaction: t })
         // delete question associated to this request
         await db.UserQuestionAnswer.destroy({ where: { extraInfoRequestId: requestId }, transaction: t })
+        // sending notification on socket
+        socketFunctions.transmitDataOnRealtime(socketEvents.NEW_NOTIFICATION, updatedRequest.requesterUserId, notification)
       }
       await t.commit()
       return true
