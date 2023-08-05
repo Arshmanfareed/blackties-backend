@@ -571,10 +571,11 @@ module.exports = {
         }, { transaction: t })
       }
       // create question
+      const askedQuestions = []
       for (let questionObj of questions) {
         // create user asked question
         const { category, question } = questionObj
-        await db.UserQuestionAnswer.create({
+        const questionCreated = await db.UserQuestionAnswer.create({
           extraInfoRequestId: extraInfoRequest.id,
           askingUserId: requesterUserId,
           askedUserId: requesteeUserId,
@@ -584,9 +585,10 @@ module.exports = {
           requesteeUserId,
           status: false
         }, { transaction: t })
+        askedQuestions.push(questionCreated)
       }
       // create notification
-      await db.Notification.create({
+      const notification = await db.Notification.create({
         userId: requesteeUserId,
         resourceId: requesterUserId,
         resourceType: 'USER',
@@ -601,6 +603,11 @@ module.exports = {
       const { fcmToken } = await db.User.findOne({ where: { id: requesteeUserId }, attributes: ['fcmToken'] })
       pushNotification.sendNotificationSingle(fcmToken, notificationType.QUESTION_RECEIVED, notificationType.QUESTION_RECEIVED)
       await t.commit()
+      // sending picture request on socket
+      const socketData = { extraInfoRequest, askedQuestions }
+      socketFunctions.transmitDataOnRealtime(socketEvents.QUESTION_RECEIVED, requesteeUserId, socketData)
+      // sending notification on socket
+      socketFunctions.transmitDataOnRealtime(socketEvents.NEW_NOTIFICATION, requesteeUserId, notification)
       return true
     } catch (error) {
       await t.rollback()
