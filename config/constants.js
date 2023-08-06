@@ -63,6 +63,9 @@ module.exports = {
     PICTURE_REQUEST: 'picture-request',
     PICTURE_REQUEST_RESPOND: 'picture-request-respond',
     NEW_NOTIFICATION: 'new-notification',
+    PICTURE_REQUEST: 'picture-request',
+    QUESTION_RECEIVED: 'question-received',
+    ANSWER_RECEIVED: 'answer-received',
   },
   rewardPurpose: {
     EMAIL_VERIFIED: 'EMAIL_VERIFIED',

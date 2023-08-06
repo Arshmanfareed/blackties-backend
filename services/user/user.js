@@ -571,10 +571,11 @@ module.exports = {
         }, { transaction: t })
       }
       // create question
+      const askedQuestions = []
       for (let questionObj of questions) {
         // create user asked question
         const { category, question } = questionObj
-        await db.UserQuestionAnswer.create({
+        const questionCreated = await db.UserQuestionAnswer.create({
           extraInfoRequestId: extraInfoRequest.id,
           askingUserId: requesterUserId,
           askedUserId: requesteeUserId,
@@ -584,9 +585,10 @@ module.exports = {
           requesteeUserId,
           status: false
         }, { transaction: t })
+        askedQuestions.push(questionCreated)
       }
       // create notification
-      await db.Notification.create({
+      const notification = await db.Notification.create({
         userId: requesteeUserId,
         resourceId: requesterUserId,
         resourceType: 'USER',
@@ -601,6 +603,11 @@ module.exports = {
       const { fcmToken } = await db.User.findOne({ where: { id: requesteeUserId }, attributes: ['fcmToken'] })
       pushNotification.sendNotificationSingle(fcmToken, notificationType.QUESTION_RECEIVED, notificationType.QUESTION_RECEIVED)
       await t.commit()
+      // sending extra info request and question on socket
+      const socketData = { extraInfoRequest, askedQuestions }
+      socketFunctions.transmitDataOnRealtime(socketEvents.QUESTION_RECEIVED, requesteeUserId, socketData)
+      // sending notification on socket
+      socketFunctions.transmitDataOnRealtime(socketEvents.NEW_NOTIFICATION, requesteeUserId, notification)
       return true
     } catch (error) {
       await t.rollback()
@@ -615,7 +622,7 @@ module.exports = {
       await db.ExtraInfoRequest.update({ status: updateStatus }, { where: { id: requestId }, transaction: t })
       const updatedRequest = await db.ExtraInfoRequest.findOne({ where: { id: requestId } })
       if (status === REJECTED) { // notification for rejected request
-        await db.Notification.create({
+        const notification = await db.Notification.create({
           userId: updatedRequest.requesterUserId,
           resourceId: updatedRequest.requesteeUserId,
           resourceType: 'USER',
@@ -624,6 +631,8 @@ module.exports = {
         }, { transaction: t })
         // delete question associated to this request
         await db.UserQuestionAnswer.destroy({ where: { extraInfoRequestId: requestId }, transaction: t })
+        // sending notification on socket
+        socketFunctions.transmitDataOnRealtime(socketEvents.NEW_NOTIFICATION, updatedRequest.requesterUserId, notification)
       }
       await t.commit()
       return true
@@ -641,7 +650,7 @@ module.exports = {
       }, { where: { id: questionId }, transaction: t })
       const updatedQuestion = await db.UserQuestionAnswer.findOne({ where: { id: questionId } })
       // send notification
-      await db.Notification.create({
+      const notification = await db.Notification.create({
         userId: updatedQuestion.askingUserId,
         resourceId: updatedQuestion.askedUserId,
         resourceType: 'USER',
@@ -652,6 +661,10 @@ module.exports = {
       const { fcmToken } = await db.User.findOne({ where: { id: updatedQuestion.askingUserId }, attributes: ['fcmToken'] })
       pushNotification.sendNotificationSingle(fcmToken, notificationType.QUESTION_ANSWERED, notificationType.QUESTION_ANSWERED)
       await t.commit()
+      // sending answer on socket
+      socketFunctions.transmitDataOnRealtime(socketEvents.ANSWER_RECEIVED, updatedQuestion.askingUserId, updatedQuestion)
+      // sending notification on socket
+      socketFunctions.transmitDataOnRealtime(socketEvents.NEW_NOTIFICATION, updatedQuestion.askingUserId, notification)
       return true
     } catch (error) {
       await t.rollback()
