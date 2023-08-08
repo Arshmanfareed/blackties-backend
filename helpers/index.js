@@ -229,6 +229,7 @@ const helperFunctions = {
           blockedUserId,
           createdAt: {
             [Op.between]: [moment().subtract(30, 'days').utc(), moment().utc()]
+            // * Reason for block should not be 'Not Suitable for me' if multiple options are selected, block is counted.
           }
         }
       })
@@ -238,6 +239,7 @@ const helperFunctions = {
           createdAt: {
             [Op.between]: [moment().subtract(90, 'days').utc(), moment().utc()]
           }
+          // * Reason for block should not be 'Not Suitable for me' if multiple options are selected, block is counted.
         },
       })
       const user = await db.User.findOne({
@@ -249,8 +251,6 @@ const helperFunctions = {
         }
       });
 
-      console.log({ blocksIn30Days })
-      console.log({ blocksIn90Days })
       let suspendEndDate = null
       if (user.status === status.ACTIVE && (blocksIn30Days >= 10 || blocksIn90Days >= 20)) {
         const { suspendCount: noOfTimesUserPreviouslySuspended } = user.UserSetting; // get it from user setting table
@@ -259,7 +259,6 @@ const helperFunctions = {
           ({ period, unit } = suspensionCriteria[noOfTimesUserPreviouslySuspended]);
           suspendEndDate = moment().add(period, unit)
         }
-        console.log({ period, suspendEndDate });
         // suspend a user based on suspend period
         await db.User.update({ status: status.SUSPENDED }, { where: { id: blockedUserId }, transaction: t })
         await db.SuspendedUser.create({ userId: blockedUserId, reason: 'DUE_TO_BLOCKS', suspendEndDate, status: true, duration: period }, { transaction: t })

@@ -3,7 +3,7 @@ const {
   Model
 } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
-  class BlockedUser extends Model {
+  class BlockReason extends Model {
     /**
      * Helper method for defining associations.
      * This method is not a part of Sequelize lifecycle.
@@ -11,24 +11,15 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      BlockedUser.belongsTo(models.User, {
-        foreignKey: 'blockerUserId',
-        as: 'blockerUser'
-      });
-
-      BlockedUser.belongsTo(models.User, {
-        foreignKey: 'blockedUserId',
-        as: 'blockedUser'
-      });
     }
   }
-  BlockedUser.init({
-    blockerUserId: DataTypes.INTEGER,
-    blockedUserId: DataTypes.INTEGER,
+  BlockReason.init({
+    blockedId: DataTypes.INTEGER,
+    reason: DataTypes.STRING,
     status: DataTypes.BOOLEAN
   }, {
     sequelize,
-    modelName: 'BlockedUser',
+    modelName: 'BlockReason',
   });
-  return BlockedUser;
+  return BlockReason;
 };

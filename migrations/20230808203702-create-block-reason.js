@@ -1,33 +1,26 @@
 'use strict';
-
+/** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('BlockedUsers', {
+    await queryInterface.createTable('BlockReasons', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      blockerUserId: {
+      blockedId: {
         type: Sequelize.INTEGER,
         allowNull: false,
         onDelete: 'CASCADE',
         references: {
-          model: 'Users',
+          model: 'BlockedUsers',
           key: 'id',
-          as: 'blockerUserId',
+          as: 'blockedId',
         },
       },
-      blockedUserId: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-        onDelete: 'CASCADE',
-        references: {
-          model: 'Users',
-          key: 'id',
-          as: 'blockedUserId',
-        },
+      reason: {
+        type: Sequelize.STRING
       },
       status: {
         type: Sequelize.BOOLEAN
@@ -43,6 +36,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('BlockedUsers');
+    await queryInterface.dropTable('BlockReasons');
   }
 };
