@@ -70,5 +70,10 @@ module.exports = {
     FILLED_ALL_INFO: 'FILLED_ALL_INFO',
     DESCRIPTION_ADDED: 'DESCRIPTION_ADDED',
   },
+  suspensionCriteria: {
+    0: { period: 1, unit: 'M' },
+    1: { period: 3, unit: 'M' },
+    2: { period: 6, unit: 'M' }
+  },
   apiPrefix: '/dev/mahaba/api/v1',
 }

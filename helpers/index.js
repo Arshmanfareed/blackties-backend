@@ -2,7 +2,7 @@ const { sequelize } = require('../models')
 const db = require('../models')
 const { Op, Sequelize, QueryTypes } = require('sequelize')
 const sendMail = require('../utils/send-mail')
-const { gender, rewardPurpose, featureTypes, featureValidity } = require('../config/constants')
+const { gender, rewardPurpose, featureTypes, featureValidity, status, suspensionCriteria } = require('../config/constants')
 const moment = require('moment')
 const common = require('./common')
 
@@ -209,6 +209,68 @@ const helperFunctions = {
         // if pre conditions do not meet then hold this reward
         await db.RewardHistory.create({ userId, rewardType: rewardPurpose.FILLED_ALL_INFO, isPending: true, status: true })
       }
+    }
+  },
+  autoSuspendUserOnBlocks: async (blockedUserId) => {
+    const t = await db.sequelize.transaction()
+    try {
+      /*
+        If a user is blocked by 10 unique users in 30 days or blocked by 20 unique users in 90 days then
+        it will be suspended but here are the rules 
+        only first block of a verified user with a unique IP address will be counted.
+        * Reason for block should not be 'Not Suitable for me' if multiple options are selected, block is counted.
+        if this is the first time user will be banned/suspend for 1 month
+        if second time user will be banned/suspend for 3 months
+        if third time user will be banned/suspend for 6 months
+        if fourth time user will be banned/suspend for indefinitely
+      */
+      const blocksIn30Days = await db.BlockedUser.count({
+        where: {
+          blockedUserId,
+          createdAt: {
+            [Op.between]: [moment().subtract(30, 'days').utc(), moment().utc()]
+          }
+        }
+      })
+      const blocksIn90Days = await db.BlockedUser.count({
+        where: {
+          blockedUserId,
+          createdAt: {
+            [Op.between]: [moment().subtract(90, 'days').utc(), moment().utc()]
+          }
+        },
+      })
+      const user = await db.User.findOne({
+        where: { id: blockedUserId },
+        attributes: ['status'],
+        include: {
+          model: db.UserSetting,
+          attributes: ['suspendCount']
+        }
+      });
+
+      console.log({ blocksIn30Days })
+      console.log({ blocksIn90Days })
+      let suspendEndDate = null
+      if (user.status === status.ACTIVE && (blocksIn30Days >= 10 || blocksIn90Days >= 20)) {
+        const { suspendCount: noOfTimesUserPreviouslySuspended } = user.UserSetting; // get it from user setting table
+        let period = unit = null;
+        if (noOfTimesUserPreviouslySuspended in suspensionCriteria) {
+          ({ period, unit } = suspensionCriteria[noOfTimesUserPreviouslySuspended]);
+          suspendEndDate = moment().add(period, unit)
+        }
+        console.log({ period, suspendEndDate });
+        // suspend a user based on suspend period
+        await db.User.update({ status: status.SUSPENDED }, { where: { id: blockedUserId }, transaction: t })
+        await db.SuspendedUser.create({ userId: blockedUserId, reason: 'DUE_TO_BLOCKS', suspendEndDate, status: true, duration: period }, { transaction: t })
+        // * increment no of times user banned due to block by users
+        await db.UserSetting.increment('suspendCount', { by: 1, where: { userId: blockedUserId }, transaction: t })
+      }
+      await t.commit()
+    } catch (error) {
+      console.log(error)
+      await t.rollback()
+      throw new Error(error.message)
     }
   },
 }

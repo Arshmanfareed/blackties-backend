@@ -164,7 +164,9 @@ module.exports = {
     if (alreadyBlocked) {
       throw new Error("you've already blocked this user.")
     }
-    return db.BlockedUser.create({ blockerUserId, blockedUserId, reason: JSON.stringify(reason), status: true })
+    const blockedUser = await db.BlockedUser.create({ blockerUserId, blockedUserId, reason: JSON.stringify(reason), status: true })
+    helperFunctions.autoSuspendUserOnBlocks(blockedUserId) // suspend user on lot of blocks
+    return blockedUser
   },
   unblockUser: async (blockerUserId, blockedUserId) => {
     return db.BlockedUser.destroy({ where: { blockerUserId, blockedUserId } })
