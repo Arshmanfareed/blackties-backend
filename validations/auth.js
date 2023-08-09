@@ -45,11 +45,17 @@ module.exports = {
       dateOfBirth: Joi.string().required().label('Date Of Birth').messages({
         'any.required': `{#label} is Required`,
       }),
-      height: Joi.number().required().label('Height').messages({
+      height: Joi.number().required().min(130).max(210).label('Height').messages({
         'any.required': `{#label} is Required`,
+        'number.min': `{#label} must be at least 130`,
+        'number.max': `{#label} cannot exceed 210`,
+        'number.base': `{#label} is not valid`,
       }),
-      weight: Joi.number().required().label('Weight').messages({
+      weight: Joi.number().required().min(30).max(200).label('Weight').messages({
         'any.required': `{#label} is Required`,
+        'number.min': `{#label} must be at least 30`,
+        'number.max': `{#label} cannot exceed 200`,
+        'number.base': `{#label} is not valid`,
       }),
       country: Joi.string().required().label('Country').messages({
         'any.required': `{#label} is Required`,
@@ -80,15 +86,17 @@ module.exports = {
       }),
       username: Joi.string().required().min(4).max(16).label('Username').messages({
         'any.required': `{#label} is Required`,
-        'string.min': `{#label} must be between 4 - 16 char`,
-        'string.max': `{#label} must be between 4 - 16 char`,
+        'string.min': `{#label} must be at least 4 characters long`,
+        'string.max': `{#label} cannot exceed 16 characters`,
       }),
       email: Joi.string().required().label('Email').messages({
         'any.required': `{#label} is Required`,
         'string.email': 'Enter a valid email',
       }),
-      password: Joi.string().min(8).max(50).required().label('Password').messages({
+      password: Joi.string().min(8).max(15).required().label('Password').messages({
         'any.required': `{#label} is Required`,
+        'string.min': `{#label} must be at least 8 characters long`,
+        'string.max': `{#label} cannot exceed 15 characters`,
       }),
       language: Joi.string().required().valid('en', 'ar').label('Language').messages({
         'any.required': `{#label} is Required`,
