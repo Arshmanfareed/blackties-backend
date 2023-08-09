@@ -46,7 +46,7 @@ module.exports = {
         type: Sequelize.STRING(500)
       },
       answer: {
-        type: Sequelize.STRING(500)
+        type: Sequelize.STRING(2000)
       },
       status: {
         type: Sequelize.BOOLEAN

@@ -29,7 +29,7 @@ module.exports = {
     if (err) {
       return responseFunctions._400(res, err.message)
     }
-    return responseFunctions._200(res, data, 'OTP verified successfully')
+    return responseFunctions._200(res, data, 'Your phone number has been successfully updated')
   },
   login: async (req, res) => {
     // validation
@@ -76,7 +76,7 @@ module.exports = {
     if (err) {
       return responseFunctions._400(res, err.message)
     }
-    return responseFunctions._200(res, data, 'Password changed successfully.')
+    return responseFunctions._200(res, data, 'Password updated successfully.')
   },
   logout: async (req, res) => {
     const { id } = req.user

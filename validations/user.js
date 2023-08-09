@@ -89,7 +89,7 @@ module.exports = {
   },
   validateAnswerToQuestion: function (obj) {
     const schema = Joi.object({
-      answer: Joi.string().min(3).max(100).label('answer').required().messages({
+      answer: Joi.string().min(3).max(2000).label('answer').required().messages({
         'any.required': `{#label} is Required`,
       }),
     })

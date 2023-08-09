@@ -180,7 +180,7 @@ module.exports = {
         type: Sequelize.STRING(500),
       },
       description: {
-        type: Sequelize.STRING(500),
+        type: Sequelize.STRING(2000),
       },
       createdAt: {
         allowNull: false,
