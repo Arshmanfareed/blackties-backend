@@ -224,35 +224,40 @@ const helperFunctions = {
         if third time user will be banned/suspend for 6 months
         if fourth time user will be banned/suspend for indefinitely
       */
-      const blocksIn30Days = await db.BlockedUser.count({
-        where: {
-          blockedUserId,
-          createdAt: {
-            [Op.between]: [moment().subtract(30, 'days').utc(), moment().utc()]
+      const promisesResolved = await Promise.allSettled([
+        db.BlockedUser.count({
+          where: {
+            blockedUserId,
+            createdAt: {
+              [Op.between]: [moment().subtract(30, 'days').utc(), moment().utc()]
+              // * Reason for block should not be 'Not Suitable for me' if multiple options are selected, block is counted.
+            }
+          }
+        }),
+        db.BlockedUser.count({
+          where: {
+            blockedUserId,
+            createdAt: {
+              [Op.between]: [moment().subtract(90, 'days').utc(), moment().utc()]
+            }
             // * Reason for block should not be 'Not Suitable for me' if multiple options are selected, block is counted.
+          },
+        }),
+        db.User.findOne({
+          where: { id: blockedUserId },
+          attributes: ['status'],
+          include: {
+            model: db.UserSetting,
+            attributes: ['suspendCount']
           }
-        }
-      })
-      const blocksIn90Days = await db.BlockedUser.count({
-        where: {
-          blockedUserId,
-          createdAt: {
-            [Op.between]: [moment().subtract(90, 'days').utc(), moment().utc()]
-          }
-          // * Reason for block should not be 'Not Suitable for me' if multiple options are selected, block is counted.
-        },
-      })
-      const user = await db.User.findOne({
-        where: { id: blockedUserId },
-        attributes: ['status'],
-        include: {
-          model: db.UserSetting,
-          attributes: ['suspendCount']
-        }
-      });
+        }),
+      ])
+      const blocksIn30Days = promisesResolved[0].status == 'fulfilled' ? promisesResolved[0].value : 0
+      const blocksIn90Days = promisesResolved[1].status == 'fulfilled' ? promisesResolved[1].value : 0
+      const user = promisesResolved[2].status == 'fulfilled' ? promisesResolved[2].value : {}
 
       let suspendEndDate = null
-      if (user.status === status.ACTIVE && (blocksIn30Days >= 10 || blocksIn90Days >= 20)) {
+      if (user?.status === status.ACTIVE && (blocksIn30Days >= 10 || blocksIn90Days >= 20)) {
         const { suspendCount: noOfTimesUserPreviouslySuspended } = user.UserSetting; // get it from user setting table
         let period = unit = null;
         if (noOfTimesUserPreviouslySuspended in suspensionCriteria) {

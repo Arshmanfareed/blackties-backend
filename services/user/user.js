@@ -162,7 +162,7 @@ module.exports = {
   blockUser: async (blockerUserId, blockedUserId, reasons) => {
     const alreadyBlocked = await db.BlockedUser.findOne({ where: { blockerUserId, blockedUserId } })
     if (alreadyBlocked) {
-      throw new Error("you've already blocked this user.")
+      throw new Error("You've already blocked this user.")
     }
     const blockedUser = await db.BlockedUser.create({ blockerUserId, blockedUserId, status: true })
     const blockedReasons = reasons.map(reason => { return { reason, blockedId: blockedUser.id, status: true } })
