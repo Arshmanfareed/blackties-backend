@@ -24,7 +24,7 @@ module.exports = {
       const DiffInMins = dateNow.diff(otpExpiry, 'minutes')
       if (DiffInMins > 5) {
         // check for expiry
-        throw new Error('Code is expired.')
+        throw new Error('OTP is expired.')
       }
       // remove the code and update the phoneNo
       await db.User.update(
@@ -37,7 +37,7 @@ module.exports = {
       helpers.givePhoneVerifyReward(userId)
       return db.UserSetting.findOne({ where: { userId } })
     } else {
-      throw Error('Invalid code.')
+      throw Error('Incorrect OTP, please try again')
     }
   },
   logout: async (userId) => {

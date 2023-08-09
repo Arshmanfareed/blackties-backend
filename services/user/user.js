@@ -813,7 +813,7 @@ module.exports = {
     if (email) { // check if updating email not exist before or used by someone else
       const userExist = await db.User.findOne({ where: { email } })
       if (userExist && userExist.id !== userId) {
-        throw new Error('Email already exist.')
+        throw new Error('This email is already used by another user.')
       }
       // send verification email to user.
       const verificationCode = Math.floor(100000 + Math.random() * 900000)
