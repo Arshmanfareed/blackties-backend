@@ -14,6 +14,7 @@ module.exports = {
             currency: 'usd',
             product_data: {
               name: `Top up Mahaba Wallet`,
+              images: ['https://mahaba-user-data.s3.me-south-1.amazonaws.com/static/logo.png'],
             },
             unit_amount: amount * 100, // multiplying it 100 because amount must be in cents
           },
