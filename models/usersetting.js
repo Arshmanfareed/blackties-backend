@@ -37,6 +37,10 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.BOOLEAN,
       defaultValue: false,
     },
+    suspendCount: {  // no of times user suspended due to blocks
+      type: DataTypes.INTEGER,
+      defaultValue: 0,
+    },
     membership: DataTypes.STRING,
     lastSeen: DataTypes.DATE,
   }, {
