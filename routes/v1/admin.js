@@ -267,4 +267,44 @@ router.post('/user/:id/unlock-description', auth, isAdmin, adminController.unloc
  */
 router.patch('/user/:id/delete-description', auth, isAdmin, adminController.deleteDescription)
 
+/**
+ * @swagger
+ * /admin/user/{id}/add-credit:
+ *   post:
+ *     summary: Add credit in user wallet
+ *     consumes:
+ *      - application/json
+ *     produces:
+ *      - application/json
+ *     tags:
+ *     - Admin
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               amount:
+ *                 type: number
+ *     parameters:
+ *     - name: x-auth-token
+ *       in: header
+ *       required: true
+ *       type: string
+ *       description: an authorization header
+ *     - name: id
+ *       in: path
+ *       required: true
+ *       type: string
+ *       description: Id of the User
+ *     operationId: addCreditInUserWallet
+ *     deprecated: false
+ *     responses:
+ *       '200':
+ *         description: ''
+ *         headers: {}
+ */
+router.post('/user/:id/add-credit', auth, isAdmin, adminController.addCreditInUserWallet)
+
 module.exports = router

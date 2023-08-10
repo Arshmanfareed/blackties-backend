@@ -39,6 +39,7 @@ module.exports = {
         if (type === constants.paymentType.PURCHASE) { // handle topup payment success
           const amountToBeAdded = session.amount_total / 100
           await db.Wallet.increment('amount', { by: amountToBeAdded, where: { userId }, transaction: t })
+          await db.Transaction.create({ userId, amount: amountToBeAdded, type: 'TOPUP_BY_USER', status: true })
         } else { // handle subscription success
           const subsPlan = await db.SubscriptionPlan.findOne({ where: { productId } })
           await db.UserSetting.update({
