@@ -62,4 +62,16 @@ module.exports = {
     }
     return responseFunctions._200(res, data, 'Description deleted successfully')
   },
+  addCreditInUserWallet: async (req, res) => {
+    const { id: userId } = req.params
+    const { amount } = req.body
+    if (!amount || amount <= 0) {
+      return responseFunctions._400(res, 'Amount must greater than 0')
+    }
+    const [err, data] = await to(adminService.addCreditInUserWallet(userId, amount))
+    if (err) {
+      return responseFunctions._400(res, err.message)
+    }
+    return responseFunctions._200(res, data, 'Credit added successfully')
+  },
 }

@@ -6,4 +6,5 @@ module.exports = {
   lockDescription: require('./user').lockDescription,
   unlockDescription: require('./user').unlockDescription,
   deleteDescription: require('./user').deleteDescription,
+  addCreditInUserWallet: require('./user').addCreditInUserWallet,
 }

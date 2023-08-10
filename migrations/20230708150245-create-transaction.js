@@ -21,7 +21,7 @@ module.exports = {
       },
       featureId: {
         type: Sequelize.INTEGER,
-        allowNull: false,
+        allowNull: true,
         onDelete: 'CASCADE',
         references: {
           model: 'Features',

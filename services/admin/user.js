@@ -124,4 +124,17 @@ module.exports = {
     // socket event to delete/hide description of the user
     return true
   },
+  addCreditInUserWallet: async (userId, amount) => {
+    const t = await db.sequelize.transaction()
+    try {
+      await db.Wallet.increment('amount', { by: amount, where: { userId }, transaction: t })
+      await db.Transaction.create({ userId, amount, type: 'TOPUP_BY_ADMIN', status: true }, { transaction: t })
+      await t.commit()
+      return true
+    } catch (error) {
+      await t.rollback()
+      console.log(error)
+      throw new Error(error.message)
+    }
+  }
 }
