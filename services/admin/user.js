@@ -16,6 +16,12 @@ module.exports = {
         model: db.BlockedUser,
         as: 'blockedUser',
       },
+      {
+        model: db.UserSetting,
+      },
+      {
+        model: db.Profile,
+      },
     ]
     switch (queryStatus) {
       case status.DEACTIVATED:
