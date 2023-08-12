@@ -142,5 +142,9 @@ module.exports = {
       console.log(error)
       throw new Error(error.message)
     }
-  }
+  },
+  editUsername: async (userId, body) => {
+    const { username } = body
+    return db.User.update({ username }, { where: { id: userId } })
+  },
 }

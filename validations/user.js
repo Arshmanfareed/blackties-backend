@@ -109,5 +109,15 @@ module.exports = {
     })
     return schema.validate(obj, { allowUnknown: false })
   },
+  validateUpdateUsername: function (obj) {
+    const schema = Joi.object({
+      username: Joi.string().required().min(4).max(16).label('Username').messages({
+        'any.required': `{#label} is Required`,
+        'string.min': `{#label} must be at least 4 characters long`,
+        'string.max': `{#label} cannot exceed 16 characters`,
+      }),
+    })
+    return schema.validate(obj, { allowUnknown: true })
+  },
 }
 

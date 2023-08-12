@@ -7,4 +7,5 @@ module.exports = {
   unlockDescription: require('./user').unlockDescription,
   deleteDescription: require('./user').deleteDescription,
   addCreditInUserWallet: require('./user').addCreditInUserWallet,
+  editUsername: require('./user').editUsername,
 }

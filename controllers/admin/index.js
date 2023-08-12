@@ -1,6 +1,7 @@
 const adminService = require('../../services/admin')
 const { to } = require('../../utils/error-handler')
 const responseFunctions = require('../../utils/responses')
+const { userValidations } = require('../../validations')
 
 module.exports = {
   getUsers: async (req, res) => {
@@ -73,5 +74,18 @@ module.exports = {
       return responseFunctions._400(res, err.message)
     }
     return responseFunctions._200(res, data, 'Credit added successfully')
+  },
+  editUsername: async (req, res) => {
+    const { id: userId } = req.params
+    const { body } = req
+    const { error } = userValidations.validateUpdateUsername(body)
+    if (error) {
+      return responseFunctions._400(res, error.details[0].message)
+    }
+    const [err, data] = await to(adminService.editUsername(userId, body))
+    if (err) {
+      return responseFunctions._400(res, err.message)
+    }
+    return responseFunctions._200(res, data, 'User updated successfully')
   },
 }

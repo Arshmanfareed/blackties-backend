@@ -307,4 +307,44 @@ router.patch('/user/:id/delete-description', auth, isAdmin, adminController.dele
  */
 router.post('/user/:id/add-credit', auth, isAdmin, adminController.addCreditInUserWallet)
 
+/**
+ * @swagger
+ * /admin/user/{id}:
+ *   patch:
+ *     summary: Update username of a user
+ *     consumes:
+ *      - application/json
+ *     produces:
+ *      - application/json
+ *     tags:
+ *     - Admin
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               username:
+ *                 type: string
+ *     parameters:
+ *     - name: x-auth-token
+ *       in: header
+ *       required: true
+ *       type: string
+ *       description: an authorization header
+ *     - name: id
+ *       in: path
+ *       required: true
+ *       type: string
+ *       description: Id of the User
+ *     operationId: editUsername
+ *     deprecated: false
+ *     responses:
+ *       '200':
+ *         description: ''
+ *         headers: {}
+ */
+router.patch('/user/:id', auth, isAdmin, adminController.editUsername)
+
 module.exports = router
