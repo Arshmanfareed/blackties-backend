@@ -151,4 +151,29 @@ module.exports = {
     const { username } = body
     return db.User.update({ username }, { where: { id: userId } })
   },
+  getUserDetails: async (userId) => {
+    return db.User.findOne({
+      where: { id: userId },
+      include: [
+        {
+          model: db.UserSetting,
+        },
+        {
+          model: db.Profile,
+        },
+        {
+          model: db.Wallet,
+        },
+        {
+          model: db.DeactivatedUser,
+        },
+        {
+          model: db.SuspendedUser,
+        },
+        {
+          model: db.LockedDescription,
+        },
+      ],
+    })
+  },
 }

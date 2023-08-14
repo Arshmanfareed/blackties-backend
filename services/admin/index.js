@@ -8,4 +8,5 @@ module.exports = {
   deleteDescription: require('./user').deleteDescription,
   addCreditInUserWallet: require('./user').addCreditInUserWallet,
   editUsername: require('./user').editUsername,
+  getUserDetails: require('./user').getUserDetails,
 }
