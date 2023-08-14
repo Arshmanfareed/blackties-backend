@@ -97,7 +97,7 @@ module.exports = {
         contactDetailsByFemale,
       }
       const eventName = isFromFemale ? socketEvents.CONTACT_DETAILS_SENT : socketEvents.CONTACT_DETAILS_REQUEST;
-      // sending picture request on socket
+      // sending contact details request on socket
       socketFunctions.transmitDataOnRealtime(eventName, requesteeUserId, socketData)
       // sending notification on socket
       socketFunctions.transmitDataOnRealtime(socketEvents.NEW_NOTIFICATION, requesteeUserId, notification)
@@ -110,7 +110,7 @@ module.exports = {
   respondToContactDetailsRequest: async (requestId, body) => {
     const t = await db.sequelize.transaction()
     try {
-      const contactDetailsRequest = await db.ContactDetailsRequest.findOne({ where: { id: requestId } })
+      let contactDetailsRequest = await db.ContactDetailsRequest.findOne({ where: { id: requestId } })
       if (contactDetailsRequest.status !== requestStatus.PENDING) {
         throw new Error("You've already responded to this request")
       }
@@ -123,6 +123,7 @@ module.exports = {
         Note: All other pending incoming requests will be cancelled
       */
       const requestUpdatePayload = {}
+      let notification, contactDetailsByFemale;
       const { requesterUserId, requesteeUserId } = contactDetailsRequest
       const notificationPayload = {
         userId: requesterUserId,
@@ -133,7 +134,7 @@ module.exports = {
       if (status === requestStatus.ACCEPTED) { // accepted
         requestUpdatePayload['status'] = requestStatus.ACCEPTED
         if (isFemaleResponding) {
-          await db.ContactDetails.create({
+          contactDetailsByFemale = await db.ContactDetails.create({
             contactDetailsRequestId: requestId,
             name,
             personToContact,
@@ -150,7 +151,7 @@ module.exports = {
         await helperFunctions.createMatchIfNotExist(requesterUserId, requesteeUserId, t)
         // generate notification of match
         notificationPayload['notificationType'] = notificationType.MATCH_CREATED
-        await db.Notification.create(notificationPayload, { transaction: t })
+        notification = await db.Notification.create(notificationPayload, { transaction: t })
         // push notification
         const { fcmToken } = await db.User.findOne({ where: { id: notificationPayload.userId }, attributes: ['fcmToken'] })
         pushNotification.sendNotificationSingle(fcmToken, notificationPayload.notificationType, notificationPayload.notificationType)
@@ -158,10 +159,17 @@ module.exports = {
         requestUpdatePayload['status'] = requestStatus.REJECTED
         notificationPayload['notificationType'] = contactDetailsRequest.isFromFemale ? notificationType.CONTACT_DETAILS_SENT_REJECTED : notificationType.CONTACT_DETAILS_REQUEST_REJECTED
         // generate notification of reject
-        await db.Notification.create(notificationPayload, { transaction: t })
+        notification = await db.Notification.create(notificationPayload, { transaction: t })
       }
       await db.ContactDetailsRequest.update(requestUpdatePayload, { where: { id: requestId }, transaction: t })
       await t.commit()
+      contactDetailsRequest = JSON.parse(JSON.stringify(contactDetailsRequest))
+      contactDetailsRequest['status'] = requestUpdatePayload['status']
+      const socketData = { contactDetailsRequest, contactDetailsByFemale }
+      // sending respond of contact details request on socket
+      socketFunctions.transmitDataOnRealtime(socketEvents.CONTACT_DETAILS_RESPOND, requesterUserId, socketData)
+      // sending notification on socket
+      socketFunctions.transmitDataOnRealtime(socketEvents.NEW_NOTIFICATION, requesterUserId, notification)
       return true
     } catch (error) {
       console.log(error)

@@ -68,6 +68,7 @@ module.exports = {
     ANSWER_RECEIVED: 'answer-received',
     CONTACT_DETAILS_REQUEST: 'contact-details-request',
     CONTACT_DETAILS_SENT: 'contact-details-sent',
+    CONTACT_DETAILS_RESPOND: 'contact-details-respond',
   },
   rewardPurpose: {
     EMAIL_VERIFIED: 'EMAIL_VERIFIED',
