@@ -20,11 +20,11 @@ const auth = require('../../middlewares/auth')
  *       required: true
  *       type: string
  *       description: an authorization header
- *     - name: search
+ *     - name: usernameOrCode
  *       in: query
  *       required: false
  *       type: string
- *       description: Search
+ *       description: Search by username or code.
  *     - name: status
  *       in: query
  *       required: false

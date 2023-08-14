@@ -6,11 +6,15 @@ const bcryptjs = require("bcryptjs")
 
 module.exports = {
   getUsers: async (query) => {
-    const { limit, offset, search, status: queryStatus } = query
+    const { limit, offset, search, status: queryStatus, usernameOrCode } = query
+    const usernameOrCodeQuery = usernameOrCode ? `%${usernameOrCode}%` : "%%";
     const whereOnUser = {
       role: roles.USER,
       status: queryStatus || status.ACTIVE,
-      username: { [Op.like]: search ? `%${search}%` : "%%" },
+      [Op.or]: {
+        username: { [Op.like]: usernameOrCodeQuery },
+        code: { [Op.like]: usernameOrCodeQuery },
+      },
     }
     const includeTables = [
       {
