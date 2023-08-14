@@ -1,16 +1,20 @@
 const db = require('../../models')
 const { roles, status } = require("../../config/constants")
-const { Op } = require('sequelize')
+const { Op, Sequelize } = require('sequelize')
 const moment = require('moment')
 const bcryptjs = require("bcryptjs")
 
 module.exports = {
   getUsers: async (query) => {
-    const { limit, offset, search, status: queryStatus } = query
+    const { limit, offset, search, status: queryStatus, usernameOrCode } = query
+    const usernameOrCodeQuery = usernameOrCode ? `%${usernameOrCode}%` : "%%";
     const whereOnUser = {
       role: roles.USER,
       status: queryStatus || status.ACTIVE,
-      username: { [Op.like]: search ? `%${search}%` : "%%" },
+      [Op.or]: {
+        username: { [Op.like]: usernameOrCodeQuery },
+        code: { [Op.like]: usernameOrCodeQuery },
+      },
     }
     const includeTables = [
       {
@@ -146,5 +150,42 @@ module.exports = {
   editUsername: async (userId, body) => {
     const { username } = body
     return db.User.update({ username }, { where: { id: userId } })
+  },
+  getUserDetails: async (userId) => {
+    const dateBefore90DayFromToday = moment().subtract(90, 'days').format('YYYY-MM-DD HH:mm:ss');
+    return db.User.findOne({
+      where: { id: userId },
+      attributes: [
+        'id',
+        'username',
+        'email',
+        'status',
+        'createdAt',
+        'language',
+        'code',
+        'phoneNo',
+        [Sequelize.literal(`(select COUNT(id) from BlockedUsers where blockedUserId = User.id and createdAt >= '${dateBefore90DayFromToday}' )`), 'noOfBlocksReceived'],
+      ],
+      include: [
+        {
+          model: db.UserSetting,
+        },
+        {
+          model: db.Profile,
+        },
+        {
+          model: db.Wallet,
+        },
+        {
+          model: db.DeactivatedUser,
+        },
+        {
+          model: db.SuspendedUser,
+        },
+        {
+          model: db.LockedDescription,
+        },
+      ],
+    })
   },
 }

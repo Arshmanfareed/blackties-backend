@@ -88,4 +88,12 @@ module.exports = {
     }
     return responseFunctions._200(res, data, 'User updated successfully')
   },
+  getUserDetails: async (req, res) => {
+    const { id: userId } = req.params
+    const [err, data] = await to(adminService.getUserDetails(userId))
+    if (err) {
+      return responseFunctions._400(res, err.message)
+    }
+    return responseFunctions._200(res, data, 'Data fetched successfully')
+  },
 }

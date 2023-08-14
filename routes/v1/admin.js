@@ -20,11 +20,11 @@ const auth = require('../../middlewares/auth')
  *       required: true
  *       type: string
  *       description: an authorization header
- *     - name: search
+ *     - name: usernameOrCode
  *       in: query
  *       required: false
  *       type: string
- *       description: Search
+ *       description: Search by username or code.
  *     - name: status
  *       in: query
  *       required: false
@@ -346,5 +346,36 @@ router.post('/user/:id/add-credit', auth, isAdmin, adminController.addCreditInUs
  *         headers: {}
  */
 router.patch('/user/:id', auth, isAdmin, adminController.editUsername)
+
+/**
+ * @swagger
+ * /admin/user/{id}/detail:
+ *   get:
+ *     summary: Get Details of a User
+ *     consumes:
+ *      - application/json
+ *     produces:
+ *      - application/json
+ *     tags:
+ *     - Admin
+ *     parameters:
+ *     - name: x-auth-token
+ *       in: header
+ *       required: true
+ *       type: string
+ *       description: an authorization header
+ *     - name: id
+ *       in: path
+ *       required: true
+ *       type: string
+ *       description: Id of the User
+ *     operationId: getUserDetails
+ *     deprecated: false
+ *     responses:
+ *       '200':
+ *         description: ''
+ *         headers: {}
+ */
+router.get('/user/:id/detail', auth, isAdmin, adminController.getUserDetails)
 
 module.exports = router
