@@ -66,6 +66,8 @@ module.exports = {
     PICTURE_REQUEST: 'picture-request',
     QUESTION_RECEIVED: 'question-received',
     ANSWER_RECEIVED: 'answer-received',
+    CONTACT_DETAILS_REQUEST: 'contact-details-request',
+    CONTACT_DETAILS_SENT: 'contact-details-sent',
   },
   rewardPurpose: {
     EMAIL_VERIFIED: 'EMAIL_VERIFIED',

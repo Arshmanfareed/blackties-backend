@@ -60,6 +60,7 @@ module.exports = {
         status: requestStatus.PENDING,
         isFromFemale,
       }, { transaction: t })
+      let contactDetailsByFemale;
       if (isFromFemale) {
         /*
           Please confirm you want to send your contact details of this user
@@ -68,7 +69,7 @@ module.exports = {
           You will not be able to send your contact details to another user, unless you cancel the present request.
           You will need to wait at least 24 hours to be able to cancel this request.
         */
-        await db.ContactDetails.create({
+        contactDetailsByFemale = await db.ContactDetails.create({
           contactDetailsRequestId: request.id,
           name,
           personToContact,
@@ -82,7 +83,7 @@ module.exports = {
         notificationPayload['notificationType'] = notificationType.CONTACT_DETAILS_REQUEST
       }
       // generate notification
-      await db.Notification.create(notificationPayload, { transaction: t })
+      const notification = await db.Notification.create(notificationPayload, { transaction: t })
       // decrement count  by 1 if user uses count based feature
       if (countBasedFeature) {
         await db.UserFeature.decrement('remaining', { by: 1, where: { id: countBasedFeature.id }, transaction: t })
@@ -91,6 +92,15 @@ module.exports = {
       const { fcmToken } = await db.User.findOne({ where: { id: notificationPayload.userId }, attributes: ['fcmToken'] })
       pushNotification.sendNotificationSingle(fcmToken, notificationPayload.notificationType, notificationPayload.notificationType)
       await t.commit()
+      const socketData = {
+        request,
+        contactDetailsByFemale,
+      }
+      const eventName = isFromFemale ? socketEvents.CONTACT_DETAILS_SENT : socketEvents.CONTACT_DETAILS_REQUEST;
+      // sending picture request on socket
+      socketFunctions.transmitDataOnRealtime(eventName, requesteeUserId, socketData)
+      // sending notification on socket
+      socketFunctions.transmitDataOnRealtime(socketEvents.NEW_NOTIFICATION, requesteeUserId, notification)
       return request
     } catch (error) {
       await t.rollback()
