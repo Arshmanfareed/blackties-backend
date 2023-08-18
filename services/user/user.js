@@ -88,10 +88,12 @@ module.exports = {
       if (countBasedFeature) {
         await db.UserFeature.decrement('remaining', { by: 1, where: { id: countBasedFeature.id }, transaction: t })
       }
-      // push notification
-      const { fcmToken } = await db.User.findOne({ where: { id: notificationPayload.userId }, attributes: ['fcmToken'] })
-      pushNotification.sendNotificationSingle(fcmToken, notificationPayload.notificationType, notificationPayload.notificationType)
       await t.commit()
+      // push notification
+      if ((await helperFunctions.checkForPushNotificationToggle(notificationPayload.userId, 'contactDetailsRequest'))) { // check for toggles on or off
+        const { fcmToken } = await db.User.findOne({ where: { id: notificationPayload.userId }, attributes: ['fcmToken'] })
+        pushNotification.sendNotificationSingle(fcmToken, notificationPayload.notificationType, notificationPayload.notificationType)
+      }
       const socketData = {
         request,
         contactDetailsByFemale,
@@ -240,10 +242,12 @@ module.exports = {
       if (countBasedFeature) {
         await db.UserFeature.decrement('remaining', { by: 1, where: { id: countBasedFeature.id }, transaction: t })
       }
-      // push notification
-      const { fcmToken } = await db.User.findOne({ where: { id: requesteeUserId }, attributes: ['fcmToken'] })
-      pushNotification.sendNotificationSingle(fcmToken, notificationType.PICTURE_REQUEST, notificationType.PICTURE_REQUEST)
       await t.commit()
+      // push notification
+      if ((await helperFunctions.checkForPushNotificationToggle(requesteeUserId, 'receivePictureRequest'))) { // check for toggles on or off
+        const { fcmToken } = await db.User.findOne({ where: { id: requesteeUserId }, attributes: ['fcmToken'] })
+        pushNotification.sendNotificationSingle(fcmToken, notificationType.PICTURE_REQUEST, notificationType.PICTURE_REQUEST)
+      }
       const requesterUser = await db.User.findOne({
         where: { id: requesterUserId },
         attributes: ['username', 'code'],
@@ -621,10 +625,12 @@ module.exports = {
       if (countBasedFeature) {
         await db.UserFeature.decrement('remaining', { by: 1, where: { id: countBasedFeature.id }, transaction: t })
       }
-      // push notification
-      const { fcmToken } = await db.User.findOne({ where: { id: requesteeUserId }, attributes: ['fcmToken'] })
-      pushNotification.sendNotificationSingle(fcmToken, notificationType.QUESTION_RECEIVED, notificationType.QUESTION_RECEIVED)
       await t.commit()
+      // push notification
+      if ((await helperFunctions.checkForPushNotificationToggle(requesteeUserId, 'receiveQuestion'))) { // check for toggles on or off
+        const { fcmToken } = await db.User.findOne({ where: { id: requesteeUserId }, attributes: ['fcmToken'] })
+        pushNotification.sendNotificationSingle(fcmToken, notificationType.QUESTION_RECEIVED, notificationType.QUESTION_RECEIVED)
+      }
       // sending extra info request and question on socket
       const socketData = { extraInfoRequest, askedQuestions }
       socketFunctions.transmitDataOnRealtime(socketEvents.QUESTION_RECEIVED, requesteeUserId, socketData)

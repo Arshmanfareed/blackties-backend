@@ -277,5 +277,14 @@ const helperFunctions = {
       throw new Error(error.message)
     }
   },
+  checkForPushNotificationToggle: async (userId, toggleKey) => {
+    try {
+      const notificationToggles = await db.NotificationSetting.findOne({ where: { userId } })
+      return notificationToggles[toggleKey] || false
+    } catch (error) {
+      console.log(error)
+    }
+  },
 }
+
 module.exports = helperFunctions
