@@ -155,8 +155,10 @@ module.exports = {
         notificationPayload['notificationType'] = notificationType.MATCH_CREATED
         notification = await db.Notification.create(notificationPayload, { transaction: t })
         // push notification
-        const { fcmToken } = await db.User.findOne({ where: { id: notificationPayload.userId }, attributes: ['fcmToken'] })
-        pushNotification.sendNotificationSingle(fcmToken, notificationPayload.notificationType, notificationPayload.notificationType)
+        if ((await helperFunctions.checkForPushNotificationToggle(notificationPayload.userId, 'getMatched'))) { // check for toggles on or off
+          const { fcmToken } = await db.User.findOne({ where: { id: notificationPayload.userId }, attributes: ['fcmToken'] })
+          pushNotification.sendNotificationSingle(fcmToken, notificationPayload.notificationType, notificationPayload.notificationType)
+        }
       } else { // rejected 
         requestUpdatePayload['status'] = requestStatus.REJECTED
         notificationPayload['notificationType'] = contactDetailsRequest.isFromFemale ? notificationType.CONTACT_DETAILS_SENT_REJECTED : notificationType.CONTACT_DETAILS_REQUEST_REJECTED
@@ -278,8 +280,10 @@ module.exports = {
     if (dataToUpdate?.status === requestStatus.ACCEPTED) {
       notificationPayload['notificationType'] = notificationType.PICTURE_SENT
       // push notification
-      const { fcmToken } = await db.User.findOne({ where: { id: notificationPayload.userId }, attributes: ['fcmToken'] })
-      pushNotification.sendNotificationSingle(fcmToken, notificationPayload.notificationType, notificationPayload.notificationType)
+      if ((await helperFunctions.checkForPushNotificationToggle(notificationPayload.userId, 'receivePicture'))) { // check for toggles on or off
+        const { fcmToken } = await db.User.findOne({ where: { id: notificationPayload.userId }, attributes: ['fcmToken'] })
+        pushNotification.sendNotificationSingle(fcmToken, notificationPayload.notificationType, notificationPayload.notificationType)
+      }
     } else if (dataToUpdate?.status === requestStatus.REJECTED) {
       notificationPayload['notificationType'] = notificationType.PICTURE_REQUEST_REJECTED
     } else {
@@ -561,8 +565,10 @@ module.exports = {
       status: false,
     })
     // push notification
-    const { fcmToken } = await db.User.findOne({ where: { id: otherUserId }, attributes: ['fcmToken'] })
-    pushNotification.sendNotificationSingle(fcmToken, notificationType.MATCH_CANCELLED, notificationType.MATCH_CANCELLED)
+    if ((await helperFunctions.checkForPushNotificationToggle(otherUserId, 'matchCancelled'))) { // check for toggles on or off
+      const { fcmToken } = await db.User.findOne({ where: { id: otherUserId }, attributes: ['fcmToken'] })
+      pushNotification.sendNotificationSingle(fcmToken, notificationType.MATCH_CANCELLED, notificationType.MATCH_CANCELLED)
+    }
     return true
   },
   markNotificationAsReadOrUnread: async (notificationIds, status) => {
@@ -685,10 +691,12 @@ module.exports = {
         notificationType: notificationType.QUESTION_ANSWERED,
         status: 0
       }, { transaction: t })
-      // push notification
-      const { fcmToken } = await db.User.findOne({ where: { id: updatedQuestion.askingUserId }, attributes: ['fcmToken'] })
-      pushNotification.sendNotificationSingle(fcmToken, notificationType.QUESTION_ANSWERED, notificationType.QUESTION_ANSWERED)
       await t.commit()
+      // push notification
+      if ((await helperFunctions.checkForPushNotificationToggle(updatedQuestion.askingUserId, 'receiveAnswer'))) { // check for toggles on or off
+        const { fcmToken } = await db.User.findOne({ where: { id: updatedQuestion.askingUserId }, attributes: ['fcmToken'] })
+        pushNotification.sendNotificationSingle(fcmToken, notificationType.QUESTION_ANSWERED, notificationType.QUESTION_ANSWERED)
+      }
       // sending answer on socket
       socketFunctions.transmitDataOnRealtime(socketEvents.ANSWER_RECEIVED, updatedQuestion.askingUserId, updatedQuestion)
       // sending notification on socket

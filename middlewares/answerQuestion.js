@@ -53,7 +53,6 @@ module.exports = async (req, res, next) => {
     })
     const { isPremium, membership: userMembership } = user.UserSetting
     const { sex } = user.Profile
-    console.log(JSON.parse(JSON.stringify(user)))
     if (sex === gender.FEMALE) {
       next()
     } else if (sex === gender.MALE) {

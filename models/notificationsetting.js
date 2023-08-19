@@ -30,6 +30,10 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.BOOLEAN,
       defaultValue: true,
     },
+    receivePicture: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: true,
+    },
     contactDetailsRequest: {
       type: DataTypes.BOOLEAN,
       defaultValue: true,
