@@ -21,6 +21,9 @@ module.exports = {
       receivePictureRequest: {
         type: Sequelize.BOOLEAN
       },
+      receivePicture: {
+        type: Sequelize.BOOLEAN
+      },
       contactDetailsRequest: {
         type: Sequelize.BOOLEAN
       },
