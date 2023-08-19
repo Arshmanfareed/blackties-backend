@@ -52,7 +52,7 @@ module.exports = (sequelize, DataTypes) => {
     },
     restrictPushNotificationOfMyNationality: {
       type: DataTypes.BOOLEAN,
-      defaultValue: true,
+      defaultValue: false,
     },
     emailNotification: {
       type: DataTypes.BOOLEAN,
@@ -60,7 +60,7 @@ module.exports = (sequelize, DataTypes) => {
     },
     restrictEmailNotificationOfMyNationality: {
       type: DataTypes.BOOLEAN,
-      defaultValue: true,
+      defaultValue: false,
     }
   }, {
     sequelize,
