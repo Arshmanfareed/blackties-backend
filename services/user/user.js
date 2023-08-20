@@ -90,7 +90,7 @@ module.exports = {
       }
       await t.commit()
       // push notification
-      const isToggleOn = await helperFunctions.checkForPushNotificationToggle(notificationPayload.userId, 'contactDetailsRequest')
+      const isToggleOn = await helperFunctions.checkForPushNotificationToggle(notificationPayload.userId, requesterUserId, 'contactDetailsRequest')
       if (isToggleOn) { // check for toggles on or off
         const { fcmToken } = await db.User.findOne({ where: { id: notificationPayload.userId }, attributes: ['fcmToken'] })
         pushNotification.sendNotificationSingle(fcmToken, notificationPayload.notificationType, notificationPayload.notificationType)
@@ -156,7 +156,7 @@ module.exports = {
         notificationPayload['notificationType'] = notificationType.MATCH_CREATED
         notification = await db.Notification.create(notificationPayload, { transaction: t })
         // push notification
-        const isToggleOn = await helperFunctions.checkForPushNotificationToggle(notificationPayload.userId, 'getMatched')
+        const isToggleOn = await helperFunctions.checkForPushNotificationToggle(notificationPayload.userId, requesteeUserId, 'getMatched')
         if (isToggleOn) { // check for toggles on or off
           const { fcmToken } = await db.User.findOne({ where: { id: notificationPayload.userId }, attributes: ['fcmToken'] })
           pushNotification.sendNotificationSingle(fcmToken, notificationPayload.notificationType, notificationPayload.notificationType)
@@ -248,7 +248,7 @@ module.exports = {
       }
       await t.commit()
       // push notification
-      const isToggleOn = await helperFunctions.checkForPushNotificationToggle(requesteeUserId, 'receivePictureRequest')
+      const isToggleOn = await helperFunctions.checkForPushNotificationToggle(requesteeUserId, requesterUserId, 'receivePictureRequest')
       if (isToggleOn) { // check for toggles on or off
         const { fcmToken } = await db.User.findOne({ where: { id: requesteeUserId }, attributes: ['fcmToken'] })
         pushNotification.sendNotificationSingle(fcmToken, notificationType.PICTURE_REQUEST, notificationType.PICTURE_REQUEST)
@@ -283,7 +283,7 @@ module.exports = {
     if (dataToUpdate?.status === requestStatus.ACCEPTED) {
       notificationPayload['notificationType'] = notificationType.PICTURE_SENT
       // push notification
-      const isToggleOn = await helperFunctions.checkForPushNotificationToggle(notificationPayload.userId, 'receivePicture')
+      const isToggleOn = await helperFunctions.checkForPushNotificationToggle(notificationPayload.userId, notificationPayload.resourceId, 'receivePicture')
       if (isToggleOn) { // check for toggles on or off
         const { fcmToken } = await db.User.findOne({ where: { id: notificationPayload.userId }, attributes: ['fcmToken'] })
         pushNotification.sendNotificationSingle(fcmToken, notificationPayload.notificationType, notificationPayload.notificationType)
@@ -569,7 +569,7 @@ module.exports = {
       status: false,
     })
     // push notification
-    const isToggleOn = await helperFunctions.checkForPushNotificationToggle(otherUserId, 'matchCancelled')
+    const isToggleOn = await helperFunctions.checkForPushNotificationToggle(otherUserId, userId, 'matchCancelled')
     if (isToggleOn) { // check for toggles on or off
       const { fcmToken } = await db.User.findOne({ where: { id: otherUserId }, attributes: ['fcmToken'] })
       pushNotification.sendNotificationSingle(fcmToken, notificationType.MATCH_CANCELLED, notificationType.MATCH_CANCELLED)
@@ -638,7 +638,7 @@ module.exports = {
       }
       await t.commit()
       // push notification
-      const isToggleOn = await helperFunctions.checkForPushNotificationToggle(requesteeUserId, 'receiveQuestion')
+      const isToggleOn = await helperFunctions.checkForPushNotificationToggle(requesteeUserId, requesterUserId, 'receiveQuestion')
       if (isToggleOn) { // check for toggles on or off
         const { fcmToken } = await db.User.findOne({ where: { id: requesteeUserId }, attributes: ['fcmToken'] })
         pushNotification.sendNotificationSingle(fcmToken, notificationType.QUESTION_RECEIVED, notificationType.QUESTION_RECEIVED)
@@ -699,7 +699,7 @@ module.exports = {
       }, { transaction: t })
       await t.commit()
       // push notification
-      const isToggleOn = await helperFunctions.checkForPushNotificationToggle(updatedQuestion.askingUserId, 'receiveAnswer')
+      const isToggleOn = await helperFunctions.checkForPushNotificationToggle(updatedQuestion.askingUserId, updatedQuestion.askedUserId, 'receiveAnswer')
       if (isToggleOn) { // check for toggles on or off
         const { fcmToken } = await db.User.findOne({ where: { id: updatedQuestion.askingUserId }, attributes: ['fcmToken'] })
         pushNotification.sendNotificationSingle(fcmToken, notificationType.QUESTION_ANSWERED, notificationType.QUESTION_ANSWERED)

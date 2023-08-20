@@ -277,12 +277,36 @@ const helperFunctions = {
       throw new Error(error.message)
     }
   },
-  checkForPushNotificationToggle: async (userId, toggleKey) => {
+  checkForPushNotificationToggle: async (userId, otherUserId, toggleKey) => {
     try {
-      const notificationToggles = await db.NotificationSetting.findOne({ where: { userId } })
-      return notificationToggles[toggleKey] || false
+      const user = await db.User.findOne({
+        attributes: [],
+        where: { id: userId },
+        include: [
+          {
+            model: db.Profile,
+            attributes: ['sex', 'nationality'],
+          },
+          {
+            model: db.NotificationSetting,
+          }
+        ]
+      })
+      const { sex } = user.Profile
+      const notificationToggles = user.NotificationSetting
+      if (sex === gender.MALE) { // male
+        return notificationToggles[toggleKey] || false
+      } else { // female
+        if (notificationToggles.restrictPushNotificationOfMyNationality) {
+          const otherUserProfile = await db.Profile.findOne({ where: { userId: otherUserId } })
+          return user.Profile.nationality === otherUserProfile.nationality
+        } else {
+          return notificationToggles[toggleKey] || false
+        }
+      }
     } catch (error) {
       console.log(error)
+      return false
     }
   },
 }
