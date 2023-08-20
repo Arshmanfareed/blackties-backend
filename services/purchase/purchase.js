@@ -192,4 +192,13 @@ module.exports = {
       ]
     })
   },
+  cancelPremiumMembership: async (userId, hostAddress) => {
+    const userSubscription = await db.UserSubscription.findOne({ where: { userId, status: true } })
+    if (!userSubscription) {
+      throw new Error('No Active Subscriptions found.')
+    }
+    const { customer } = JSON.parse(userSubscription.receipt)
+    const session = await stipeUtils.createBillingPortalSession(customer, hostAddress)
+    return session.url;
+  }
 }
