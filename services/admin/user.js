@@ -1,5 +1,5 @@
 const db = require('../../models')
-const { roles, status } = require("../../config/constants")
+const { roles, status, gender } = require("../../config/constants")
 const { Op, Sequelize } = require('sequelize')
 const moment = require('moment')
 const bcryptjs = require("bcryptjs")
@@ -189,6 +189,39 @@ module.exports = {
     })
   },
   getCounters: async () => {
-    return 'getCounters'
+    const accountsCreated = await db.Profile.count({
+      group: ['sex']
+    })
+    const totalAccountsCreated = accountsCreated[0].count + accountsCreated[1].count
+    const malesAccountCreated = accountsCreated.filter(item => item.sex === gender.MALE)[0]?.count || 0
+    const femalesAccountCreated = accountsCreated.filter(item => item.sex === gender.FEMALE)[0]?.count || 0
+    const deactivatedAccounts = await db.User.count({
+      where: { status: status.DEACTIVATED }
+    })
+    const activeAccounts = await db.User.count({
+      where: { status: status.ACTIVE, role: roles.USER },
+      include: {
+        model: db.Profile,
+        attributes: ['sex']
+      },
+      group: [db.sequelize.col('Profile.sex')],
+    })
+    const totalActiveAccounts = activeAccounts[0].count + activeAccounts[1].count
+    const maleActiveAccounts = activeAccounts.filter(item => item.sex === gender.MALE)[0]?.count || 0
+    const femaleActiveAccounts = activeAccounts.filter(item => item.sex === gender.FEMALE)[0]?.count || 0
+    const userMembership = await db.UserSetting.count({
+      group: ['membership']
+    })
+    const counters = {
+      accountsCreated: totalAccountsCreated,
+      malesAccountCreated,
+      femalesAccountCreated,
+      deactivatedAccounts: deactivatedAccounts,
+      totalActiveAccounts,
+      maleActiveAccounts,
+      femaleActiveAccounts,
+      userMembership
+    }
+    return counters
   }
 }
