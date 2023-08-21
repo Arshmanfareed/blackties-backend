@@ -378,4 +378,35 @@ router.patch('/user/:id', auth, isAdmin, adminController.editUsername)
  */
 router.get('/user/:id/detail', auth, isAdmin, adminController.getUserDetails)
 
+/**
+ * @swagger
+ * /admin/counter:
+ *   get:
+ *     summary: Get counters for mahaba tab
+ *     consumes:
+ *      - application/json
+ *     produces:
+ *      - application/json
+ *     tags:
+ *     - Admin
+ *     parameters:
+ *     - name: x-auth-token
+ *       in: header
+ *       required: true
+ *       type: string
+ *       description: an authorization header
+ *     - name: date
+ *       in: query
+ *       required: false
+ *       type: string
+ *       description: Date filter.
+ *     operationId: getCounters
+ *     deprecated: false
+ *     responses:
+ *       '200':
+ *         description: ''
+ *         headers: {}
+ */
+router.get('/counter', auth, isAdmin, adminController.getCounters)
+
 module.exports = router

@@ -188,4 +188,7 @@ module.exports = {
       ],
     })
   },
+  getCounters: async () => {
+    return 'getCounters'
+  }
 }

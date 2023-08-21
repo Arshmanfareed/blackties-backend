@@ -96,4 +96,12 @@ module.exports = {
     }
     return responseFunctions._200(res, data, 'Data fetched successfully')
   },
+  getCounters: async (req, res) => {
+    const { query } = req
+    const [err, data] = await to(adminService.getCounters(query))
+    if (err) {
+      return responseFunctions._400(res, err.message)
+    }
+    return responseFunctions._200(res, data, 'Data fetched successfully')
+  },
 }
