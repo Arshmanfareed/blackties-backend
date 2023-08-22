@@ -1,6 +1,7 @@
 const db = require('../models')
 const { featureTypes, featureValidity } = require('../config/constants')
 const moment = require('moment')
+const { Op, Sequelize } = require('sequelize')
 
 module.exports = {
   insertOrUpdateReward: async (userId, rewardType, noOfDays) => {
@@ -33,5 +34,35 @@ module.exports = {
         validityType: featureValidity.DAYS,
       }
     })
+  },
+  getUserCountsBasedOnLastLogin: async () => {
+    const now = new Date();
+    const intervals = [
+      { label: '12 Months', interval: 12, unit: 'month' },
+      { label: '6 Months', interval: 6, unit: 'month' },
+      { label: '3 Months', interval: 3, unit: 'month' },
+      { label: '1 Month', interval: 1, unit: 'month' },
+      { label: '7 Days', interval: 7, unit: 'day' },
+      { label: '3 Days', interval: 3, unit: 'day' },
+      { label: '1 Day', interval: 1, unit: 'day' },
+    ];
+    const intervalCounts = await Promise.all(
+      intervals.map(async interval => {
+        const dateLimit = new Date(now);
+        if (interval.unit === 'month') {
+          dateLimit.setMonth(dateLimit.getMonth() - interval.interval);
+        } else if (interval.unit === 'day') {
+          dateLimit.setDate(dateLimit.getDate() - interval.interval);
+        }
+        const count = await db.User.count({
+          where: {
+            lastLogin: { [Op.gte]: dateLimit },
+          },
+        });
+
+        return { interval: interval.label, count };
+      })
+    );
+    return intervalCounts
   }
 }

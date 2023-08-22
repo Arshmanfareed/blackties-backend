@@ -3,6 +3,7 @@ const { roles, status, gender } = require("../../config/constants")
 const { Op, Sequelize } = require('sequelize')
 const moment = require('moment')
 const bcryptjs = require("bcryptjs")
+const common = require('../../helpers/common')
 
 module.exports = {
   getUsers: async (query) => {
@@ -222,6 +223,10 @@ module.exports = {
     })
     const maleOnlineUsers = onlineUsers.filter(item => item.sex === gender.MALE)[0]?.count || 0
     const femaleOnlineUsers = onlineUsers.filter(item => item.sex === gender.FEMALE)[0]?.count || 0
+    const lastLogins = await common.getUserCountsBasedOnLastLogin()
+    const nonVerifiedUsers = await db.UserSetting.count({
+      where: { isEmailVerified: false }
+    })
     const counters = {
       accountsCreated: totalAccountsCreated,
       malesAccountCreated,
@@ -234,6 +239,8 @@ module.exports = {
       totalOnlineUsers: maleOnlineUsers + femaleOnlineUsers,
       maleOnlineUsers,
       femaleOnlineUsers,
+      lastLogins,
+      nonVerifiedUsers
     }
     return counters
   },
