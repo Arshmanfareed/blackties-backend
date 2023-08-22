@@ -28,7 +28,7 @@ function socketInit(server) {
     const { id: userId } = socket.user
     console.log("new connection on socket => ", socket.id, " with userId => ", socket.user.id);
     if (userId) { // updating socket id of user in db whenever a user connects with socket
-      await db.User.update({ socketId: socket.id }, { where: { id: userId } })
+      await db.User.update({ socketId: socket.id, isOnline: true }, { where: { id: userId } })
       // broadcasting to all users that a new user is online
       io.emit('is-online', { recipientId: userId, isOnline: true });
       onlineUsers[userId] = { isOnline: true, socketId: socket.id, lastSeen: new Date() }
@@ -65,7 +65,7 @@ function socketInit(server) {
         if (userId) {
           onlineUsers[userId] = { isOnline: false, socketId: null, lastSeen: new Date() }
           io.emit('is-online', { recipientId: userId, isOnline: false, lastSeen: new Date() });
-          await db.User.update({ socketId: null }, { where: { id: userId } })
+          await db.User.update({ socketId: null, isOnline: false }, { where: { id: userId } })
           await db.UserSetting.update({ lastSeen: new Date() }, { where: { userId } })
         }
       } catch (error) {

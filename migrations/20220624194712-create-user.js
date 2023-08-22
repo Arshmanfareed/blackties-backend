@@ -56,6 +56,9 @@ module.exports = {
       tempEmail: {
         type: Sequelize.STRING(40),
       },
+      isOnline: {
+        type: Sequelize.BOOLEAN,
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,

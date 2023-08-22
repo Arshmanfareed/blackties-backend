@@ -127,7 +127,11 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         defaultValue: 'en'
       },
-      tempEmail: DataTypes.STRING
+      tempEmail: DataTypes.STRING,
+      isOnline: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
+      },
     },
     {
       sequelize,
