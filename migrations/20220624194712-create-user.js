@@ -59,6 +59,10 @@ module.exports = {
       isOnline: {
         type: Sequelize.BOOLEAN,
       },
+      lastLogin: {
+        allowNull: true,
+        type: Sequelize.DATE,
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,

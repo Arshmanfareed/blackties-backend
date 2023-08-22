@@ -114,9 +114,7 @@ module.exports = {
       throw new Error(errorMessage)
     }
     // update fcmToken in db
-    if (fcmToken) {
-      await db.User.update({ fcmToken }, { where: { id: user.id } })
-    }
+    await db.User.update({ fcmToken: fcmToken || null, lastLogin: new Date() }, { where: { id: user.id } })
     user = JSON.parse(JSON.stringify(user))
     delete user['password']
     const jwtPayload = { ...user }
