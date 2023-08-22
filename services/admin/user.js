@@ -212,6 +212,16 @@ module.exports = {
     const userMembership = await db.UserSetting.count({
       group: ['membership']
     })
+    const onlineUsers = await db.User.count({
+      where: { role: roles.USER, isOnline: true },
+      include: {
+        model: db.Profile,
+        attributes: ['sex']
+      },
+      group: [db.sequelize.col('Profile.sex')],
+    })
+    const maleOnlineUsers = onlineUsers.filter(item => item.sex === gender.MALE)[0]?.count || 0
+    const femaleOnlineUsers = onlineUsers.filter(item => item.sex === gender.FEMALE)[0]?.count || 0
     const counters = {
       accountsCreated: totalAccountsCreated,
       malesAccountCreated,
@@ -220,8 +230,11 @@ module.exports = {
       totalActiveAccounts,
       maleActiveAccounts,
       femaleActiveAccounts,
-      userMembership
+      userMembership,
+      totalOnlineUsers: maleOnlineUsers + femaleOnlineUsers,
+      maleOnlineUsers,
+      femaleOnlineUsers,
     }
     return counters
-  }
+  },
 }
