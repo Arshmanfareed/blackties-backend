@@ -1,8 +1,9 @@
 const db = require('../../models')
-const { roles, status } = require("../../config/constants")
+const { roles, status, gender } = require("../../config/constants")
 const { Op, Sequelize } = require('sequelize')
 const moment = require('moment')
 const bcryptjs = require("bcryptjs")
+const common = require('../../helpers/common')
 
 module.exports = {
   getUsers: async (query) => {
@@ -187,5 +188,60 @@ module.exports = {
         },
       ],
     })
+  },
+  getCounters: async () => {
+    const accountsCreated = await db.Profile.count({
+      group: ['sex']
+    })
+    const totalAccountsCreated = accountsCreated[0].count + accountsCreated[1].count
+    const malesAccountCreated = accountsCreated.filter(item => item.sex === gender.MALE)[0]?.count || 0
+    const femalesAccountCreated = accountsCreated.filter(item => item.sex === gender.FEMALE)[0]?.count || 0
+    const deactivatedAccounts = await db.User.count({
+      where: { status: status.DEACTIVATED }
+    })
+    const activeAccounts = await db.User.count({
+      where: { status: status.ACTIVE, role: roles.USER },
+      include: {
+        model: db.Profile,
+        attributes: ['sex']
+      },
+      group: [db.sequelize.col('Profile.sex')],
+    })
+    const totalActiveAccounts = activeAccounts[0].count + activeAccounts[1].count
+    const maleActiveAccounts = activeAccounts.filter(item => item.sex === gender.MALE)[0]?.count || 0
+    const femaleActiveAccounts = activeAccounts.filter(item => item.sex === gender.FEMALE)[0]?.count || 0
+    const userMembership = await db.UserSetting.count({
+      group: ['membership']
+    })
+    const onlineUsers = await db.User.count({
+      where: { role: roles.USER, isOnline: true },
+      include: {
+        model: db.Profile,
+        attributes: ['sex']
+      },
+      group: [db.sequelize.col('Profile.sex')],
+    })
+    const maleOnlineUsers = onlineUsers.filter(item => item.sex === gender.MALE)[0]?.count || 0
+    const femaleOnlineUsers = onlineUsers.filter(item => item.sex === gender.FEMALE)[0]?.count || 0
+    const lastLogins = await common.getUserCountsBasedOnLastLogin()
+    const nonVerifiedUsers = await db.UserSetting.count({
+      where: { isEmailVerified: false }
+    })
+    const counters = {
+      accountsCreated: totalAccountsCreated,
+      malesAccountCreated,
+      femalesAccountCreated,
+      deactivatedAccounts: deactivatedAccounts,
+      totalActiveAccounts,
+      maleActiveAccounts,
+      femaleActiveAccounts,
+      userMembership,
+      totalOnlineUsers: maleOnlineUsers + femaleOnlineUsers,
+      maleOnlineUsers,
+      femaleOnlineUsers,
+      lastLogins,
+      nonVerifiedUsers
+    }
+    return counters
   },
 }

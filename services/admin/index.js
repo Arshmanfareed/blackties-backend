@@ -9,4 +9,5 @@ module.exports = {
   addCreditInUserWallet: require('./user').addCreditInUserWallet,
   editUsername: require('./user').editUsername,
   getUserDetails: require('./user').getUserDetails,
+  getCounters: require('./user').getCounters,
 }
