@@ -28,6 +28,8 @@ const auth = require('../../middlewares/auth')
  *             properties:
  *               amount:
  *                 type: number
+ *               currency:
+ *                 type: string
  *     tags:
  *     - Purchase
  *     operationId: topupWallet
