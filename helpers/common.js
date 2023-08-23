@@ -46,7 +46,7 @@ module.exports = {
       { label: '3 Days', interval: 3, unit: 'day' },
       { label: '1 Day', interval: 1, unit: 'day' },
     ];
-    const intervalCounts = await Promise.all(
+    let intervalCounts = await Promise.allSettled(
       intervals.map(async interval => {
         const dateLimit = new Date(now);
         if (interval.unit === 'month') {
@@ -63,6 +63,7 @@ module.exports = {
         return { interval: interval.label, count };
       })
     );
+    intervalCounts = intervalCounts.map(item => item.value)
     return intervalCounts
   }
 }
