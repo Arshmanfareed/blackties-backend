@@ -41,7 +41,7 @@ module.exports = {
         if (type === constants.paymentType.PURCHASE) { // handle topup payment success
           let amountToBeAdded = session.amount_total / 100
           if (currency === 'sar') { // converting saudi riyal to usd
-            amountToBeAdded = (amountToBeAdded / constants.usdToRiyalRate)
+            amountToBeAdded = (amountToBeAdded / process.env.USD_TO_RIYAL_RATE)
             amountToBeAdded = amountToBeAdded.toFixed(2)
           }
           await db.Wallet.increment('amount', { by: amountToBeAdded, where: { userId }, transaction: t })
