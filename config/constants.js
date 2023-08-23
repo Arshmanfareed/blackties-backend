@@ -81,5 +81,6 @@ module.exports = {
     1: { period: 3, unit: 'M' },
     2: { period: 6, unit: 'M' }
   },
+  usdToRiyalRate: 3.75,
   apiPrefix: '/dev/mahaba/api/v1',
 }

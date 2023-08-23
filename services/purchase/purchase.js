@@ -11,7 +11,7 @@ module.exports = {
       line_items: [
         {
           price_data: {
-            currency: currency,
+            currency: currency || 'usd',
             product_data: {
               name: `Top up Mahaba Wallet`,
               images: ['https://mahaba-user-data.s3.me-south-1.amazonaws.com/static/logo.png'],
@@ -41,7 +41,7 @@ module.exports = {
         if (type === constants.paymentType.PURCHASE) { // handle topup payment success
           let amountToBeAdded = session.amount_total / 100
           if (currency === 'sar') { // converting saudi riyal to usd
-            amountToBeAdded = (amountToBeAdded / 3.75)
+            amountToBeAdded = (amountToBeAdded / constants.usdToRiyalRate)
             amountToBeAdded = amountToBeAdded.toFixed(2)
           }
           await db.Wallet.increment('amount', { by: amountToBeAdded, where: { userId }, transaction: t })
