@@ -196,9 +196,6 @@ module.exports = {
     const totalAccountsCreated = accountsCreated[0].count + accountsCreated[1].count
     const malesAccountCreated = accountsCreated.filter(item => item.sex === gender.MALE)[0]?.count || 0
     const femalesAccountCreated = accountsCreated.filter(item => item.sex === gender.FEMALE)[0]?.count || 0
-    const deactivatedAccounts = await db.User.count({
-      where: { status: status.DEACTIVATED }
-    })
     const activeAccounts = await db.User.count({
       where: { status: status.ACTIVE, role: roles.USER },
       include: {
@@ -227,11 +224,19 @@ module.exports = {
     const nonVerifiedUsers = await db.UserSetting.count({
       where: { isEmailVerified: false }
     })
+    const suspendedAccounts = await db.User.count({
+      where: {
+        role: roles.USER,
+        status: status.SUSPENDED
+      }
+    })
+    const deactivatedAccounts = await db.DeactivatedUser.count({
+      group: ['reason']
+    })
     const counters = {
       accountsCreated: totalAccountsCreated,
       malesAccountCreated,
       femalesAccountCreated,
-      deactivatedAccounts: deactivatedAccounts,
       totalActiveAccounts,
       maleActiveAccounts,
       femaleActiveAccounts,
@@ -240,7 +245,9 @@ module.exports = {
       maleOnlineUsers,
       femaleOnlineUsers,
       lastLogins,
-      nonVerifiedUsers
+      nonVerifiedUsers,
+      suspendedAccounts,
+      deactivatedAccounts,
     }
     return counters
   },
