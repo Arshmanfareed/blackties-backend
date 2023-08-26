@@ -310,7 +310,11 @@ module.exports = {
         userId,
         status: queryStatus || [0, 1],
       },
-      attributes: ['id', 'resourceId', 'resourceType', 'notificationType', 'status', 'createdAt']
+      attributes: ['id', 'resourceId', 'resourceType', 'notificationType', 'status', 'createdAt'],
+      include: {
+        model: db.User,
+        attributes: ['username', 'code'],
+      }
     })
   },
   getMyRequestOfContactDetails: async (userId) => {
