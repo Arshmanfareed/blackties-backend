@@ -104,6 +104,10 @@ module.exports = (sequelize, DataTypes) => {
       User.hasOne(models.LockedDescription, {
         foreignKey: 'userId',
       })
+
+      User.hasMany(models.Notification, {
+        foreignKey: 'resourceId',
+      })
     }
   }
   User.init(
