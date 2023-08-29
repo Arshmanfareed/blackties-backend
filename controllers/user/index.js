@@ -274,4 +274,13 @@ module.exports = {
     }
     return responseFunctions._200(res, data, 'Notification setting updated.')
   },
+  sendPushNotification: async (req, res) => {
+    const { id: userId } = req.params
+    const { body } = req
+    const [err, data] = await to(userService.sendPushNotification(userId, body))
+    if (err) {
+      return responseFunctions._400(res, err.message)
+    }
+    return responseFunctions._200(res, data, 'Notification sent successfully.')
+  },
 }

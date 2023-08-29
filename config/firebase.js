@@ -1,14 +1,5 @@
-const firebase = require('firebase-admin')
-const { readFileFromS3 } = require('../utils/read-file')
+const FCM = require('fcm-node');
+const serverKey = process.env.FCM_SERVER_KEY;
+const fcm = new FCM(serverKey);
 
-module.exports = async () => {
-  try {
-    const serviceAccount = await readFileFromS3(process.env.CONFIG_BUCKET, 'firebase-service-account.json')
-    const app = firebase.initializeApp({
-      credential: firebase.credential.cert(serviceAccount),
-    });
-    return app.messaging();
-  } catch (error) {
-    console.log(error)
-  }
-}
+module.exports = fcm
