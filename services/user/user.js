@@ -5,6 +5,7 @@ const { Op, Sequelize } = require('sequelize')
 const pushNotification = require('../../utils/push-notification')
 const socketFunctions = require('../../socket')
 const bcryptjs = require("bcryptjs")
+const { to } = require('../../utils/error-handler')
 
 module.exports = {
   requestContactDetails: async (requesterUserId, requesteeUserId, body, countBasedFeature) => {
@@ -922,4 +923,17 @@ module.exports = {
       ]
     })
   },
+  sendPushNotification: async (userId, body) => {
+    const user = await db.User.findOne({
+      where: {
+        id: userId
+      }
+    })
+    if (!user.fcmToken) {
+      throw new Error('Other user does not have FCM token.')
+    }
+    const { title, description } = body
+    const [err, data] = await to(pushNotification.sendNotificationSingle(user.fcmToken, title, description))
+    return { err, data }
+  }
 }
