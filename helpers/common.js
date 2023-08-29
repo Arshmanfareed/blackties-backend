@@ -65,5 +65,8 @@ module.exports = {
     );
     intervalCounts = intervalCounts.map(item => item.value)
     return intervalCounts
-  }
+  },
+  getUserAttributes: async (userId, attributesList) => {
+    return db.User.findOne({ where: { id: userId }, attributes: attributesList })
+  },
 }
