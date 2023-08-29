@@ -922,4 +922,17 @@ module.exports = {
       ]
     })
   },
+  sendPushNotification: async (userId, body) => {
+    const user = await db.User.findOne({
+      where: {
+        id: userId
+      }
+    })
+    if (!user.fcmToken) {
+      throw new Error('Other user does not have FCM token.')
+    }
+    const { title, description } = body
+    pushNotification.sendNotificatwionSingle(user.fcmToken, title, description)
+    return true
+  }
 }

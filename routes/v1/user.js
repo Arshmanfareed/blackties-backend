@@ -718,4 +718,46 @@ router.get('/notification-toggle', auth, userController.getNotificationToggles)
  */
 router.put('/notification-toggle', auth, userController.updateNotificationToggles)
 
+/**
+ * @swagger
+ * /user/{id}/push-notification:
+ *   post:
+ *     summary: Send Push notification for testing
+ *     consumes:
+ *      - application/json
+ *     produces:
+ *      - application/json
+ *     tags:
+ *     - User
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               title:
+ *                 type: string
+ *               description:
+ *                 type: string
+ *     parameters:
+ *     - name: x-auth-token
+ *       in: header
+ *       required: true
+ *       type: string
+ *       description: an authorization header
+ *     - name: id
+ *       in: path
+ *       required: true
+ *       type: string
+ *       description: Id of the user to which you want to send notification
+ *     operationId: sendPushNotification
+ *     deprecated: false
+ *     responses:
+ *       '200':
+ *         description: ''
+ *         headers: {}
+ */
+router.post('/:id/push-notification', auth, answerQuestion, userController.sendPushNotification)
+
 module.exports = router
