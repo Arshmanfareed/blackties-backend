@@ -5,6 +5,7 @@ const { Op, Sequelize } = require('sequelize')
 const pushNotification = require('../../utils/push-notification')
 const socketFunctions = require('../../socket')
 const bcryptjs = require("bcryptjs")
+const common = require('../../helpers/common')
 const { to } = require('../../utils/error-handler')
 
 module.exports = {
@@ -84,7 +85,7 @@ module.exports = {
         notificationPayload['notificationType'] = notificationType.CONTACT_DETAILS_REQUEST
       }
       // generate notification
-      const notification = await db.Notification.create(notificationPayload, { transaction: t })
+      let notification = await db.Notification.create(notificationPayload, { transaction: t })
       // decrement count  by 1 if user uses count based feature
       if (countBasedFeature) {
         await db.UserFeature.decrement('remaining', { by: 1, where: { id: countBasedFeature.id }, transaction: t })
@@ -104,6 +105,9 @@ module.exports = {
       // sending contact details request on socket
       socketFunctions.transmitDataOnRealtime(eventName, requesteeUserId, socketData)
       // sending notification on socket
+      notification = JSON.parse(JSON.stringify(notification))
+      const userNameAndCode = await common.getUserAttributes(notification.resourceId, ['id', 'username', 'code'])
+      notification['User'] = userNameAndCode
       socketFunctions.transmitDataOnRealtime(socketEvents.NEW_NOTIFICATION, requesteeUserId, notification)
       return request
     } catch (error) {
@@ -176,6 +180,9 @@ module.exports = {
       // sending respond of contact details request on socket
       socketFunctions.transmitDataOnRealtime(socketEvents.CONTACT_DETAILS_RESPOND, requesterUserId, socketData)
       // sending notification on socket
+      notification = JSON.parse(JSON.stringify(notification))
+      const userNameAndCode = await common.getUserAttributes(notification.resourceId, ['id', 'username', 'code'])
+      notification['User'] = userNameAndCode
       socketFunctions.transmitDataOnRealtime(socketEvents.NEW_NOTIFICATION, requesterUserId, notification)
       return true
     } catch (error) {
@@ -236,7 +243,7 @@ module.exports = {
       // create picture request
       let pictureRequest = await db.PictureRequest.create({ requesterUserId, requesteeUserId, status: requestStatus.PENDING }, { transaction: t })
       // create notification and notifiy other user about request
-      const notification = await db.Notification.create({
+      let notification = await db.Notification.create({
         userId: requesteeUserId,
         resourceId: requesterUserId,
         resourceType: 'USER',
@@ -263,6 +270,9 @@ module.exports = {
       // sending picture request on socket
       socketFunctions.transmitDataOnRealtime(socketEvents.PICTURE_REQUEST, requesteeUserId, pictureRequest)
       // sending notification on socket
+      notification = JSON.parse(JSON.stringify(notification))
+      const userNameAndCode = await common.getUserAttributes(notification.resourceId, ['id', 'username', 'code'])
+      notification['User'] = userNameAndCode
       socketFunctions.transmitDataOnRealtime(socketEvents.NEW_NOTIFICATION, requesteeUserId, notification)
       return pictureRequest
     } catch (error) {
@@ -297,9 +307,12 @@ module.exports = {
       return true
     }
     // create notification and notifiy user about request accept or reject status
-    const notification = await db.Notification.create(notificationPayload)
+    let notification = await db.Notification.create(notificationPayload)
     socketFunctions.transmitDataOnRealtime(socketEvents.PICTURE_REQUEST_RESPOND, recipientUserId, dataToUpdate)
     // sending notification on socket
+    notification = JSON.parse(JSON.stringify(notification))
+    const userNameAndCode = await common.getUserAttributes(notification.resourceId, ['id', 'username', 'code'])
+    notification['User'] = userNameAndCode
     socketFunctions.transmitDataOnRealtime(socketEvents.NEW_NOTIFICATION, recipientUserId, notification)
     return true
   },
@@ -630,7 +643,7 @@ module.exports = {
         askedQuestions.push(questionCreated)
       }
       // create notification
-      const notification = await db.Notification.create({
+      let notification = await db.Notification.create({
         userId: requesteeUserId,
         resourceId: requesterUserId,
         resourceType: 'USER',
@@ -652,6 +665,9 @@ module.exports = {
       const socketData = { extraInfoRequest, askedQuestions }
       socketFunctions.transmitDataOnRealtime(socketEvents.QUESTION_RECEIVED, requesteeUserId, socketData)
       // sending notification on socket
+      notification = JSON.parse(JSON.stringify(notification))
+      const userNameAndCode = await common.getUserAttributes(notification.resourceId, ['id', 'username', 'code'])
+      notification['User'] = userNameAndCode
       socketFunctions.transmitDataOnRealtime(socketEvents.NEW_NOTIFICATION, requesteeUserId, notification)
       return true
     } catch (error) {
@@ -667,7 +683,7 @@ module.exports = {
       await db.ExtraInfoRequest.update({ status: updateStatus }, { where: { id: requestId }, transaction: t })
       const updatedRequest = await db.ExtraInfoRequest.findOne({ where: { id: requestId } })
       if (status === REJECTED) { // notification for rejected request
-        const notification = await db.Notification.create({
+        let notification = await db.Notification.create({
           userId: updatedRequest.requesterUserId,
           resourceId: updatedRequest.requesteeUserId,
           resourceType: 'USER',
@@ -677,6 +693,9 @@ module.exports = {
         // delete question associated to this request
         await db.UserQuestionAnswer.destroy({ where: { extraInfoRequestId: requestId }, transaction: t })
         // sending notification on socket
+        notification = JSON.parse(JSON.stringify(notification))
+        const userNameAndCode = await common.getUserAttributes(notification.resourceId, ['id', 'username', 'code'])
+        notification['User'] = userNameAndCode
         socketFunctions.transmitDataOnRealtime(socketEvents.NEW_NOTIFICATION, updatedRequest.requesterUserId, notification)
       }
       await t.commit()
@@ -695,7 +714,7 @@ module.exports = {
       }, { where: { id: questionId }, transaction: t })
       const updatedQuestion = await db.UserQuestionAnswer.findOne({ where: { id: questionId } })
       // send notification
-      const notification = await db.Notification.create({
+      let notification = await db.Notification.create({
         userId: updatedQuestion.askingUserId,
         resourceId: updatedQuestion.askedUserId,
         resourceType: 'USER',
@@ -712,6 +731,9 @@ module.exports = {
       // sending answer on socket
       socketFunctions.transmitDataOnRealtime(socketEvents.ANSWER_RECEIVED, updatedQuestion.askingUserId, updatedQuestion)
       // sending notification on socket
+      notification = JSON.parse(JSON.stringify(notification))
+      const userNameAndCode = await common.getUserAttributes(notification.resourceId, ['id', 'username', 'code'])
+      notification['User'] = userNameAndCode
       socketFunctions.transmitDataOnRealtime(socketEvents.NEW_NOTIFICATION, updatedQuestion.askingUserId, notification)
       return true
     } catch (error) {
