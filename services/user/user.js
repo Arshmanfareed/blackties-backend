@@ -328,7 +328,8 @@ module.exports = {
       include: {
         model: db.User,
         attributes: ['username', 'code'],
-      }
+      },
+      order: [['id', 'desc']],
     })
   },
   getMyRequestOfContactDetails: async (userId) => {
