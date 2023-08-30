@@ -223,4 +223,7 @@ module.exports = {
       throw new Error(error.message)
     }
   },
+  reactivateAccount: async (userId) => {
+    return true
+  }
 }

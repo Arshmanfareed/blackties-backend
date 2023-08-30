@@ -317,4 +317,42 @@ router.patch('/logout', auth, authController.logout)
  */
 router.post('/deactivate', auth, authController.deactivateAccount)
 
+
+/**
+ * @swagger
+ * /auth/reactivate:
+ *   post:
+ *     summary: Deactivate Account
+ *     consumes:
+ *      - application/json
+ *     produces:
+ *      - application/json
+ *     tags:
+ *     - Auth
+ *     operationId: reactivateAccount
+ *     deprecated: false
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               reason:
+ *                 type: string
+ *               feedback:
+ *                 type: string
+ *     parameters:
+ *     - name: x-auth-token
+ *       in: header
+ *       required: true
+ *       type: string
+ *       description: an authorization header
+ *     responses:
+ *       '200':
+ *         description: ''
+ *         headers: {}
+ */
+router.post('/reactivate', authController.reactivateAccount)
+
 module.exports = router
