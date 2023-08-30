@@ -338,16 +338,8 @@ router.post('/deactivate', auth, authController.deactivateAccount)
  *           schema:
  *             type: object
  *             properties:
- *               reason:
- *                 type: string
- *               feedback:
- *                 type: string
- *     parameters:
- *     - name: x-auth-token
- *       in: header
- *       required: true
- *       type: string
- *       description: an authorization header
+ *               userId:
+ *                 type: number
  *     responses:
  *       '200':
  *         description: ''

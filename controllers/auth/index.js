@@ -109,13 +109,8 @@ module.exports = {
     return responseFunctions._200(res, data, 'Account deactivated successfully')
   },
   reactivateAccount: async (req, res) => {
-    // const { id: userId } = req?.user
-    // const { body } = req
-    // const { error } = authValidations.validateDeactivateAccount(body)
-    // if (error) {
-    //   return responseFunctions._400(res, error.details[0].message)
-    // }
-    const [err, data] = await to(authService.reactivateAccount())
+    const { body } = req
+    const [err, data] = await to(authService.reactivateAccount(body))
     if (err) {
       return responseFunctions._400(res, err.message)
     }

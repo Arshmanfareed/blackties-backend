@@ -190,7 +190,7 @@ module.exports = {
     const t = await db.sequelize.transaction()
     try {
       const { reason, feedback } = body
-      await Promise.all([
+      await Promise.allSettled([
         // update user status in db
         db.User.update({ status: status.DEACTIVATED }, { where: { id: userId }, transaction: t }),
         // store reason and feedback
@@ -223,7 +223,28 @@ module.exports = {
       throw new Error(error.message)
     }
   },
-  reactivateAccount: async (userId) => {
-    return true
+  reactivateAccount: async (body) => {
+    const t = await db.sequelize.transaction()
+    try {
+      const { userId } = body
+      const { createdAt } = await db.DeactivatedUser.findOne({ where: { userId } })
+      const deactivatedAt = moment(createdAt)
+      const dateNow = moment(Date.now())
+      const deactivationDuration = dateNow.diff(deactivatedAt, 'days')
+      if (deactivationDuration >= 30) {
+        throw new Error('You account reactivation period has passed, now you cannot reactivate your account.')
+      }
+      // update user status in db
+      await Promise.allSettled([
+        db.User.update({ status: status.ACTIVE }, { where: { id: userId }, transaction: t }),
+        db.DeactivatedUser.destroy({ where: { userId }, transaction: t }),
+      ])
+      await t.commit()
+      return true
+    } catch (error) {
+      await t.rollback()
+      console.log(error)
+      throw new Error(error.message)
+    }
   }
 }
