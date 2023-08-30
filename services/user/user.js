@@ -42,7 +42,7 @@ module.exports = {
       const alreadyRequested = await db.ContactDetailsRequest.findOne({
         where: {
           requesterUserId,
-          // requesteeUserId,
+          requesteeUserId,
           status: [requestStatus.PENDING, requestStatus.ACCEPTED],
         },
         order: [['id', 'DESC']],
