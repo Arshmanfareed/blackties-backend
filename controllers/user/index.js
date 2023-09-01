@@ -283,4 +283,14 @@ module.exports = {
     }
     return responseFunctions._200(res, data, 'Notification sent successfully.')
   },
+  createNotification: async (req, res) => {
+    const { id: userId } = req.user
+    const { id: otherUserId } = req.params
+    const { body } = req
+    const [err, data] = await to(userService.createNotification(userId, otherUserId, body))
+    if (err) {
+      return responseFunctions._400(res, err.message)
+    }
+    return responseFunctions._200(res, data, 'Notification created successfully.')
+  },
 }
