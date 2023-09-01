@@ -958,5 +958,32 @@ module.exports = {
     const { title, description } = body
     const [err, data] = await to(pushNotification.sendNotificationSingle(user.fcmToken, title, description))
     return { err, data }
-  }
+  },
+  createNotification: async (userId, otherUserId, body) => {
+    const { type } = body
+    const user = await db.User.findOne({ where: { id: userId } })
+    // checking if "STRUGGLING_TO_CONNECT"
+    if (type === notificationType.STRUGGLING_TO_CONNECT) {
+      const notificationExist = await db.Notification.findOne({
+        where: {
+          userId: otherUserId,
+          resourceId: userId,
+          notificationType: type,
+        },
+      })
+      if (notificationExist) {
+        return false
+      }
+    }
+    await pushNotification.sendNotificationSingle(user.fcmToken, type, type)
+    // generating notification for the first time. 
+    await db.Notification.create({
+      userId: otherUserId,
+      resourceId: userId,
+      resourceType: 'USER',
+      notificationType: type,
+      status: false,
+    })
+    return true
+  },
 }

@@ -13,7 +13,7 @@ module.exports = {
       fcm.send(message, function (err, response) {
         if (err) {
           console.log('Error sending firebase message:', err);
-          reject(err)
+          resolve(err)
         } else {
           console.log("Successfully sent with response: ", response);
           resolve(response)
