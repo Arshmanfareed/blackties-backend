@@ -18,7 +18,7 @@ async function handleMaleUser(req, res, next, userId) {
     req.user.countBasedFeature = userFeature
     next()
   } else {
-    throw new Error('You have to unlock request picture feature.')
+    throw new Error('You have to unlock request contact details feature.')
   }
 }
 
