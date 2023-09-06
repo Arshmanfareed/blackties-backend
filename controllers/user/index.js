@@ -293,4 +293,17 @@ module.exports = {
     }
     return responseFunctions._200(res, data, 'Notification created successfully.')
   },
+  getFileContentFromS3: async (req, res) => {
+    const { query } = req
+    const { filename } = query
+    const { error } = userValidations.validateGetFileFromS3(query)
+    if (error) {
+      return responseFunctions._400(res, error.details[0].message)
+    }
+    const [err, data] = await to(userService.getFileContentFromS3(filename))
+    if (err) {
+      return responseFunctions._400(res, err.message)
+    }
+    return responseFunctions._200(res, data, 'Data fetched successfully.')
+  },
 }

@@ -801,4 +801,30 @@ router.post('/:id/push-notification', auth, answerQuestion, userController.sendP
  */
 router.post('/:id/notification', auth, answerQuestion, userController.createNotification)
 
+/**
+ * @swagger
+ * /user/file:
+ *   get:
+ *     summary: Get file contents availaible on s3 
+ *     consumes:
+ *      - application/json
+ *     produces:
+ *      - application/json
+ *     tags:
+ *     - User
+ *     parameters:
+ *     - name: filename
+ *       in: query
+ *       required: false
+ *       type: number
+ *       description: filename
+ *     operationId: getFileContentFromS3
+ *     deprecated: false
+ *     responses:
+ *       '200':
+ *         description: ''
+ *         headers: {}
+ */
+router.get('/file', userController.getFileContentFromS3)
+
 module.exports = router

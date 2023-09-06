@@ -119,5 +119,13 @@ module.exports = {
     })
     return schema.validate(obj, { allowUnknown: true })
   },
+  validateGetFileFromS3: function (obj) {
+    const schema = Joi.object({
+      filename: Joi.string().required().valid('abc.json').label('filename').messages({
+        'any.required': `{#label} is Required`,
+      }),
+    })
+    return schema.validate(obj, { allowUnknown: true })
+  },
 }
 

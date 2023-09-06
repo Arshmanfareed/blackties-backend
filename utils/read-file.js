@@ -17,6 +17,6 @@ module.exports.readFileFromS3 = async (bucketName, fileName) => {
     return data
   } catch (error) {
     console.log(error.message)
-    return {}
+    throw new Error('File does not exist.')
   }
 }

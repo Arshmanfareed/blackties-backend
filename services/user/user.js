@@ -7,6 +7,7 @@ const socketFunctions = require('../../socket')
 const bcryptjs = require("bcryptjs")
 const common = require('../../helpers/common')
 const { to } = require('../../utils/error-handler')
+const { readFileFromS3 } = require('../../utils/read-file')
 
 module.exports = {
   requestContactDetails: async (requesterUserId, requesteeUserId, body, countBasedFeature) => {
@@ -985,5 +986,9 @@ module.exports = {
       status: false,
     })
     return true
+  },
+  getFileContentFromS3: async (filename) => {
+    const response = await readFileFromS3(process.env.CONFIG_BUCKET, filename);
+    return response
   },
 }
