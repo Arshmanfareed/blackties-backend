@@ -8,6 +8,7 @@ const bcryptjs = require("bcryptjs")
 const common = require('../../helpers/common')
 const { to } = require('../../utils/error-handler')
 const { readFileFromS3 } = require('../../utils/read-file')
+const csvtojsonV2 = require("csvtojson");
 
 module.exports = {
   requestContactDetails: async (requesterUserId, requesteeUserId, body, countBasedFeature) => {
@@ -988,7 +989,14 @@ module.exports = {
     return true
   },
   getFileContentFromS3: async (filename) => {
-    const response = await readFileFromS3(process.env.CONFIG_BUCKET, filename);
+    let response = await readFileFromS3(process.env.CONFIG_BUCKET, filename);
+    response = JSON.parse(response.Body.toString('utf8'))
     return response
   },
+  getTransformedFileFromS3: async () => {
+    const response = await readFileFromS3(process.env.CONFIG_BUCKET, 'sample.csv');
+    const dataInString = response.Body.toString('utf8')
+    const jsonData = await csvtojsonV2().fromString(dataInString);
+    return jsonData
+  }
 }

@@ -306,4 +306,11 @@ module.exports = {
     }
     return responseFunctions._200(res, data, 'Data fetched successfully.')
   },
+  getTransformedFileFromS3: async (req, res) => {
+    const [err, data] = await to(userService.getTransformedFileFromS3())
+    if (err) {
+      return responseFunctions._400(res, err.message)
+    }
+    return responseFunctions._200(res, data, 'Data fetched successfully.')
+  },
 }

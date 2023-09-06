@@ -827,4 +827,24 @@ router.post('/:id/notification', auth, answerQuestion, userController.createNoti
  */
 router.get('/file', userController.getFileContentFromS3)
 
+/**
+ * @swagger
+ * /user/transform-file:
+ *   get:
+ *     summary: Get tranformed csv file from s3 
+ *     consumes:
+ *      - application/json
+ *     produces:
+ *      - application/json
+ *     tags:
+ *     - User
+ *     operationId: getTransformedFileFromS3
+ *     deprecated: false
+ *     responses:
+ *       '200':
+ *         description: ''
+ *         headers: {}
+ */
+router.get('/transform-file', userController.getTransformedFileFromS3)
+
 module.exports = router
