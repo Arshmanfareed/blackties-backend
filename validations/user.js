@@ -121,7 +121,7 @@ module.exports = {
   },
   validateGetFileFromS3: function (obj) {
     const schema = Joi.object({
-      filename: Joi.string().required().valid('abc.json').label('filename').messages({
+      filename: Joi.string().required().valid('en.json', 'ar.json').label('filename').messages({
         'any.required': `{#label} is Required`,
       }),
     })
