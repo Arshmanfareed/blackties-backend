@@ -27,7 +27,8 @@
     "socket.io": "^4.5.2",
     "stripe": "^12.4.0",
     "swagger-jsdoc": "^6.2.1",
-    "swagger-ui-express": "^4.4.0"
+    "swagger-ui-express": "^4.4.0",
+    "twilio": "^4.16.0"
   },
   "engines": {
     "node": ">=16.15.1"

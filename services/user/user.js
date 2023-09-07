@@ -7,6 +7,7 @@ const socketFunctions = require('../../socket')
 const bcryptjs = require("bcryptjs")
 const common = require('../../helpers/common')
 const { to } = require('../../utils/error-handler')
+const sendSms = require('../../utils/send-sms')
 
 module.exports = {
   requestContactDetails: async (requesterUserId, requesteeUserId, body, countBasedFeature) => {
@@ -915,6 +916,8 @@ module.exports = {
       // generate otp
       await db.User.update({ otp: verificationCode, otpExpiry: new Date() }, { where: { id: userId } })
       // send otp to user on phoneNo if user verify otp then we need to add/update phoneNo
+      const message = user.language === 'en' ? `Mahaba OTP ${verificationCode}` : `محبة ${verificationCode} OTP`
+      sendSms(phoneNo, message)
     }
     return { verificationCode }
   },
