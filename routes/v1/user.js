@@ -718,4 +718,133 @@ router.get('/notification-toggle', auth, userController.getNotificationToggles)
  */
 router.put('/notification-toggle', auth, userController.updateNotificationToggles)
 
+/**
+ * @swagger
+ * /user/{id}/push-notification:
+ *   post:
+ *     summary: Send Push notification for testing
+ *     consumes:
+ *      - application/json
+ *     produces:
+ *      - application/json
+ *     tags:
+ *     - User
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               title:
+ *                 type: string
+ *               description:
+ *                 type: string
+ *     parameters:
+ *     - name: x-auth-token
+ *       in: header
+ *       required: true
+ *       type: string
+ *       description: an authorization header
+ *     - name: id
+ *       in: path
+ *       required: true
+ *       type: string
+ *       description: Id of the user to which you want to send notification
+ *     operationId: sendPushNotification
+ *     deprecated: false
+ *     responses:
+ *       '200':
+ *         description: ''
+ *         headers: {}
+ */
+router.post('/:id/push-notification', auth, answerQuestion, userController.sendPushNotification)
+
+/**
+ * @swagger
+ * /user/{id}/notification:
+ *   post:
+ *     summary: Generate Notification when (User is struggling to connect with your point of contact)
+ *     consumes:
+ *      - application/json
+ *     produces:
+ *      - application/json
+ *     tags:
+ *     - User
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               type:
+ *                 type: string
+ *                 example: "STRUGGLING_TO_CONNECT"
+ *     parameters:
+ *     - name: x-auth-token
+ *       in: header
+ *       required: true
+ *       type: string
+ *       description: an authorization header
+ *     - name: id
+ *       in: path
+ *       required: true
+ *       type: string
+ *       description: Id of the user to which you want to send notification
+ *     operationId: createNotification
+ *     deprecated: false
+ *     responses:
+ *       '200':
+ *         description: ''
+ *         headers: {}
+ */
+router.post('/:id/notification', auth, answerQuestion, userController.createNotification)
+
+/**
+ * @swagger
+ * /user/file:
+ *   get:
+ *     summary: Get file contents availaible on s3 
+ *     consumes:
+ *      - application/json
+ *     produces:
+ *      - application/json
+ *     tags:
+ *     - User
+ *     parameters:
+ *     - name: filename
+ *       in: query
+ *       required: false
+ *       type: number
+ *       description: filename
+ *     operationId: getFileContentFromS3
+ *     deprecated: false
+ *     responses:
+ *       '200':
+ *         description: ''
+ *         headers: {}
+ */
+router.get('/file', userController.getFileContentFromS3)
+
+/**
+ * @swagger
+ * /user/transform-file:
+ *   get:
+ *     summary: Get tranformed csv file from s3 
+ *     consumes:
+ *      - application/json
+ *     produces:
+ *      - application/json
+ *     tags:
+ *     - User
+ *     operationId: getTransformedFileFromS3
+ *     deprecated: false
+ *     responses:
+ *       '200':
+ *         description: ''
+ *         headers: {}
+ */
+router.get('/transform-file', userController.getTransformedFileFromS3)
+
 module.exports = router

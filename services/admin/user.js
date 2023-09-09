@@ -1,21 +1,32 @@
 const db = require('../../models')
-const { roles, status } = require("../../config/constants")
-const { Op } = require('sequelize')
+const { roles, status, gender } = require("../../config/constants")
+const { Op, Sequelize } = require('sequelize')
 const moment = require('moment')
 const bcryptjs = require("bcryptjs")
+const common = require('../../helpers/common')
 
 module.exports = {
   getUsers: async (query) => {
-    const { limit, offset, search, status: queryStatus } = query
+    const { limit, offset, search, status: queryStatus, usernameOrCode } = query
+    const usernameOrCodeQuery = usernameOrCode ? `%${usernameOrCode}%` : "%%";
     const whereOnUser = {
       role: roles.USER,
       status: queryStatus || status.ACTIVE,
-      username: { [Op.like]: search ? `%${search}%` : "%%" },
+      [Op.or]: {
+        username: { [Op.like]: usernameOrCodeQuery },
+        code: { [Op.like]: usernameOrCodeQuery },
+      },
     }
     const includeTables = [
       {
         model: db.BlockedUser,
         as: 'blockedUser',
+      },
+      {
+        model: db.UserSetting,
+      },
+      {
+        model: db.Profile,
       },
     ]
     switch (queryStatus) {
@@ -96,27 +107,148 @@ module.exports = {
     // send email for resetting password
     return true
   },
-  deleteAndLockDescription: async (userId, body) => {
-    const t = await db.sequelize.transaction()
+  lockDescription: async (userId, body) => {
+    // const t = await db.sequelize.transaction()
     try {
       const { duration, reason } = body
-      let unlockDate = moment().add(14, 'days')
+      let unlockDate = null
       if (duration) {
-        unlockDate = moment().add(duration, 'M')
+        unlockDate = moment().add(duration, 'days')
       }
-      await db.LockedDescription.create({ userId, reason, unlockDate, duration, status: true }, { transaction: t })
-      await db.Profile.update({ description: null }, { where: { userId }, transaction: t })
-      await t.commit()
+      await db.LockedDescription.create({ userId, reason, unlockDate, duration, status: true }/* , { transaction: t } */)
+      // await db.Profile.update({ description: null }, { where: { userId }, transaction: t })
+      // await t.commit()
       // socket event to show red bar on user profile automatically
       return true
     } catch (error) {
       console.log(error)
-      await t.rollback()
+      // await t.rollback()
       throw new Error(error.message)
     }
   },
   unlockDescription: async (userId) => {
     // socket event to enable edit description option on user side
     return db.LockedDescription.destroy({ where: { userId } })
+  },
+  deleteDescription: async (userId) => {
+    await db.Profile.update({ description: null }, { where: { userId } })
+    // socket event to delete/hide description of the user
+    return true
+  },
+  addCreditInUserWallet: async (userId, amount) => {
+    const t = await db.sequelize.transaction()
+    try {
+      await db.Wallet.increment('amount', { by: amount, where: { userId }, transaction: t })
+      await db.Transaction.create({ userId, amount, type: 'TOPUP_BY_ADMIN', status: true }, { transaction: t })
+      await t.commit()
+      return true
+    } catch (error) {
+      await t.rollback()
+      console.log(error)
+      throw new Error(error.message)
+    }
+  },
+  editUsername: async (userId, body) => {
+    const { username } = body
+    return db.User.update({ username }, { where: { id: userId } })
+  },
+  getUserDetails: async (userId) => {
+    const dateBefore90DayFromToday = moment().subtract(90, 'days').format('YYYY-MM-DD HH:mm:ss');
+    return db.User.findOne({
+      where: { id: userId },
+      attributes: [
+        'id',
+        'username',
+        'email',
+        'status',
+        'createdAt',
+        'language',
+        'code',
+        'phoneNo',
+        [Sequelize.literal(`(select COUNT(id) from BlockedUsers where blockedUserId = User.id and createdAt >= '${dateBefore90DayFromToday}' )`), 'noOfBlocksReceived'],
+      ],
+      include: [
+        {
+          model: db.UserSetting,
+        },
+        {
+          model: db.Profile,
+        },
+        {
+          model: db.Wallet,
+        },
+        {
+          model: db.DeactivatedUser,
+        },
+        {
+          model: db.SuspendedUser,
+        },
+        {
+          model: db.LockedDescription,
+        },
+      ],
+    })
+  },
+  getCounters: async () => {
+    const accountsCreated = await db.Profile.count({
+      group: ['sex']
+    })
+    const totalAccountsCreated = accountsCreated[0].count + accountsCreated[1].count
+    const malesAccountCreated = accountsCreated.filter(item => item.sex === gender.MALE)[0]?.count || 0
+    const femalesAccountCreated = accountsCreated.filter(item => item.sex === gender.FEMALE)[0]?.count || 0
+    const activeAccounts = await db.User.count({
+      where: { status: status.ACTIVE, role: roles.USER },
+      include: {
+        model: db.Profile,
+        attributes: ['sex']
+      },
+      group: [db.sequelize.col('Profile.sex')],
+    })
+    const totalActiveAccounts = activeAccounts[0].count + activeAccounts[1].count
+    const maleActiveAccounts = activeAccounts.filter(item => item.sex === gender.MALE)[0]?.count || 0
+    const femaleActiveAccounts = activeAccounts.filter(item => item.sex === gender.FEMALE)[0]?.count || 0
+    const userMembership = await db.UserSetting.count({
+      group: ['membership']
+    })
+    const onlineUsers = await db.User.count({
+      where: { role: roles.USER, isOnline: true },
+      include: {
+        model: db.Profile,
+        attributes: ['sex']
+      },
+      group: [db.sequelize.col('Profile.sex')],
+    })
+    const maleOnlineUsers = onlineUsers.filter(item => item.sex === gender.MALE)[0]?.count || 0
+    const femaleOnlineUsers = onlineUsers.filter(item => item.sex === gender.FEMALE)[0]?.count || 0
+    const lastLogins = await common.getUserCountsBasedOnLastLogin()
+    const nonVerifiedUsers = await db.UserSetting.count({
+      where: { isEmailVerified: false }
+    })
+    const suspendedAccounts = await db.User.count({
+      where: {
+        role: roles.USER,
+        status: status.SUSPENDED
+      }
+    })
+    const deactivatedAccounts = await db.DeactivatedUser.count({
+      group: ['reason']
+    })
+    const counters = {
+      accountsCreated: totalAccountsCreated,
+      malesAccountCreated,
+      femalesAccountCreated,
+      totalActiveAccounts,
+      maleActiveAccounts,
+      femaleActiveAccounts,
+      userMembership,
+      totalOnlineUsers: maleOnlineUsers + femaleOnlineUsers,
+      maleOnlineUsers,
+      femaleOnlineUsers,
+      lastLogins,
+      nonVerifiedUsers,
+      suspendedAccounts,
+      deactivatedAccounts,
+    }
+    return counters
   },
 }

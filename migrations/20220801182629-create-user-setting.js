@@ -42,6 +42,9 @@ module.exports = {
       lastSeen: {
         type: Sequelize.DATE
       },
+      suspendCount: { // no of times user suspended due to blocks
+        type: Sequelize.INTEGER
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE

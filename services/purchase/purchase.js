@@ -6,14 +6,15 @@ const helperFunctions = require('../../helpers')
 
 module.exports = {
   createStripePurchaseLink: async (body, hostAddress, userId) => {
-    const { amount } = body
+    const { amount, currency } = body
     const payload = {
       line_items: [
         {
           price_data: {
-            currency: 'usd',
+            currency: currency || 'usd',
             product_data: {
               name: `Top up Mahaba Wallet`,
+              images: ['https://mahaba-user-data.s3.me-south-1.amazonaws.com/static/logo.png'],
             },
             unit_amount: amount * 100, // multiplying it 100 because amount must be in cents
           },
@@ -24,7 +25,8 @@ module.exports = {
       metadata: {
         // Add any other custom data attributes as needed
         userId,
-        type: constants.paymentType.PURCHASE
+        type: constants.paymentType.PURCHASE,
+        currency
       },
     }
     const session = await stipeUtils.createCheckoutSession(payload, hostAddress)
@@ -35,10 +37,15 @@ module.exports = {
     return stipeUtils.retrieveCheckoutSession(sessionId)
       .then(async session => {
         // Handle the successful payment
-        const { userId, type, productId } = session.metadata
+        const { userId, type, productId, currency } = session.metadata
         if (type === constants.paymentType.PURCHASE) { // handle topup payment success
-          const amountToBeAdded = session.amount_total / 100
+          let amountToBeAdded = session.amount_total / 100
+          if (currency === 'sar') { // converting saudi riyal to usd
+            amountToBeAdded = (amountToBeAdded / process.env.USD_TO_RIYAL_RATE)
+            amountToBeAdded = amountToBeAdded.toFixed(2)
+          }
           await db.Wallet.increment('amount', { by: amountToBeAdded, where: { userId }, transaction: t })
+          await db.Transaction.create({ userId, amount: amountToBeAdded, type: 'TOPUP_BY_USER', status: true })
         } else { // handle subscription success
           const subsPlan = await db.SubscriptionPlan.findOne({ where: { productId } })
           await db.UserSetting.update({
@@ -190,4 +197,13 @@ module.exports = {
       ]
     })
   },
+  cancelPremiumMembership: async (userId, hostAddress) => {
+    const userSubscription = await db.UserSubscription.findOne({ where: { userId, status: true } })
+    if (!userSubscription) {
+      throw new Error('No Active Subscriptions found.')
+    }
+    const { customer } = JSON.parse(userSubscription.receipt)
+    const session = await stipeUtils.createBillingPortalSession(customer, hostAddress)
+    return session.url;
+  }
 }

@@ -317,4 +317,34 @@ router.patch('/logout', auth, authController.logout)
  */
 router.post('/deactivate', auth, authController.deactivateAccount)
 
+
+/**
+ * @swagger
+ * /auth/reactivate:
+ *   post:
+ *     summary: Deactivate Account
+ *     consumes:
+ *      - application/json
+ *     produces:
+ *      - application/json
+ *     tags:
+ *     - Auth
+ *     operationId: reactivateAccount
+ *     deprecated: false
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               userId:
+ *                 type: number
+ *     responses:
+ *       '200':
+ *         description: ''
+ *         headers: {}
+ */
+router.post('/reactivate', authController.reactivateAccount)
+
 module.exports = router

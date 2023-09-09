@@ -30,6 +30,10 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.BOOLEAN,
       defaultValue: true,
     },
+    receivePicture: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: true,
+    },
     contactDetailsRequest: {
       type: DataTypes.BOOLEAN,
       defaultValue: true,
@@ -48,7 +52,7 @@ module.exports = (sequelize, DataTypes) => {
     },
     restrictPushNotificationOfMyNationality: {
       type: DataTypes.BOOLEAN,
-      defaultValue: true,
+      defaultValue: false,
     },
     emailNotification: {
       type: DataTypes.BOOLEAN,
@@ -56,7 +60,7 @@ module.exports = (sequelize, DataTypes) => {
     },
     restrictEmailNotificationOfMyNationality: {
       type: DataTypes.BOOLEAN,
-      defaultValue: true,
+      defaultValue: false,
     }
   }, {
     sequelize,

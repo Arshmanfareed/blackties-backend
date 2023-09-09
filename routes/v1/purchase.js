@@ -28,6 +28,8 @@ const auth = require('../../middlewares/auth')
  *             properties:
  *               amount:
  *                 type: number
+ *               currency:
+ *                 type: string
  *     tags:
  *     - Purchase
  *     operationId: topupWallet
@@ -198,5 +200,31 @@ router.get('/user-features', auth, purchaseController.getUserFeatures)
  *         headers: {}
  */
 router.get('/subscription-plans', auth, purchaseController.getSubscriptionPlans)
+
+/**
+ * @swagger
+ * /purchase/cancel-premium:
+ *   post:
+ *     summary: cancel subscription from stripe
+ *     consumes:
+ *      - application/json
+ *     produces:
+ *      - application/json
+ *     parameters:
+ *     - name: x-auth-token
+ *       in: header
+ *       required: true
+ *       type: string
+ *       description: an authorization header
+ *     tags:
+ *     - Purchase
+ *     operationId: cancelPremiumMembership
+ *     deprecated: false
+ *     responses:
+ *       '200':
+ *         description: ''
+ *         headers: {}
+ */
+router.post('/cancel-premium', auth, purchaseController.cancelPremiumMembership)
 
 module.exports = router

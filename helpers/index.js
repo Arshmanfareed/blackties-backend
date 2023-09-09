@@ -2,7 +2,7 @@ const { sequelize } = require('../models')
 const db = require('../models')
 const { Op, Sequelize, QueryTypes } = require('sequelize')
 const sendMail = require('../utils/send-mail')
-const { gender, rewardPurpose, featureTypes, featureValidity } = require('../config/constants')
+const { gender, rewardPurpose, featureTypes, featureValidity, status, suspensionCriteria } = require('../config/constants')
 const moment = require('moment')
 const common = require('./common')
 
@@ -211,5 +211,104 @@ const helperFunctions = {
       }
     }
   },
+  autoSuspendUserOnBlocks: async (blockedUserId) => {
+    const t = await db.sequelize.transaction()
+    try {
+      /*
+        If a user is blocked by 10 unique users in 30 days or blocked by 20 unique users in 90 days then
+        it will be suspended but here are the rules 
+        only first block of a verified user with a unique IP address will be counted.
+        * Reason for block should not be 'Not Suitable for me' if multiple options are selected, block is counted.
+        if this is the first time user will be banned/suspend for 1 month
+        if second time user will be banned/suspend for 3 months
+        if third time user will be banned/suspend for 6 months
+        if fourth time user will be banned/suspend for indefinitely
+      */
+      const promisesResolved = await Promise.allSettled([
+        db.BlockedUser.count({
+          where: {
+            blockedUserId,
+            createdAt: {
+              [Op.between]: [moment().subtract(30, 'days').utc(), moment().utc()]
+              // * Reason for block should not be 'Not Suitable for me' if multiple options are selected, block is counted.
+            }
+          }
+        }),
+        db.BlockedUser.count({
+          where: {
+            blockedUserId,
+            createdAt: {
+              [Op.between]: [moment().subtract(90, 'days').utc(), moment().utc()]
+            }
+            // * Reason for block should not be 'Not Suitable for me' if multiple options are selected, block is counted.
+          },
+        }),
+        db.User.findOne({
+          where: { id: blockedUserId },
+          attributes: ['status'],
+          include: {
+            model: db.UserSetting,
+            attributes: ['suspendCount']
+          }
+        }),
+      ])
+      const blocksIn30Days = promisesResolved[0].status == 'fulfilled' ? promisesResolved[0].value : 0
+      const blocksIn90Days = promisesResolved[1].status == 'fulfilled' ? promisesResolved[1].value : 0
+      const user = promisesResolved[2].status == 'fulfilled' ? promisesResolved[2].value : {}
+
+      let suspendEndDate = null
+      if (user?.status === status.ACTIVE && (blocksIn30Days >= 10 || blocksIn90Days >= 20)) {
+        const { suspendCount: noOfTimesUserPreviouslySuspended } = user.UserSetting; // get it from user setting table
+        let period = unit = null;
+        if (noOfTimesUserPreviouslySuspended in suspensionCriteria) {
+          ({ period, unit } = suspensionCriteria[noOfTimesUserPreviouslySuspended]);
+          suspendEndDate = moment().add(period, unit)
+        }
+        // suspend a user based on suspend period
+        await db.User.update({ status: status.SUSPENDED }, { where: { id: blockedUserId }, transaction: t })
+        await db.SuspendedUser.create({ userId: blockedUserId, reason: 'DUE_TO_BLOCKS', suspendEndDate, status: true, duration: period }, { transaction: t })
+        // * increment no of times user banned due to block by users
+        await db.UserSetting.increment('suspendCount', { by: 1, where: { userId: blockedUserId }, transaction: t })
+      }
+      await t.commit()
+    } catch (error) {
+      console.log(error)
+      await t.rollback()
+      throw new Error(error.message)
+    }
+  },
+  checkForPushNotificationToggle: async (userId, otherUserId, toggleKey) => {
+    try {
+      const user = await db.User.findOne({
+        attributes: [],
+        where: { id: userId },
+        include: [
+          {
+            model: db.Profile,
+            attributes: ['sex', 'nationality'],
+          },
+          {
+            model: db.NotificationSetting,
+          }
+        ]
+      })
+      const { sex } = user.Profile
+      const notificationToggles = user.NotificationSetting
+      if (sex === gender.MALE) { // male
+        return notificationToggles[toggleKey] || false
+      } else { // female
+        if (notificationToggles.restrictPushNotificationOfMyNationality) {
+          const otherUserProfile = await db.Profile.findOne({ where: { userId: otherUserId } })
+          return user.Profile.nationality === otherUserProfile.nationality
+        } else {
+          return notificationToggles[toggleKey] || false
+        }
+      }
+    } catch (error) {
+      console.log(error)
+      return false
+    }
+  },
 }
+
 module.exports = helperFunctions

@@ -5,6 +5,11 @@ const { Op, Sequelize } = require('sequelize')
 const pushNotification = require('../../utils/push-notification')
 const socketFunctions = require('../../socket')
 const bcryptjs = require("bcryptjs")
+const common = require('../../helpers/common')
+const { to } = require('../../utils/error-handler')
+const sendSms = require('../../utils/send-sms')
+const { readFileFromS3 } = require('../../utils/read-file')
+const csvtojsonV2 = require("csvtojson");
 
 module.exports = {
   requestContactDetails: async (requesterUserId, requesteeUserId, body, countBasedFeature) => {
@@ -40,7 +45,7 @@ module.exports = {
       const alreadyRequested = await db.ContactDetailsRequest.findOne({
         where: {
           requesterUserId,
-          // requesteeUserId,
+          requesteeUserId,
           status: [requestStatus.PENDING, requestStatus.ACCEPTED],
         },
         order: [['id', 'DESC']],
@@ -60,6 +65,7 @@ module.exports = {
         status: requestStatus.PENDING,
         isFromFemale,
       }, { transaction: t })
+      let contactDetailsByFemale;
       if (isFromFemale) {
         /*
           Please confirm you want to send your contact details of this user
@@ -68,7 +74,7 @@ module.exports = {
           You will not be able to send your contact details to another user, unless you cancel the present request.
           You will need to wait at least 24 hours to be able to cancel this request.
         */
-        await db.ContactDetails.create({
+        contactDetailsByFemale = await db.ContactDetails.create({
           contactDetailsRequestId: request.id,
           name,
           personToContact,
@@ -82,15 +88,30 @@ module.exports = {
         notificationPayload['notificationType'] = notificationType.CONTACT_DETAILS_REQUEST
       }
       // generate notification
-      await db.Notification.create(notificationPayload, { transaction: t })
+      let notification = await db.Notification.create(notificationPayload, { transaction: t })
       // decrement count  by 1 if user uses count based feature
       if (countBasedFeature) {
         await db.UserFeature.decrement('remaining', { by: 1, where: { id: countBasedFeature.id }, transaction: t })
       }
-      // push notification
-      const { fcmToken } = await db.User.findOne({ where: { id: notificationPayload.userId }, attributes: ['fcmToken'] })
-      pushNotification.sendNotificationSingle(fcmToken, notificationPayload.notificationType, notificationPayload.notificationType)
       await t.commit()
+      // push notification
+      const isToggleOn = await helperFunctions.checkForPushNotificationToggle(notificationPayload.userId, requesterUserId, 'contactDetailsRequest')
+      if (isToggleOn) { // check for toggles on or off
+        const { fcmToken } = await db.User.findOne({ where: { id: notificationPayload.userId }, attributes: ['fcmToken'] })
+        pushNotification.sendNotificationSingle(fcmToken, notificationPayload.notificationType, notificationPayload.notificationType)
+      }
+      const socketData = {
+        request,
+        contactDetailsByFemale,
+      }
+      const eventName = isFromFemale ? socketEvents.CONTACT_DETAILS_SENT : socketEvents.CONTACT_DETAILS_REQUEST;
+      // sending contact details request on socket
+      socketFunctions.transmitDataOnRealtime(eventName, requesteeUserId, socketData)
+      // sending notification on socket
+      notification = JSON.parse(JSON.stringify(notification))
+      const userNameAndCode = await common.getUserAttributes(notification.resourceId, ['id', 'username', 'code'])
+      notification['User'] = userNameAndCode
+      socketFunctions.transmitDataOnRealtime(socketEvents.NEW_NOTIFICATION, requesteeUserId, notification)
       return request
     } catch (error) {
       await t.rollback()
@@ -100,7 +121,7 @@ module.exports = {
   respondToContactDetailsRequest: async (requestId, body) => {
     const t = await db.sequelize.transaction()
     try {
-      const contactDetailsRequest = await db.ContactDetailsRequest.findOne({ where: { id: requestId } })
+      let contactDetailsRequest = await db.ContactDetailsRequest.findOne({ where: { id: requestId } })
       if (contactDetailsRequest.status !== requestStatus.PENDING) {
         throw new Error("You've already responded to this request")
       }
@@ -113,6 +134,7 @@ module.exports = {
         Note: All other pending incoming requests will be cancelled
       */
       const requestUpdatePayload = {}
+      let notification, contactDetailsByFemale;
       const { requesterUserId, requesteeUserId } = contactDetailsRequest
       const notificationPayload = {
         userId: requesterUserId,
@@ -123,7 +145,7 @@ module.exports = {
       if (status === requestStatus.ACCEPTED) { // accepted
         requestUpdatePayload['status'] = requestStatus.ACCEPTED
         if (isFemaleResponding) {
-          await db.ContactDetails.create({
+          contactDetailsByFemale = await db.ContactDetails.create({
             contactDetailsRequestId: requestId,
             name,
             personToContact,
@@ -140,18 +162,31 @@ module.exports = {
         await helperFunctions.createMatchIfNotExist(requesterUserId, requesteeUserId, t)
         // generate notification of match
         notificationPayload['notificationType'] = notificationType.MATCH_CREATED
-        await db.Notification.create(notificationPayload, { transaction: t })
+        notification = await db.Notification.create(notificationPayload, { transaction: t })
         // push notification
-        const { fcmToken } = await db.User.findOne({ where: { id: notificationPayload.userId }, attributes: ['fcmToken'] })
-        pushNotification.sendNotificationSingle(fcmToken, notificationPayload.notificationType, notificationPayload.notificationType)
+        const isToggleOn = await helperFunctions.checkForPushNotificationToggle(notificationPayload.userId, requesteeUserId, 'getMatched')
+        if (isToggleOn) { // check for toggles on or off
+          const { fcmToken } = await db.User.findOne({ where: { id: notificationPayload.userId }, attributes: ['fcmToken'] })
+          pushNotification.sendNotificationSingle(fcmToken, notificationPayload.notificationType, notificationPayload.notificationType)
+        }
       } else { // rejected 
         requestUpdatePayload['status'] = requestStatus.REJECTED
         notificationPayload['notificationType'] = contactDetailsRequest.isFromFemale ? notificationType.CONTACT_DETAILS_SENT_REJECTED : notificationType.CONTACT_DETAILS_REQUEST_REJECTED
         // generate notification of reject
-        await db.Notification.create(notificationPayload, { transaction: t })
+        notification = await db.Notification.create(notificationPayload, { transaction: t })
       }
       await db.ContactDetailsRequest.update(requestUpdatePayload, { where: { id: requestId }, transaction: t })
       await t.commit()
+      contactDetailsRequest = JSON.parse(JSON.stringify(contactDetailsRequest))
+      contactDetailsRequest['status'] = requestUpdatePayload['status']
+      const socketData = { contactDetailsRequest, contactDetailsByFemale }
+      // sending respond of contact details request on socket
+      socketFunctions.transmitDataOnRealtime(socketEvents.CONTACT_DETAILS_RESPOND, requesterUserId, socketData)
+      // sending notification on socket
+      notification = JSON.parse(JSON.stringify(notification))
+      const userNameAndCode = await common.getUserAttributes(notification.resourceId, ['id', 'username', 'code'])
+      notification['User'] = userNameAndCode
+      socketFunctions.transmitDataOnRealtime(socketEvents.NEW_NOTIFICATION, requesterUserId, notification)
       return true
     } catch (error) {
       console.log(error)
@@ -159,12 +194,16 @@ module.exports = {
       throw new Error(error.message)
     }
   },
-  blockUser: async (blockerUserId, blockedUserId, reason) => {
+  blockUser: async (blockerUserId, blockedUserId, reasons) => {
     const alreadyBlocked = await db.BlockedUser.findOne({ where: { blockerUserId, blockedUserId } })
     if (alreadyBlocked) {
-      throw new Error("you've already blocked this user.")
+      throw new Error("You've already blocked this user.")
     }
-    return db.BlockedUser.create({ blockerUserId, blockedUserId, reason: JSON.stringify(reason), status: true })
+    const blockedUser = await db.BlockedUser.create({ blockerUserId, blockedUserId, status: true })
+    const blockedReasons = reasons.map(reason => { return { reason, blockedId: blockedUser.id, status: true } })
+    await db.BlockReason.bulkCreate(blockedReasons)
+    helperFunctions.autoSuspendUserOnBlocks(blockedUserId) // suspend user on lot of blocks
+    return blockedUser
   },
   unblockUser: async (blockerUserId, blockedUserId) => {
     return db.BlockedUser.destroy({ where: { blockerUserId, blockedUserId } })
@@ -207,7 +246,7 @@ module.exports = {
       // create picture request
       let pictureRequest = await db.PictureRequest.create({ requesterUserId, requesteeUserId, status: requestStatus.PENDING }, { transaction: t })
       // create notification and notifiy other user about request
-      const notification = await db.Notification.create({
+      let notification = await db.Notification.create({
         userId: requesteeUserId,
         resourceId: requesterUserId,
         resourceType: 'USER',
@@ -218,10 +257,13 @@ module.exports = {
       if (countBasedFeature) {
         await db.UserFeature.decrement('remaining', { by: 1, where: { id: countBasedFeature.id }, transaction: t })
       }
-      // push notification
-      const { fcmToken } = await db.User.findOne({ where: { id: requesteeUserId }, attributes: ['fcmToken'] })
-      pushNotification.sendNotificationSingle(fcmToken, notificationType.PICTURE_REQUEST, notificationType.PICTURE_REQUEST)
       await t.commit()
+      // push notification
+      const isToggleOn = await helperFunctions.checkForPushNotificationToggle(requesteeUserId, requesterUserId, 'receivePictureRequest')
+      if (isToggleOn) { // check for toggles on or off
+        const { fcmToken } = await db.User.findOne({ where: { id: requesteeUserId }, attributes: ['fcmToken'] })
+        pushNotification.sendNotificationSingle(fcmToken, notificationType.PICTURE_REQUEST, notificationType.PICTURE_REQUEST)
+      }
       const requesterUser = await db.User.findOne({
         where: { id: requesterUserId },
         attributes: ['username', 'code'],
@@ -231,6 +273,9 @@ module.exports = {
       // sending picture request on socket
       socketFunctions.transmitDataOnRealtime(socketEvents.PICTURE_REQUEST, requesteeUserId, pictureRequest)
       // sending notification on socket
+      notification = JSON.parse(JSON.stringify(notification))
+      const userNameAndCode = await common.getUserAttributes(notification.resourceId, ['id', 'username', 'code'])
+      notification['User'] = userNameAndCode
       socketFunctions.transmitDataOnRealtime(socketEvents.NEW_NOTIFICATION, requesteeUserId, notification)
       return pictureRequest
     } catch (error) {
@@ -252,8 +297,11 @@ module.exports = {
     if (dataToUpdate?.status === requestStatus.ACCEPTED) {
       notificationPayload['notificationType'] = notificationType.PICTURE_SENT
       // push notification
-      const { fcmToken } = await db.User.findOne({ where: { id: notificationPayload.userId }, attributes: ['fcmToken'] })
-      pushNotification.sendNotificationSingle(fcmToken, notificationPayload.notificationType, notificationPayload.notificationType)
+      const isToggleOn = await helperFunctions.checkForPushNotificationToggle(notificationPayload.userId, notificationPayload.resourceId, 'receivePicture')
+      if (isToggleOn) { // check for toggles on or off
+        const { fcmToken } = await db.User.findOne({ where: { id: notificationPayload.userId }, attributes: ['fcmToken'] })
+        pushNotification.sendNotificationSingle(fcmToken, notificationPayload.notificationType, notificationPayload.notificationType)
+      }
     } else if (dataToUpdate?.status === requestStatus.REJECTED) {
       notificationPayload['notificationType'] = notificationType.PICTURE_REQUEST_REJECTED
     } else {
@@ -262,9 +310,12 @@ module.exports = {
       return true
     }
     // create notification and notifiy user about request accept or reject status
-    const notification = await db.Notification.create(notificationPayload)
+    let notification = await db.Notification.create(notificationPayload)
     socketFunctions.transmitDataOnRealtime(socketEvents.PICTURE_REQUEST_RESPOND, recipientUserId, dataToUpdate)
     // sending notification on socket
+    notification = JSON.parse(JSON.stringify(notification))
+    const userNameAndCode = await common.getUserAttributes(notification.resourceId, ['id', 'username', 'code'])
+    notification['User'] = userNameAndCode
     socketFunctions.transmitDataOnRealtime(socketEvents.NEW_NOTIFICATION, recipientUserId, notification)
     return true
   },
@@ -276,7 +327,12 @@ module.exports = {
         userId,
         status: queryStatus || [0, 1],
       },
-      attributes: ['id', 'resourceId', 'resourceType', 'notificationType', 'status', 'createdAt']
+      attributes: ['id', 'resourceId', 'resourceType', 'notificationType', 'status', 'createdAt'],
+      include: {
+        model: db.User,
+        attributes: ['username', 'code'],
+      },
+      order: [['id', 'desc']],
     })
   },
   getMyRequestOfContactDetails: async (userId) => {
@@ -535,8 +591,11 @@ module.exports = {
       status: false,
     })
     // push notification
-    const { fcmToken } = await db.User.findOne({ where: { id: otherUserId }, attributes: ['fcmToken'] })
-    pushNotification.sendNotificationSingle(fcmToken, notificationType.MATCH_CANCELLED, notificationType.MATCH_CANCELLED)
+    const isToggleOn = await helperFunctions.checkForPushNotificationToggle(otherUserId, userId, 'matchCancelled')
+    if (isToggleOn) { // check for toggles on or off
+      const { fcmToken } = await db.User.findOne({ where: { id: otherUserId }, attributes: ['fcmToken'] })
+      pushNotification.sendNotificationSingle(fcmToken, notificationType.MATCH_CANCELLED, notificationType.MATCH_CANCELLED)
+    }
     return true
   },
   markNotificationAsReadOrUnread: async (notificationIds, status) => {
@@ -571,10 +630,11 @@ module.exports = {
         }, { transaction: t })
       }
       // create question
+      const askedQuestions = []
       for (let questionObj of questions) {
         // create user asked question
         const { category, question } = questionObj
-        await db.UserQuestionAnswer.create({
+        const questionCreated = await db.UserQuestionAnswer.create({
           extraInfoRequestId: extraInfoRequest.id,
           askingUserId: requesterUserId,
           askedUserId: requesteeUserId,
@@ -584,9 +644,10 @@ module.exports = {
           requesteeUserId,
           status: false
         }, { transaction: t })
+        askedQuestions.push(questionCreated)
       }
       // create notification
-      await db.Notification.create({
+      let notification = await db.Notification.create({
         userId: requesteeUserId,
         resourceId: requesterUserId,
         resourceType: 'USER',
@@ -597,10 +658,21 @@ module.exports = {
       if (countBasedFeature) {
         await db.UserFeature.decrement('remaining', { by: 1, where: { id: countBasedFeature.id }, transaction: t })
       }
-      // push notification
-      const { fcmToken } = await db.User.findOne({ where: { id: requesteeUserId }, attributes: ['fcmToken'] })
-      pushNotification.sendNotificationSingle(fcmToken, notificationType.QUESTION_RECEIVED, notificationType.QUESTION_RECEIVED)
       await t.commit()
+      // push notification
+      const isToggleOn = await helperFunctions.checkForPushNotificationToggle(requesteeUserId, requesterUserId, 'receiveQuestion')
+      if (isToggleOn) { // check for toggles on or off
+        const { fcmToken } = await db.User.findOne({ where: { id: requesteeUserId }, attributes: ['fcmToken'] })
+        pushNotification.sendNotificationSingle(fcmToken, notificationType.QUESTION_RECEIVED, notificationType.QUESTION_RECEIVED)
+      }
+      // sending extra info request and question on socket
+      const socketData = { extraInfoRequest, askedQuestions }
+      socketFunctions.transmitDataOnRealtime(socketEvents.QUESTION_RECEIVED, requesteeUserId, socketData)
+      // sending notification on socket
+      notification = JSON.parse(JSON.stringify(notification))
+      const userNameAndCode = await common.getUserAttributes(notification.resourceId, ['id', 'username', 'code'])
+      notification['User'] = userNameAndCode
+      socketFunctions.transmitDataOnRealtime(socketEvents.NEW_NOTIFICATION, requesteeUserId, notification)
       return true
     } catch (error) {
       await t.rollback()
@@ -615,7 +687,7 @@ module.exports = {
       await db.ExtraInfoRequest.update({ status: updateStatus }, { where: { id: requestId }, transaction: t })
       const updatedRequest = await db.ExtraInfoRequest.findOne({ where: { id: requestId } })
       if (status === REJECTED) { // notification for rejected request
-        await db.Notification.create({
+        let notification = await db.Notification.create({
           userId: updatedRequest.requesterUserId,
           resourceId: updatedRequest.requesteeUserId,
           resourceType: 'USER',
@@ -624,6 +696,11 @@ module.exports = {
         }, { transaction: t })
         // delete question associated to this request
         await db.UserQuestionAnswer.destroy({ where: { extraInfoRequestId: requestId }, transaction: t })
+        // sending notification on socket
+        notification = JSON.parse(JSON.stringify(notification))
+        const userNameAndCode = await common.getUserAttributes(notification.resourceId, ['id', 'username', 'code'])
+        notification['User'] = userNameAndCode
+        socketFunctions.transmitDataOnRealtime(socketEvents.NEW_NOTIFICATION, updatedRequest.requesterUserId, notification)
       }
       await t.commit()
       return true
@@ -641,17 +718,27 @@ module.exports = {
       }, { where: { id: questionId }, transaction: t })
       const updatedQuestion = await db.UserQuestionAnswer.findOne({ where: { id: questionId } })
       // send notification
-      await db.Notification.create({
+      let notification = await db.Notification.create({
         userId: updatedQuestion.askingUserId,
         resourceId: updatedQuestion.askedUserId,
         resourceType: 'USER',
         notificationType: notificationType.QUESTION_ANSWERED,
         status: 0
       }, { transaction: t })
-      // push notification
-      const { fcmToken } = await db.User.findOne({ where: { id: updatedQuestion.askingUserId }, attributes: ['fcmToken'] })
-      pushNotification.sendNotificationSingle(fcmToken, notificationType.QUESTION_ANSWERED, notificationType.QUESTION_ANSWERED)
       await t.commit()
+      // push notification
+      const isToggleOn = await helperFunctions.checkForPushNotificationToggle(updatedQuestion.askingUserId, updatedQuestion.askedUserId, 'receiveAnswer')
+      if (isToggleOn) { // check for toggles on or off
+        const { fcmToken } = await db.User.findOne({ where: { id: updatedQuestion.askingUserId }, attributes: ['fcmToken'] })
+        pushNotification.sendNotificationSingle(fcmToken, notificationType.QUESTION_ANSWERED, notificationType.QUESTION_ANSWERED)
+      }
+      // sending answer on socket
+      socketFunctions.transmitDataOnRealtime(socketEvents.ANSWER_RECEIVED, updatedQuestion.askingUserId, updatedQuestion)
+      // sending notification on socket
+      notification = JSON.parse(JSON.stringify(notification))
+      const userNameAndCode = await common.getUserAttributes(notification.resourceId, ['id', 'username', 'code'])
+      notification['User'] = userNameAndCode
+      socketFunctions.transmitDataOnRealtime(socketEvents.NEW_NOTIFICATION, updatedQuestion.askingUserId, notification)
       return true
     } catch (error) {
       await t.rollback()
@@ -831,6 +918,8 @@ module.exports = {
       // generate otp
       await db.User.update({ otp: verificationCode, otpExpiry: new Date() }, { where: { id: userId } })
       // send otp to user on phoneNo if user verify otp then we need to add/update phoneNo
+      const message = user.language === 'en' ? `Mahaba OTP ${verificationCode}` : `محبة ${verificationCode} OTP`
+      sendSms(phoneNo, message)
     }
     return { verificationCode }
   },
@@ -862,4 +951,55 @@ module.exports = {
       ]
     })
   },
+  sendPushNotification: async (userId, body) => {
+    const user = await db.User.findOne({
+      where: {
+        id: userId
+      }
+    })
+    if (!user.fcmToken) {
+      throw new Error('Other user does not have FCM token.')
+    }
+    const { title, description } = body
+    const [err, data] = await to(pushNotification.sendNotificationSingle(user.fcmToken, title, description))
+    return { err, data }
+  },
+  createNotification: async (userId, otherUserId, body) => {
+    const { type } = body
+    const user = await db.User.findOne({ where: { id: userId } })
+    // checking if "STRUGGLING_TO_CONNECT"
+    if (type === notificationType.STRUGGLING_TO_CONNECT) {
+      const notificationExist = await db.Notification.findOne({
+        where: {
+          userId: otherUserId,
+          resourceId: userId,
+          notificationType: type,
+        },
+      })
+      if (notificationExist) {
+        return false
+      }
+    }
+    await pushNotification.sendNotificationSingle(user.fcmToken, type, type)
+    // generating notification for the first time. 
+    await db.Notification.create({
+      userId: otherUserId,
+      resourceId: userId,
+      resourceType: 'USER',
+      notificationType: type,
+      status: false,
+    })
+    return true
+  },
+  getFileContentFromS3: async (filename) => {
+    let response = await readFileFromS3(process.env.CONFIG_BUCKET, filename);
+    response = JSON.parse(response.Body.toString('utf8'))
+    return response
+  },
+  getTransformedFileFromS3: async () => {
+    const response = await readFileFromS3(process.env.CONFIG_BUCKET, 'sample.csv');
+    const dataInString = response.Body.toString('utf8')
+    const jsonData = await csvtojsonV2().fromString(dataInString);
+    return jsonData
+  }
 }

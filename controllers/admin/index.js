@@ -1,6 +1,7 @@
 const adminService = require('../../services/admin')
 const { to } = require('../../utils/error-handler')
 const responseFunctions = require('../../utils/responses')
+const { userValidations } = require('../../validations')
 
 module.exports = {
   getUsers: async (req, res) => {
@@ -36,10 +37,10 @@ module.exports = {
     }
     return responseFunctions._200(res, data, 'Sub-admin created successfully')
   },
-  deleteAndLockDescription: async (req, res) => {
+  lockDescription: async (req, res) => {
     const { body, params } = req
     const { id: userId } = params
-    const [err, data] = await to(adminService.deleteAndLockDescription(userId, body))
+    const [err, data] = await to(adminService.lockDescription(userId, body))
     if (err) {
       return responseFunctions._400(res, err.message)
     }
@@ -53,5 +54,54 @@ module.exports = {
       return responseFunctions._400(res, err.message)
     }
     return responseFunctions._200(res, data, 'Description unlocked successfully')
+  },
+  deleteDescription: async (req, res) => {
+    const { id: userId } = req.params
+    const [err, data] = await to(adminService.deleteDescription(userId))
+    if (err) {
+      return responseFunctions._400(res, err.message)
+    }
+    return responseFunctions._200(res, data, 'Description deleted successfully')
+  },
+  addCreditInUserWallet: async (req, res) => {
+    const { id: userId } = req.params
+    const { amount } = req.body
+    if (!amount || amount <= 0) {
+      return responseFunctions._400(res, 'Amount must greater than 0')
+    }
+    const [err, data] = await to(adminService.addCreditInUserWallet(userId, amount))
+    if (err) {
+      return responseFunctions._400(res, err.message)
+    }
+    return responseFunctions._200(res, data, 'Credit added successfully')
+  },
+  editUsername: async (req, res) => {
+    const { id: userId } = req.params
+    const { body } = req
+    const { error } = userValidations.validateUpdateUsername(body)
+    if (error) {
+      return responseFunctions._400(res, error.details[0].message)
+    }
+    const [err, data] = await to(adminService.editUsername(userId, body))
+    if (err) {
+      return responseFunctions._400(res, err.message)
+    }
+    return responseFunctions._200(res, data, 'User updated successfully')
+  },
+  getUserDetails: async (req, res) => {
+    const { id: userId } = req.params
+    const [err, data] = await to(adminService.getUserDetails(userId))
+    if (err) {
+      return responseFunctions._400(res, err.message)
+    }
+    return responseFunctions._200(res, data, 'Data fetched successfully')
+  },
+  getCounters: async (req, res) => {
+    const { query } = req
+    const [err, data] = await to(adminService.getCounters(query))
+    if (err) {
+      return responseFunctions._400(res, err.message)
+    }
+    return responseFunctions._200(res, data, 'Data fetched successfully')
   },
 }

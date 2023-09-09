@@ -274,4 +274,43 @@ module.exports = {
     }
     return responseFunctions._200(res, data, 'Notification setting updated.')
   },
+  sendPushNotification: async (req, res) => {
+    const { id: userId } = req.params
+    const { body } = req
+    const [err, data] = await to(userService.sendPushNotification(userId, body))
+    if (err) {
+      return responseFunctions._400(res, err.message)
+    }
+    return responseFunctions._200(res, data, 'Notification sent successfully.')
+  },
+  createNotification: async (req, res) => {
+    const { id: userId } = req.user
+    const { id: otherUserId } = req.params
+    const { body } = req
+    const [err, data] = await to(userService.createNotification(userId, otherUserId, body))
+    if (err) {
+      return responseFunctions._400(res, err.message)
+    }
+    return responseFunctions._200(res, data, 'Notification created successfully.')
+  },
+  getFileContentFromS3: async (req, res) => {
+    const { query } = req
+    const { filename } = query
+    const { error } = userValidations.validateGetFileFromS3(query)
+    if (error) {
+      return responseFunctions._400(res, error.details[0].message)
+    }
+    const [err, data] = await to(userService.getFileContentFromS3(filename))
+    if (err) {
+      return responseFunctions._400(res, err.message)
+    }
+    return responseFunctions._200(res, data, 'Data fetched successfully.')
+  },
+  getTransformedFileFromS3: async (req, res) => {
+    const [err, data] = await to(userService.getTransformedFileFromS3())
+    if (err) {
+      return responseFunctions._400(res, err.message)
+    }
+    return responseFunctions._200(res, data, 'Data fetched successfully.')
+  },
 }

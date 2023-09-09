@@ -1,39 +1,24 @@
-const firebase = require('../config/firebase')
+const fcm = require('../config/firebase')
 
 module.exports = {
   sendNotificationSingle: async (token, title, body, payload = JSON.stringify({})) => {
-    if (!token) return false
-    const message = {
-      data: { data: payload },
+    if(!token) return false
+    const message = { //this may vary according to the message type (single recipient, multicast, topic, et cetera)
+      to: token,
+      collapse_key: title,
       notification: { title, body },
-      token
-    }
-    const firebaseMessaging = await firebase()
-    firebaseMessaging.send(message)
-      .then((response) => {
-        // Response is a message ID string.
-        console.log('Successfully sent firebase message:', response);
-      })
-      .catch((error) => {
-        console.log('Error sending firebase message:', error);
-      })
-  },
-  sendNotificationBulk: async (tokensArray, title, body, payload = JSON.stringify({})) => {
-    if (!Array.isArray(tokensArray)) throw new Error('Tokens must be in array.')
-    if (tokensArray.length === 0) return false
-    const message = {
-      data: { data: payload },
-      notification: { title, body },
-      tokens: tokensArray
-    }
-    const firebaseMessaging = await firebase()
-    firebaseMessaging.sendMulticast(message)
-      .then((response) => {
-        // Response is a message ID string.
-        console.log('Successfully sent firebase message:', response);
-      })
-      .catch((error) => {
-        console.log('Error sending firebase message:', error);
-      })
+      data: {}, //you can send only notification or only data(or include both)
+    };
+    return new Promise((resolve, reject) => {
+      fcm.send(message, function (err, response) {
+        if (err) {
+          console.log('Error sending firebase message:', err);
+          resolve(err)
+        } else {
+          console.log("Successfully sent with response: ", response);
+          resolve(response)
+        }
+      });
+    })
   },
 }

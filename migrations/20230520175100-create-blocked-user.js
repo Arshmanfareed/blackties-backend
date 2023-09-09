@@ -29,9 +29,6 @@ module.exports = {
           as: 'blockedUserId',
         },
       },
-      reason: {
-        type: Sequelize.STRING(300)
-      },
       status: {
         type: Sequelize.BOOLEAN
       },

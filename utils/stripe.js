@@ -21,4 +21,10 @@ module.exports = {
   retrieveCheckoutSession: async (sessionId) => {
     return stripe.checkout.sessions.retrieve(sessionId)
   },
+  createBillingPortalSession: async (stripeCustomerId, hostAddress) => {
+    return stripe.billingPortal.sessions.create({
+      customer: stripeCustomerId,
+      return_url: `http://${hostAddress}/dev/mahaba/api/v1/purchase/stripe-cancel`,
+    })
+  },
 }

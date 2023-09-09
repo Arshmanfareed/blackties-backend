@@ -104,6 +104,10 @@ module.exports = (sequelize, DataTypes) => {
       User.hasOne(models.LockedDescription, {
         foreignKey: 'userId',
       })
+
+      User.hasMany(models.Notification, {
+        foreignKey: 'resourceId',
+      })
     }
   }
   User.init(
@@ -127,7 +131,12 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         defaultValue: 'en'
       },
-      tempEmail: DataTypes.STRING
+      tempEmail: DataTypes.STRING,
+      isOnline: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
+      },
+      lastLogin: DataTypes.DATE,
     },
     {
       sequelize,

@@ -25,7 +25,6 @@ module.exports = (sequelize, DataTypes) => {
   BlockedUser.init({
     blockerUserId: DataTypes.INTEGER,
     blockedUserId: DataTypes.INTEGER,
-    reason: DataTypes.STRING,
     status: DataTypes.BOOLEAN
   }, {
     sequelize,

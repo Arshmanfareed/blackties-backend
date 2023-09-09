@@ -13,10 +13,9 @@ module.exports.readFileFromS3 = async (bucketName, fileName) => {
   const params = { Bucket: bucketName, Key: fileName }
   try {
     let data = await s3.getObject(params).promise()
-    data = JSON.parse(data.Body.toString('utf8'))
     return data
   } catch (error) {
     console.log(error.message)
-    return {}
+    throw new Error('File does not exist.')
   }
 }

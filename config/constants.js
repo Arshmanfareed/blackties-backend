@@ -39,6 +39,7 @@ module.exports = {
     QUESTION_RECEIVED: 'QUESTION_RECEIVED',
     QUESTION_ANSWERED: 'QUESTION_ANSWERED',
     EXTRA_INFO_REQUEST_REJECTED: 'EXTRA_INFO_REQUEST_REJECTED',
+    STRUGGLING_TO_CONNECT: 'STRUGGLING_TO_CONNECT',
   },
   membership: {
     REGULAR: 'Regular',
@@ -63,12 +64,23 @@ module.exports = {
     PICTURE_REQUEST: 'picture-request',
     PICTURE_REQUEST_RESPOND: 'picture-request-respond',
     NEW_NOTIFICATION: 'new-notification',
+    PICTURE_REQUEST: 'picture-request',
+    QUESTION_RECEIVED: 'question-received',
+    ANSWER_RECEIVED: 'answer-received',
+    CONTACT_DETAILS_REQUEST: 'contact-details-request',
+    CONTACT_DETAILS_SENT: 'contact-details-sent',
+    CONTACT_DETAILS_RESPOND: 'contact-details-respond',
   },
   rewardPurpose: {
     EMAIL_VERIFIED: 'EMAIL_VERIFIED',
     PHONE_VERIFIED: 'PHONE_VERIFIED',
     FILLED_ALL_INFO: 'FILLED_ALL_INFO',
     DESCRIPTION_ADDED: 'DESCRIPTION_ADDED',
+  },
+  suspensionCriteria: {
+    0: { period: 1, unit: 'M' },
+    1: { period: 3, unit: 'M' },
+    2: { period: 6, unit: 'M' }
   },
   apiPrefix: '/dev/mahaba/api/v1',
 }
