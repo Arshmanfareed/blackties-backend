@@ -177,7 +177,7 @@ module.exports = {
       }
       const isCorrectPassword = await bcryptjs.compare(oldPassword, user.password)
       if (!isCorrectPassword) {
-        throw new Error('You\'ve entered incorrect old password')
+        throw new Error('You current password is wrong')
       }
     }
     const salt = await bcryptjs.genSalt(10)
