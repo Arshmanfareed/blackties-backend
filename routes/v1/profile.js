@@ -11,6 +11,17 @@ const auth = require('../../middlewares/auth')
  *      - application/json
  *     produces:
  *      - application/json
+ *     parameters:
+ *     - name: limit
+ *       in: query
+ *       required: false
+ *       type: number
+ *       description: Limit
+ *     - name: offset
+ *       in: query
+ *       required: false
+ *       type: number
+ *       description: Offset
  *     requestBody:
  *       required: true
  *       content:
@@ -18,6 +29,12 @@ const auth = require('../../middlewares/auth')
  *           schema:
  *             type: object
  *             properties:
+ *               loggedInUserId:
+ *                 type: integer
+ *               isGold:
+ *                 type: boolean
+ *               usernameOrCode:
+ *                 type: string
  *               gender:
  *                 type: string
  *               sortBy:
@@ -152,6 +169,8 @@ router.get('/me', auth, profileController.getMyProfile)
  *           schema:
  *             type: object
  *             properties:
+ *               username:
+ *                 type: string
  *               dateOfBirth:
  *                 type: string
  *                 format: date
@@ -257,6 +276,26 @@ router.get('/me', auth, profileController.getMyProfile)
  *                 type: array
  *                 items:
  *                   type: string
+ *               description:
+ *                 type: string
+ *               work:
+ *                 type: string
+ *               workFunction:
+ *                 type: string
+ *               clothing:
+ *                 type: string
+ *               quranMemorization:
+ *                 type: string
+ *               polygamy:
+ *                 type: string
+ *               dislikes:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *               interests:
+ *                 type: array
+ *                 items:
+ *                   type: string
  *     operationId: updateProfile
  *     deprecated: false
  *     responses:
@@ -296,5 +335,36 @@ router.patch('/', auth, profileController.updateProfile)
  *         headers: {}
  */
 router.post('/:id/save/toggle', auth, profileController.saveOrUnsaveProfile)
+
+/**
+ * @swagger
+ * /profile/user/{id}:
+ *   get:
+ *     summary: get user profile with all details (extra info request, picture request, contact details)
+ *     consumes:
+ *      - application/json
+ *     produces:
+ *      - application/json
+ *     tags:
+ *     - Profile
+ *     parameters:
+ *     - name: loggedInUserId
+ *       in: query
+ *       required: false
+ *       type: string
+ *       description: Id of logged in user
+ *     - name: id
+ *       in: path
+ *       required: true
+ *       type: string
+ *       description: Id of the user whose profile you want to fetch
+ *     operationId: getUserProfileWithDetails
+ *     deprecated: false
+ *     responses:
+ *       '200':
+ *         description: ''
+ *         headers: {}
+ */
+router.get('/user/:id', profileController.getUserProfileWithDetails)
 
 module.exports = router

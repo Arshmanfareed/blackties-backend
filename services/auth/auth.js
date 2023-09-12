@@ -1,5 +1,5 @@
 const db = require('../../models')
-const { roles, status } = require('../../config/constants')
+const { roles, status, membership, requestStatus } = require('../../config/constants')
 const moment = require('moment')
 const { Op } = require('sequelize')
 const bcryptjs = require("bcryptjs")
@@ -10,9 +10,9 @@ const { translate } = require('../../utils/translation')
 
 module.exports = {
   verifyCode: async (body) => {
-    const { email, code } = body
+    const { userId, code, phoneNo } = body
     let user = await db.User.findOne({
-      where: { email, deletedAt: { [Op.eq]: null } },
+      where: { id: userId },
       attributes: { exclude: ['password'] },
     })
     if (!user) {
@@ -25,19 +25,20 @@ module.exports = {
       const DiffInMins = dateNow.diff(otpExpiry, 'minutes')
       if (DiffInMins > 5) {
         // check for expiry
-        throw new Error('Code is expired.')
+        throw new Error('OTP is expired.')
       }
-      // remove the code
+      // remove the code and update the phoneNo
       await db.User.update(
-        { otp: null, otpExpiry: null },
+        { otp: null, otpExpiry: null, phoneNo },
         { where: { id: user.id } }
       )
-      // generate JWT
-      user = user.toJSON()
-      const dataForToken = { ...user }
-      return { ...user, JWTToken: generateJWT(dataForToken) }
+      await db.UserSetting.update({
+        isPhoneVerified: true,
+      }, { where: { userId } })
+      helpers.givePhoneVerifyReward(userId)
+      return db.UserSetting.findOne({ where: { userId } })
     } else {
-      throw Error('Invalid code.')
+      throw Error('Incorrect OTP, please try again')
     }
   },
   logout: async (userId) => {
@@ -47,54 +48,100 @@ module.exports = {
     const t = await db.sequelize.transaction()
     try {
       const verificationCode = Math.floor(100000 + Math.random() * 900000)
-      const { email, username, password, sex, dateOfBirth, height, weight, country, city, nationality, religiosity, education, skinColor, ethnicity, maritalStatus, language } = body
-      let userExistByEmailOrUsername = await db.User.findOne({ where: { [Op.or]: [{ email }, { username }] } })
-      if (userExistByEmailOrUsername) {
-        throw new Error("User already exist with this email or username")
+      const { email, username, password, sex, dateOfBirth, height, weight, country, city, nationality, religiosity, education, skinColor, ethnicity, maritalStatus, language, tribe } = body
+      let userExistByEmail = await db.User.findOne({ where: { email /* [Op.or]: [{ email }, { username }] */ } })
+      if (userExistByEmail) {
+        throw new Error("An account using this email already exists")
       }
       const salt = await bcryptjs.genSalt(10);
       const hashedPassword = await bcryptjs.hash(password, salt)
-      const userCreated = await db.User.create({ email, username, password: hashedPassword, status: status.UNVERIFIED, otp: verificationCode, otpExpiry: new Date(), language }, { transaction: t })
+      const userCode = await helpers.generateUserCode(sex)
+      let userCreated = await db.User.create({ email, username, password: hashedPassword, status: status.ACTIVE, otp: verificationCode, otpExpiry: new Date(), language, code: userCode }, { transaction: t })
       const { id: userId } = userCreated
-      const profileCreated = await db.Profile.create({ userId, sex, dateOfBirth, height, weight, country, city, nationality, religiosity, education, skinColor, ethnicity, maritalStatus }, { transaction: t })
+      const profileCreated = await db.Profile.create({ userId, sex, dateOfBirth, height, weight, country, city, nationality, religiosity, education, skinColor, ethnicity, maritalStatus, tribe }, { transaction: t })
       await db.Wallet.create({ userId, amount: 0 }, { transaction: t })
-      await db.UserSetting.create({ userId, isNotificationEnabled: true, isPremium: false, membership: "REGULAR" }, { transaction: t })
+      await db.UserSetting.create({ userId, isNotificationEnabled: true, isPremium: false, membership: membership.REGULAR, lastSeen: new Date() }, { transaction: t })
+      await db.NotificationSetting.create({ userId }, { transaction: t })
       await t.commit()
+      // welcome email
+      sendMail('d-c4aeba5141a141a8bccf683880a027fa', email, 'Welcome to Mahaba', { nickname: username })
       // send OTP or verification link
       helpers.sendAccountActivationLink(email, userCreated.id, verificationCode, language)
-      return { userCreated, profileCreated }
+      // auth token
+      userCreated = JSON.parse(JSON.stringify(userCreated))
+      delete userCreated.password
+      return { userCreated, profileCreated, JWTToken: generateJWT(userCreated) }
     } catch (error) {
+      console.log(error);
       await t.rollback()
       throw new Error(error.message)
     }
   },
   login: async (body) => {
-    const { email, password } = body
-    let user = await db.User.findOne({ where: { email } })
+    const { email, password, fcmToken } = body
+    let user = await db.User.findOne({
+      where: { email },
+      include: [
+        {
+          model: db.Wallet,
+          attributes: ['amount']
+        },
+        {
+          model: db.UserSetting
+        },
+        {
+          model: db.Profile
+        },
+        {
+          model: db.DeactivatedUser
+        },
+        {
+          model: db.SuspendedUser
+        }
+      ]
+    })
     if (!user) {
-      throw new Error('Incorrect email or password')
+      throw new Error('Wrong email or password')
     }
     const isCorrectPassword = await bcryptjs.compare(password, user.password)
     if (!isCorrectPassword) {
-      throw new Error('Incorrect email or password')
+      throw new Error('Wrong email or password')
     }
-    // if (user.status === status.INACTIVE) {
-    //   throw new Error('Your account is inactive')
-    // }
+    if (user.status === status.DEACTIVATED) { // deactivated user
+      return user
+    } else if (user.status === status.SUSPENDED) {
+      let errorMessage = 'Your account has been suspended'
+      if (user.SuspendedUser.duration) {
+        errorMessage += ` for ${user.SuspendedUser.duration} month(s).`
+      }
+      throw new Error(errorMessage)
+    }
+    // update fcmToken in db
+    await db.User.update({ fcmToken: fcmToken || null, lastLogin: new Date() }, { where: { id: user.id } })
     user = JSON.parse(JSON.stringify(user))
     delete user['password']
-    const authToken = generateJWT(user)
+    const jwtPayload = { ...user }
+    delete jwtPayload['Profile']
+    delete jwtPayload['Wallet']
+    const authToken = generateJWT(jwtPayload)
     user['authToken'] = authToken
     return user
   },
   activateAccount: async (userId, code) => {
-    if (!userId || !code) return false
+    if (!userId || !code) return { success: false }
     const user = await db.User.findOne({ where: { id: userId } })
     if (user && user.otp == Number(code)) {
-      await db.User.update({ otp: null, status: status.ACTIVE }, { where: { id: userId } })
-      return true
+      if (user.tempEmail) { // update email case
+        await db.User.update({ email: user.tempEmail, tempEmail: null, otp: null, status: status.ACTIVE }, { where: { id: userId } })
+      } else {
+        await db.User.update({ otp: null, status: status.ACTIVE }, { where: { id: userId } })
+      }
+      await db.UserSetting.update({ isEmailVerified: true }, { where: { userId } })
+      helpers.giveEmailVerifyReward(userId)
+      const updatedUser = await db.User.findOne({ where: { id: userId } })
+      return { success: true, user: updatedUser }
     }
-    return false
+    return { success: true, user }
   },
   resetPassword: async (email) => {
     const user = await db.User.findOne({ where: { email }, attributes: { exclude: ['password'] } })
@@ -139,7 +186,7 @@ module.exports = {
       }
       const isCorrectPassword = await bcryptjs.compare(oldPassword, user.password)
       if (!isCorrectPassword) {
-        throw new Error('You\'ve entered incorrect old password')
+        throw new Error('You current password is wrong')
       }
     }
     const salt = await bcryptjs.genSalt(10)
@@ -148,4 +195,65 @@ module.exports = {
     await db.PasswordReset.destroy({ where: { userId } })
     return true
   },
+  deactivateAccount: async (userId, body) => {
+    const t = await db.sequelize.transaction()
+    try {
+      const { reason, feedback } = body
+      await Promise.allSettled([
+        // update user status in db
+        db.User.update({ status: status.DEACTIVATED }, { where: { id: userId }, transaction: t }),
+        // store reason and feedback
+        db.DeactivatedUser.create({ userId, reason, feedback }, { transaction: t }),
+        // reject incoming request
+        db.ContactDetailsRequest.update({ status: requestStatus.REJECTED }, { where: { requesteeUserId: userId }, transaction: t }),
+        db.PictureRequest.update({ status: requestStatus.REJECTED }, { where: { requesteeUserId: userId }, transaction: t }),
+        db.ExtraInfoRequest.update({ status: requestStatus.REJECTED }, { where: { requesteeUserId: userId }, transaction: t }),
+        // cancelled the requests this user made with other users
+        db.ContactDetailsRequest.update({ status: requestStatus.REJECTED }, { where: { requesterUserId: userId }, transaction: t }),
+        db.PictureRequest.update({ status: requestStatus.REJECTED }, { where: { requesterUserId: userId }, transaction: t }),
+        db.ExtraInfoRequest.update({ status: requestStatus.REJECTED }, { where: { requesterUserId: userId }, transaction: t }),
+        // match is cancelled
+        db.Match.update({ isCancelled: true, cancelledBy: userId }, {
+          where: {
+            isCancelled: false,
+            [Op.or]: {
+              userId,
+              otherUserId: userId,
+            }
+          },
+          transaction: t
+        })
+      ])
+      await t.commit()
+      return true
+    } catch (error) {
+      await t.rollback()
+      console.log(error)
+      throw new Error(error.message)
+    }
+  },
+  reactivateAccount: async (body) => {
+    const t = await db.sequelize.transaction()
+    try {
+      const { userId } = body
+      const { createdAt } = await db.DeactivatedUser.findOne({ where: { userId } })
+      const deactivatedAt = moment(createdAt)
+      const dateNow = moment(Date.now())
+      const deactivationDuration = dateNow.diff(deactivatedAt, 'days')
+      if (deactivationDuration >= 30) {
+        throw new Error('You account reactivation period has passed, now you cannot reactivate your account.')
+      }
+      // update user status in db
+      await Promise.allSettled([
+        db.User.update({ status: status.ACTIVE }, { where: { id: userId }, transaction: t }),
+        db.DeactivatedUser.destroy({ where: { userId }, transaction: t }),
+      ])
+      await t.commit()
+      return true
+    } catch (error) {
+      await t.rollback()
+      console.log(error)
+      throw new Error(error.message)
+    }
+  }
 }

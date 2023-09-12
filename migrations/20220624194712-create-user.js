@@ -17,6 +17,9 @@ module.exports = {
       email: {
         type: Sequelize.STRING(40),
       },
+      phoneNo: {
+        type: Sequelize.STRING(20),
+      },
       username: {
         type: Sequelize.STRING(50),
       },
@@ -35,11 +38,30 @@ module.exports = {
       otpExpiry: {
         type: Sequelize.DATE,
       },
+      language: {
+        type: Sequelize.STRING(5),
+      },
+      code: {
+        type: Sequelize.STRING(50),
+      },
+      socketId: {
+        type: Sequelize.STRING(50),
+      },
       status: {
         allowNull: false,
         type: Sequelize.ENUM,
-        values: ['ACTIVE', 'INACTIVE', 'BANNED', 'COMPLETED', 'FAILED', 'UNVERIFIED',],
+        values: ['ACTIVE', 'SUSPENDED', 'DEACTIVATED'],
         default: 'ACTIVE',
+      },
+      tempEmail: {
+        type: Sequelize.STRING(40),
+      },
+      isOnline: {
+        type: Sequelize.BOOLEAN,
+      },
+      lastLogin: {
+        allowNull: true,
+        type: Sequelize.DATE,
       },
       createdAt: {
         allowNull: false,
@@ -47,10 +69,6 @@ module.exports = {
       },
       updatedAt: {
         allowNull: false,
-        type: Sequelize.DATE,
-      },
-      deletedAt: {
-        allowNull: true,
         type: Sequelize.DATE,
       },
     })

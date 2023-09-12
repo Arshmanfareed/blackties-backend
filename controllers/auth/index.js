@@ -29,7 +29,7 @@ module.exports = {
     if (err) {
       return responseFunctions._400(res, err.message)
     }
-    return responseFunctions._200(res, data, 'OTP verified successfully')
+    return responseFunctions._200(res, data, 'Your phone number has been successfully updated')
   },
   login: async (req, res) => {
     // validation
@@ -76,7 +76,7 @@ module.exports = {
     if (err) {
       return responseFunctions._400(res, err.message)
     }
-    return responseFunctions._200(res, data, 'Password changed successfully.')
+    return responseFunctions._200(res, data, 'Password updated successfully.')
   },
   logout: async (req, res) => {
     const { id } = req.user
@@ -92,7 +92,28 @@ module.exports = {
     if (err) {
       return responseFunctions._400(res, err.message)
     }
-    const pageUrl = data ? process.env.ACCOUNT_ACTIVATION_SUCCESS : process.env.ACCOUNT_ACTIVATION_FAILURE;
+    const pageUrl = data.success ? `${process.env.ACCOUNT_ACTIVATION_SUCCESS}?email=${data?.user?.email}` : process.env.ACCOUNT_ACTIVATION_FAILURE;
     return res.redirect(pageUrl)
+  },
+  deactivateAccount: async (req, res) => {
+    const { id } = req.user
+    const { body } = req
+    const { error } = authValidations.validateDeactivateAccount(body)
+    if (error) {
+      return responseFunctions._400(res, error.details[0].message)
+    }
+    const [err, data] = await to(authService.deactivateAccount(id, body))
+    if (err) {
+      return responseFunctions._400(res, err.message)
+    }
+    return responseFunctions._200(res, data, 'Account deactivated successfully')
+  },
+  reactivateAccount: async (req, res) => {
+    const { body } = req
+    const [err, data] = await to(authService.reactivateAccount(body))
+    if (err) {
+      return responseFunctions._400(res, err.message)
+    }
+    return responseFunctions._200(res, data, 'Account reactivated successfully')
   },
 }
