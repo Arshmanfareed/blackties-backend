@@ -331,6 +331,10 @@ module.exports = {
       include: {
         model: db.User,
         attributes: ['username', 'code'],
+        include: {
+          model: db.Profile,
+          attributes: ['skinColor']
+        }
       },
       order: [['id', 'desc']],
     })
