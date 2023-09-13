@@ -47,7 +47,7 @@ module.exports = {
     const t = await db.sequelize.transaction()
     try {
       const verificationCode = Math.floor(100000 + Math.random() * 900000)
-      const { email, username, password, sex, dateOfBirth, height, weight, country, city, nationality, religiosity, education, skinColor, ethnicity, maritalStatus, language, tribe } = body
+      const { email, username, password, sex, dateOfBirth, height, weight, country, city, nationality, religiosity, education, work, skinColor, ethnicity, maritalStatus, language, tribe } = body
       let userExistByEmail = await db.User.findOne({ where: { email /* [Op.or]: [{ email }, { username }] */ } })
       if (userExistByEmail) {
         throw new Error("An account using this email already exists")
@@ -57,7 +57,7 @@ module.exports = {
       const userCode = await helpers.generateUserCode(sex)
       let userCreated = await db.User.create({ email, username, password: hashedPassword, status: status.ACTIVE, otp: verificationCode, otpExpiry: new Date(), language, code: userCode }, { transaction: t })
       const { id: userId } = userCreated
-      const profileCreated = await db.Profile.create({ userId, sex, dateOfBirth, height, weight, country, city, nationality, religiosity, education, skinColor, ethnicity, maritalStatus, tribe }, { transaction: t })
+      const profileCreated = await db.Profile.create({ userId, sex, dateOfBirth, height, weight, country, city, nationality, religiosity, education, work, skinColor, ethnicity, maritalStatus, tribe }, { transaction: t })
       await db.Wallet.create({ userId, amount: 0 }, { transaction: t })
       await db.UserSetting.create({ userId, isNotificationEnabled: true, isPremium: false, membership: membership.REGULAR, lastSeen: new Date() }, { transaction: t })
       await db.NotificationSetting.create({ userId }, { transaction: t })
