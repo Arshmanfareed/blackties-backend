@@ -72,6 +72,9 @@ module.exports = {
       education: Joi.string().required().label('Education').messages({
         'any.required': `{#label} is Required`,
       }),
+      work: Joi.string().required().label('Work').messages({
+        'any.required': `{#label} is Required`,
+      }),
       skinColor: Joi.string().required().label('Skin Color').messages({
         'any.required': `{#label} is Required`,
       }),

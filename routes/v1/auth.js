@@ -77,6 +77,8 @@ router.post('/verify-code', authController.verifyCode)
  *                 type: string
  *               education:
  *                 type: string
+ *               work:
+ *                 type: string
  *               skinColor:
  *                 type: string
  *               ethnicity:
