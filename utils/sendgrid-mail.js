@@ -11,7 +11,8 @@ module.exports = async (templateId, recipient, subject, dynamicParams) => {
       templateId,
       dynamicTemplateData: dynamicParams
     };
-    await sgMail.send(message)
+    const sendedResponse = await sgMail.send(message)
+    console.log("sendedResponse ===> ", sendedResponse)
   } catch (error) {
     console.log('Error sending mail: ', error)
     if (error.response) {

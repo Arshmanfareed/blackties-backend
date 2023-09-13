@@ -64,7 +64,7 @@ module.exports = {
       await db.NotificationSetting.create({ userId }, { transaction: t })
       await t.commit()
       // welcome email
-      sendMail('d-c4aeba5141a141a8bccf683880a027fa', email, 'Welcome to Mahaba', { nickname: username })
+      sendMail(process.env.WELCOME_EMAIL_TEMPLATE_ID, email, 'Welcome to Mahaba', { nickname: username })
       // send OTP or verification link
       helpers.sendAccountActivationLink(email, userCreated.id, verificationCode, language)
       // auth token
@@ -141,7 +141,7 @@ module.exports = {
       const updatedUser = await db.User.findOne({ where: { id: userId } })
       return { success: true, user: updatedUser }
     }
-    return { success: true, user }
+    return { success: false, user }
   },
   resetPassword: async (email) => {
     const user = await db.User.findOne({ where: { email }, attributes: { exclude: ['password'] } })
@@ -150,16 +150,11 @@ module.exports = {
     await db.PasswordReset.destroy({ where: { userId: user.id } })
     await db.PasswordReset.create({ userId: user.id })
     const resetPasswordLink = process.env.RESET_PASSWORD_PAGE + '?token=' + jwtToken
-    // const emailBody = `
-    //   Please click on this link to reset your password  ${resetPasswordLink}
-    // `
-    // sendMail(email, "Password Reset Link", emailBody)
     const templatedId = process.env.PASSWORD_RESET_TEMPLATE_ID
     const dynamicParams = {
-      message: translate('resetpasswordBody', user.language), // `Please click on this link to reset your password`,
       link: resetPasswordLink
     }
-    sendMail(templatedId, email, translate('resetpasswordSubject', user.language), dynamicParams)
+    sendMail(templatedId, email, 'Password Reset Link', dynamicParams)
     return true
   },
   verifyPasswordResetLink: async (userId) => {
