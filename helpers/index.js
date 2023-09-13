@@ -1,19 +1,19 @@
 const { sequelize } = require('../models')
 const db = require('../models')
 const { Op, Sequelize, QueryTypes } = require('sequelize')
-const sendMail = require('../utils/send-mail')
+const sendMail = require('../utils/sendgrid-mail')
 const { gender, rewardPurpose, featureTypes, featureValidity, status, suspensionCriteria } = require('../config/constants')
 const moment = require('moment')
 const common = require('./common')
 
 const helperFunctions = {
-  sendAccountActivationLink: async (email, userId, activationCode) => {
-    // const activationLink = process.env.PAGES_LINK + "accountActivation.html?userId=" + userId + "&code=" + activationCode
-    const activationLink = process.env.BASE_URL_DEV + "/auth/account-activation/" + userId + "/" + activationCode
-    const emailBody = `
-      Please click on this link to activate your account ${activationLink}
-    `
-    sendMail(email, "Email Verification Link", emailBody)
+  sendAccountActivationLink: async (email, userId, activationCode, lang = 'en') => {
+    const activationLink = process.env.BASE_URL_LOCAL + "/auth/account-activation/" + userId + "/" + activationCode
+    const templatedId = process.env.EMAIL_VERIFY_TEMPLATE_ID
+    const dynamicParams = {
+      link: activationLink
+    }
+    sendMail(templatedId, email, 'Verification Link', dynamicParams)
   },
   generateUserCode: async (sex) => {
     const lastUser = await db.User.count({

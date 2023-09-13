@@ -3,9 +3,10 @@ const { roles, status, membership, requestStatus } = require('../../config/const
 const moment = require('moment')
 const { Op } = require('sequelize')
 const bcryptjs = require("bcryptjs")
-const sendMail = require('../../utils/send-mail')
+const sendMail = require('../../utils/sendgrid-mail')
 const { generateJWT } = require('../../utils/generate-jwt')
 const helpers = require('../../helpers')
+const { translate } = require('../../utils/translation')
 
 module.exports = {
   verifyCode: async (body) => {
@@ -62,8 +63,10 @@ module.exports = {
       await db.UserSetting.create({ userId, isNotificationEnabled: true, isPremium: false, membership: membership.REGULAR, lastSeen: new Date() }, { transaction: t })
       await db.NotificationSetting.create({ userId }, { transaction: t })
       await t.commit()
+      // welcome email
+      sendMail(process.env.WELCOME_EMAIL_TEMPLATE_ID, email, 'Welcome to Mahaba', { nickname: username })
       // send OTP or verification link
-      helpers.sendAccountActivationLink(email, userCreated.id, verificationCode)
+      helpers.sendAccountActivationLink(email, userCreated.id, verificationCode, language)
       // auth token
       userCreated = JSON.parse(JSON.stringify(userCreated))
       delete userCreated.password
@@ -138,7 +141,7 @@ module.exports = {
       const updatedUser = await db.User.findOne({ where: { id: userId } })
       return { success: true, user: updatedUser }
     }
-    return { success: true, user }
+    return { success: false, user }
   },
   resetPassword: async (email) => {
     const user = await db.User.findOne({ where: { email }, attributes: { exclude: ['password'] } })
@@ -147,10 +150,11 @@ module.exports = {
     await db.PasswordReset.destroy({ where: { userId: user.id } })
     await db.PasswordReset.create({ userId: user.id })
     const resetPasswordLink = process.env.RESET_PASSWORD_PAGE + '?token=' + jwtToken
-    const emailBody = `
-      Please click on this link to reset your password  ${resetPasswordLink}
-    `
-    sendMail(email, "Password Reset Link", emailBody)
+    const templatedId = process.env.PASSWORD_RESET_TEMPLATE_ID
+    const dynamicParams = {
+      link: resetPasswordLink
+    }
+    sendMail(templatedId, email, 'Password Reset Link', dynamicParams)
     return true
   },
   verifyPasswordResetLink: async (userId) => {

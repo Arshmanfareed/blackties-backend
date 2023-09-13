@@ -907,6 +907,7 @@ module.exports = {
       await db.User.update({ tempEmail: email, otp: verificationCode }, { where: { id: userId } })
       const activationLink = process.env.BASE_URL_DEV + "/auth/account-activation/" + userId + "/" + verificationCode
       // send activation link on email of user
+      helperFunctions.sendAccountActivationLink(email, userExist.id, verificationCode, userExist.language)
       return { activationLink }
     }
     if (phoneNo) {
