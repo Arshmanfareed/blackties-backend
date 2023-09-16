@@ -69,4 +69,58 @@ module.exports = {
   getUserAttributes: async (userId, attributesList) => {
     return db.User.findOne({ where: { id: userId }, attributes: attributesList })
   },
+  fetchUserProfileStats: async (userId, startDate, endDate) => {
+    try {
+      // X users saw your profile
+      let profileViews = db.UserSeen.count({
+        where: {
+          viewedId: userId,
+          createdAt: {
+            [Op.between]: [startDate, endDate]
+          }
+        },
+      })
+      // X users saved your profile
+      let profilesSavedCount = db.SavedProfile.count({
+        where: {
+          savedUserId: userId,
+          createdAt: {
+            [Op.between]: [startDate, endDate]
+          }
+        },
+      })
+      // X users have asked you questions
+      let extraInfoRequestCount = db.ExtraInfoRequest.count({
+        where: {
+          requesteeUserId: userId,
+          createdAt: {
+            [Op.between]: [startDate, endDate]
+          }
+        }
+      })
+      // X users requested your contact detais
+      let contactDetailsRequestCount = db.ContactDetailsRequest.count({
+        where: {
+          requesteeUserId: userId,
+          createdAt: {
+            [Op.between]: [startDate, endDate]
+          }
+        }
+      })
+      const promiseRespose = await Promise.allSettled([profileViews, profilesSavedCount, extraInfoRequestCount, contactDetailsRequestCount])
+      profileViews = promiseRespose[0].status === 'fulfilled' ? promiseRespose[0].value : 0;
+      profilesSavedCount = promiseRespose[1].status === 'fulfilled' ? promiseRespose[1].value : 0;
+      extraInfoRequestCount = promiseRespose[2].status === 'fulfilled' ? promiseRespose[2].value : 0;
+      contactDetailsRequestCount = promiseRespose[3].status === 'fulfilled' ? promiseRespose[3].value : 0;
+      return {
+        userId,
+        profileViews,
+        profilesSavedCount,
+        extraInfoRequestCount,
+        contactDetailsRequestCount
+      }
+    } catch (error) {
+      console.log(error)
+    }
+  }
 }

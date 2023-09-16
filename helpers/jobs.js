@@ -1,6 +1,8 @@
 const { Op } = require('sequelize')
-const { status } = require('../config/constants')
+const { status, roles } = require('../config/constants')
 const db = require('../models')
+const common = require('./common')
+const moment = require('moment')
 
 module.exports = {
   unsuspendUsers: async () => {
@@ -38,6 +40,25 @@ module.exports = {
       })
     } catch (error) {
       console.log("Error in unlockDescription cron: ", error)
+    }
+  },
+  sendProfileStatsToUser: async () => {
+    try {
+      const users = await db.User.findAll({
+        status: status.ACTIVE,
+        role: roles.USER,
+      })
+      const inputDate = moment();
+      // Calculate the start and end dates of the previous month
+      const startDate = inputDate.clone().subtract(1, 'month').startOf('month');
+      const endDate = inputDate.clone().subtract(1, 'month').endOf('month');
+      for (let user of users) {
+        const stats = await common.fetchUserProfileStats(user.id, startDate, endDate)
+        // send email
+        console.log('sending email => ', stats)
+      }
+    } catch (error) {
+      console.log("Error in sendProfileStatsToUser cron: ", error)
     }
   },
 }
