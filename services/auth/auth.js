@@ -59,8 +59,8 @@ module.exports = {
       let userCreated = await db.User.create({ email, username, password: hashedPassword, status: status.ACTIVE, otp: verificationCode, otpExpiry: new Date(), language, code: userCode }, { transaction: t })
       const { id: userId } = userCreated
       const profileCreated = await db.Profile.create({ userId, sex, dateOfBirth, height, weight, country, city, nationality, religiosity, education, work, skinColor, ethnicity, maritalStatus, tribe }, { transaction: t })
-      await db.Wallet.create({ userId, amount: 0 }, { transaction: t })
-      await db.UserSetting.create({ userId, isNotificationEnabled: true, isPremium: false, membership: membership.REGULAR, lastSeen: new Date() }, { transaction: t })
+      const wallet = await db.Wallet.create({ userId, amount: 0 }, { transaction: t })
+      const userSetting = await db.UserSetting.create({ userId, isNotificationEnabled: true, isPremium: false, membership: membership.REGULAR, lastSeen: new Date() }, { transaction: t })
       await db.NotificationSetting.create({ userId }, { transaction: t })
       await t.commit()
       // welcome email
@@ -70,7 +70,10 @@ module.exports = {
       // auth token
       userCreated = JSON.parse(JSON.stringify(userCreated))
       delete userCreated.password
-      return { userCreated, profileCreated, JWTToken: generateJWT(userCreated) }
+      const authToken = generateJWT(userCreated)
+      userCreated['Wallet'] = wallet
+      userCreated['UserSetting'] = userSetting
+      return { userCreated, profileCreated, JWTToken: authToken }
     } catch (error) {
       console.log(error);
       await t.rollback()
