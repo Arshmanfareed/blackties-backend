@@ -23,6 +23,13 @@ module.exports = {
       ...(financialStatus.length > 0 ? { financialStatus } : {}),
       ...(maritalStatus.length > 0 ? { maritalStatus } : {}),
     }
+    if (tribialAffiliation === false) {
+      whereFilterProfile['tribe'] = 'not_applicable'
+    } else if (tribialAffiliation === true) {
+      whereFilterProfile['tribe'] = {
+        [Op.ne]: 'not_applicable'
+      }
+    }
     if (Object.values(constants.gender).includes(gender)) {
       whereFilterProfile['sex'] = gender
     }
