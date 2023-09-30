@@ -95,7 +95,7 @@ const auth = require('../../middlewares/auth')
  *                 items:
  *                   type: string
  *               tribialAffiliation:
- *                 type: boolean
+ *                 type: string
  *               education:
  *                 type: array
  *                 items:
