@@ -758,7 +758,10 @@ module.exports = {
       return false;
     }
     // update record if already exist
-    await db.UserSeen.destroy({ where: { viewerId, viewedId } }) // deleting prevoius seen to avoid unnecessary records
+    const seenExist = await db.UserSeen.findOne({ where: { viewerId, viewedId } })
+    if (seenExist) {
+      return false
+    }
     await db.UserSeen.create({ viewerId, viewedId })
     return true
   },
