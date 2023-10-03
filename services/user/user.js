@@ -758,7 +758,10 @@ module.exports = {
       return false;
     }
     // update record if already exist
-    await db.UserSeen.destroy({ where: { viewerId, viewedId } }) // deleting prevoius seen to avoid unnecessary records
+    const seenExist = await db.UserSeen.findOne({ where: { viewerId, viewedId } })
+    if (seenExist) {
+      return false
+    }
     await db.UserSeen.create({ viewerId, viewedId })
     return true
   },
@@ -911,7 +914,7 @@ module.exports = {
       await db.User.update({ tempEmail: email, otp: verificationCode }, { where: { id: userId } })
       const activationLink = process.env.BASE_URL_DEV + "/auth/account-activation/" + userId + "/" + verificationCode
       // send activation link on email of user
-      helperFunctions.sendAccountActivationLink(email, userExist.id, verificationCode, userExist.language)
+      helperFunctions.sendAccountActivationLink(email, user.id, verificationCode, user.language)
       return { activationLink }
     }
     if (phoneNo) {
