@@ -19,7 +19,7 @@ module.exports = {
         },
       },
       amount: {
-        type: Sequelize.INTEGER(10),
+        type: Sequelize.DOUBLE,
         default: 0
       },
       createdAt: {

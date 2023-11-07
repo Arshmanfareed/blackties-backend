@@ -13,12 +13,12 @@ const authRoutes = require('./routes/v1/auth')
 const basicAuth = require('express-basic-auth')
 const path = require('path')
 const profileRoutes = require('./routes/v1/profile')
+const userRoutes = require('./routes/v1/user')
 const purchaseRoutes = require('./routes/v1/purchase')
 const dashboardRoutes = require('./routes/v1/dashboard')
-
-
-
-// require("./cron-job")
+const adminRoutes = require('./routes/v1/admin')
+const { socketInit } = require('./socket')
+require("./cron-job")
 
 app.use(cors({
   origin: process.env.CORS_ORIGIN
@@ -38,11 +38,10 @@ app.use('/public', express.static(path.join(__dirname, 'public')));
 app.use('/api-docs', basicAuth({ users: { [process.env.SWAGGER_USER_NAME]: process.env.SWAGGER_USER_PASSWORD }, challenge: true, }), swaggerUI.serve, swaggerUI.setup(swaggerDocs))
 app.use(`${apiPrefix}/auth`, authRoutes)
 app.use(`${apiPrefix}/profile`, profileRoutes)
+app.use(`${apiPrefix}/user`, userRoutes)
 app.use(`${apiPrefix}/purchase`, purchaseRoutes)
 app.use(`${apiPrefix}/dashboard`, dashboardRoutes)
-
-
-
+app.use(`${apiPrefix}/admin`, adminRoutes)
 
 if (!jwtSecretKey) {
   console.error('FATAL ERROR: jwtSecretKey is not defined.')
@@ -71,5 +70,5 @@ if (process.env.NODE_ENV == 'development' || process.env.NODE_ENV == 'staging') 
       )
     )
 }
-
-// require('./socket')(server)
+// connecting socket
+socketInit(server)

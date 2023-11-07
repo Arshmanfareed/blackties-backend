@@ -30,11 +30,20 @@ module.exports = {
       isPhoneVerified: {
         type: Sequelize.BOOLEAN
       },
+      isFilledAllInfo: {
+        type: Sequelize.BOOLEAN
+      },
       membership: {
         type: Sequelize.STRING(30)
       },
       language: {
         type: Sequelize.STRING(30)
+      },
+      lastSeen: {
+        type: Sequelize.DATE
+      },
+      suspendCount: { // no of times user suspended due to blocks
+        type: Sequelize.INTEGER
       },
       createdAt: {
         allowNull: false,

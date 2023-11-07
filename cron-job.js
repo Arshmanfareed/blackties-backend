@@ -1,7 +1,14 @@
 // we will register all cron jobs here in this file
 const cron = require('node-cron')
+const jobs = require('./helpers/jobs')
 
-// const { expireSpotlights, reassignNoOfDailyProfileLimit, sendBirthdayNotification } = require('./helpers')
+// unsuspend users
+cron.schedule(process.env.UNSUSPEND_USER_CRON_EXP, jobs.unsuspendUsers)
 
-// cron job to expire spotlights
-// cron.schedule(process.env.EXPIRE_SPOTLIGHT_CRON_EXP, expireSpotlights)
+// unlock description
+cron.schedule(process.env.UNLOCK_DESCRIPTION_CRON_EXP, jobs.unlockDescription)
+
+// send profile stats to user on email
+cron.schedule(process.env.STATS_CRON_EXP, jobs.sendProfileStatsToUser)
+
+
