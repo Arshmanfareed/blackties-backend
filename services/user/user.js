@@ -670,21 +670,21 @@ module.exports = {
         pushNotification.sendNotificationSingle(fcmToken, notificationType.QUESTION_RECEIVED, notificationType.QUESTION_RECEIVED)
       }
 
-      // let _extraInfoRequest = db.ExtraInfoRequest.findOne({
-      //   where: {
-      //     [Op.or]: [
-      //       { requesterUserId, requesteeUserId },
-      //       { requesterUserId: requesteeUserId, requesteeUserId: requesterUserId },
-      //     ],
-      //   },
-      //   include: {
-      //     model: db.UserQuestionAnswer
-      //   },
-      //   order: [['id', 'DESC']]
-      // })
+      let _extraInfoRequest = db.ExtraInfoRequest.findOne({
+        where: {
+          [Op.or]: [
+            { requesterUserId, requesteeUserId },
+            { requesterUserId: requesteeUserId, requesteeUserId: requesterUserId },
+          ],
+        },
+        include: {
+          model: db.UserQuestionAnswer
+        },
+        order: [['id', 'DESC']]
+      })
 
       // sending extra info request and question on socket
-      const socketData = { extraInfoRequest, askedQuestions }
+      const socketData = { extraInfoRequest, _extraInfoRequest }
       socketFunctions.transmitDataOnRealtime(socketEvents.QUESTION_RECEIVED, requesteeUserId, socketData)
       // sending notification on socket
       notification = JSON.parse(JSON.stringify(notification))
