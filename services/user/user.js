@@ -670,11 +670,11 @@ module.exports = {
         pushNotification.sendNotificationSingle(fcmToken, notificationType.QUESTION_RECEIVED, notificationType.QUESTION_RECEIVED)
       }
 
-      let _extraInfoRequest = db.ExtraInfoRequest.findOne({
+      let _extraInfoRequest = await db.ExtraInfoRequest.findOne({
         where: {
           [Op.or]: [
             { requesterUserId, requesteeUserId },
-            { requesterUserId: requesteeUserId, requesteeUserId: requesterUserId },
+            { requesterUserId: requesterUserId, requesteeUserId: requesteeUserId },
           ],
         },
         include: {
@@ -683,8 +683,10 @@ module.exports = {
         order: [['id', 'DESC']]
       })
 
+
+
       // sending extra info request and question on socket
-      const socketData = { extraInfoRequest, _extraInfoRequest }
+      const socketData = { extraInfoRequest: _extraInfoRequest }
       socketFunctions.transmitDataOnRealtime(socketEvents.QUESTION_RECEIVED, requesteeUserId, socketData)
       // sending notification on socket
       notification = JSON.parse(JSON.stringify(notification))
@@ -698,12 +700,14 @@ module.exports = {
     }
   },
   acceptOrRejectExtraInfoRequest: async (requestId, status) => {
+    console.log(requestId, "requestId")
     const { ACCEPTED, REJECTED } = requestStatus
     const updateStatus = status === ACCEPTED ? ACCEPTED : REJECTED;
     const t = await db.sequelize.transaction()
     try {
       await db.ExtraInfoRequest.update({ status: updateStatus }, { where: { id: requestId }, transaction: t })
       const updatedRequest = await db.ExtraInfoRequest.findOne({ where: { id: requestId } })
+      console.log(updatedRequest, "updatedRequest")
       if (status === REJECTED) { // notification for rejected request
         let notification = await db.Notification.create({
           userId: updatedRequest.requesterUserId,
@@ -735,6 +739,21 @@ module.exports = {
         status: true
       }, { where: { id: questionId }, transaction: t })
       const updatedQuestion = await db.UserQuestionAnswer.findOne({ where: { id: questionId } })
+      console.log(updatedQuestion.askingUserId,updatedQuestion.askedUserId, "Asking user answer")
+
+      let _answerRequest = await db.ExtraInfoRequest.findOne({
+        where: {
+          [Op.or]: [
+            { requesterUserId:updatedQuestion.askingUserId, requesteeUserId:updatedQuestion.askedUserId },
+            { requesterUserId: updatedQuestion.askingUserId, requesteeUserId: updatedQuestion.askedUserId },
+          ],
+        },
+        include: {
+          model: db.UserQuestionAnswer
+        },
+        order: [['id', 'DESC']]
+      })
+
       // send notification
       let notification = await db.Notification.create({
         userId: updatedQuestion.askingUserId,
@@ -750,8 +769,11 @@ module.exports = {
         const { fcmToken } = await db.User.findOne({ where: { id: updatedQuestion.askingUserId }, attributes: ['fcmToken'] })
         pushNotification.sendNotificationSingle(fcmToken, notificationType.QUESTION_ANSWERED, notificationType.QUESTION_ANSWERED)
       }
+
+    
+
       // sending answer on socket
-      socketFunctions.transmitDataOnRealtime(socketEvents.ANSWER_RECEIVED, updatedQuestion.askingUserId, updatedQuestion)
+      socketFunctions.transmitDataOnRealtime(socketEvents.ANSWER_RECEIVED, updatedQuestion.askingUserId, _answerRequest)
       // sending notification on socket
       notification = JSON.parse(JSON.stringify(notification))
       const userNameAndCode = await common.getUserAttributes(notification.resourceId, ['id', 'username', 'code'])
