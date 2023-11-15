@@ -674,7 +674,7 @@ module.exports = {
         where: {
           [Op.or]: [
             { requesterUserId, requesteeUserId },
-            { requesterUserId: requesterUserId, requesteeUserId: requesteeUserId },
+            { requesterUserId: requesteeUserId, requesteeUserId: requesterUserId },
           ],
         },
         include: {
@@ -685,8 +685,15 @@ module.exports = {
 
 
 
+      let user = await db.User.findOne({
+        where:{
+          id:requesterUserId
+        }
+      })
+      
+
       // sending extra info request and question on socket
-      const socketData = { extraInfoRequest: _extraInfoRequest }
+      const socketData = { extraInfoRequest: _extraInfoRequest, user:{username: user?.dataValues?.username, userId: user?.dataValues?.id}} 
       socketFunctions.transmitDataOnRealtime(socketEvents.QUESTION_RECEIVED, requesteeUserId, socketData)
       // sending notification on socket
       notification = JSON.parse(JSON.stringify(notification))
