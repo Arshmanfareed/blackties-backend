@@ -202,6 +202,15 @@ module.exports = {
     }
     return responseFunctions._200(res, data, 'Answer submitted successfully')
   },
+  cancelQuestion: async (req, res) => {
+    const { body, user, params } = req
+    const { id: requestId } = params
+    const [err, data] = await to(userService.cancelQuestion(requestId))
+    if (err) {
+      return responseFunctions._400(res, err.message)
+    }
+    return responseFunctions._200(res, data, 'Request responded successfully')
+  },
   addSeenToUserProfile: async (req, res) => {
     const { id: viewerId } = req.user
     const { id: viewedId } = req.params
