@@ -495,6 +495,37 @@ router.patch('/request/extra-info/:id/accept-reject', auth, userController.accep
 
 /**
  * @swagger
+ * /user/request/extra-info/question/{id}/cancel:
+ *   patch:
+ *     summary: Cancel extra info request question
+ *     consumes:
+ *      - application/json
+ *     produces:
+ *      - application/json
+ *     tags:
+ *     - User
+ *     parameters:
+ *     - name: x-auth-token
+ *       in: header
+ *       required: true
+ *       type: string
+ *       description: an authorization header
+ *     - name: id
+ *       in: path
+ *       required: true
+ *       type: string
+ *       description: Id of the extra info request question 
+ *     operationId: cancelQuestion
+ *     deprecated: false
+ *     responses:
+ *       '200':
+ *         description: ''
+ *         headers: {}
+ */
+router.patch('/request/extra-info/question/:id/cancel', auth, userController.cancelQuestion)
+
+/**
+ * @swagger
  * /user/extra-info/question/{id}/answer:
  *   post:
  *     summary: Answer to the question

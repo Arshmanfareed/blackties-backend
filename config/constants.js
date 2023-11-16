@@ -67,6 +67,7 @@ module.exports = {
     PICTURE_REQUEST: 'picture-request',
     QUESTION_RECEIVED: 'question-received',
     ANSWER_RECEIVED: 'answer-received',
+    QUESTION_CANCELED: 'question-canceled',
     CONTACT_DETAILS_REQUEST: 'contact-details-request',
     CONTACT_DETAILS_SENT: 'contact-details-sent',
     CONTACT_DETAILS_RESPOND: 'contact-details-respond',
