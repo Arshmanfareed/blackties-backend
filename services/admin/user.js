@@ -11,7 +11,7 @@ module.exports = {
     const usernameOrCodeQuery = usernameOrCode ? `%${usernameOrCode}%` : "%%";
     const whereOnUser = {
       role: roles.USER,
-      status: queryStatus || status.ACTIVE,
+      // status: queryStatus,
       [Op.or]: {
         username: { [Op.like]: usernameOrCodeQuery },
         code: { [Op.like]: usernameOrCodeQuery },
@@ -154,7 +154,7 @@ module.exports = {
   },
   getUserDetails: async (userId) => {
     const dateBefore90DayFromToday = moment().subtract(90, 'days').format('YYYY-MM-DD HH:mm:ss');
-    return db.User.findOne({
+    const user = await db.User.findOne({
       where: { id: userId },
       attributes: [
         'id',
@@ -186,8 +186,32 @@ module.exports = {
         {
           model: db.LockedDescription,
         },
+        {
+          model: db.BlockedUser,
+          as:"blockedUser",
+          include:[
+            {
+              model: db.BlockReason
+            }
+          ]
+        }
+        
       ],
     })
+
+    const blockedUser = await db.BlockedUser.findAll({
+      where:{blockedUserId: userId},
+      include:[
+        {
+          model:db.BlockReason
+        }
+      ]
+    })
+    let data = user;
+   console.log({...data}, "Type of data details")
+    
+    return data
+
   },
   getCounters: async () => {
     const accountsCreated = await db.Profile.count({
