@@ -30,6 +30,91 @@ const auth = require('../../middlewares/auth')
  *       required: false
  *       type: string
  *       description: ACTIVE for active user DEACTIVATED for deactivated users SUSPENDED for suspended users
+ *     - name: gender
+ *       in: query
+ *       required: false
+ *       type: string
+ *       description: male or female
+ *     - name: memberShipStatus
+ *       in: query
+ *       required: false
+ *       type: string
+ *       description: Gold, Regular or Silver
+ *     - name: nationality
+ *       in: query
+ *       required: false
+ *       type: string
+ *       description: Nationality
+ *     - name: country
+ *       in: query
+ *       required: false
+ *       type: string
+ *       description: Country
+ *     - name: city
+ *       in: query
+ *       required: false
+ *       type: string
+ *       description: City
+ *     - name: age
+ *       in: query
+ *       required: false
+ *       type: string
+ *       description: Age
+ *     - name: height
+ *       in: query
+ *       required: false
+ *       type: number
+ *       description: Height
+ *     - name: weight
+ *       in: query
+ *       required: false
+ *       type: number
+ *       description: Weight
+ *     - name: religiousity
+ *       in: query
+ *       required: false
+ *       type: string
+ *       description: Religiousity
+ *     - name: work
+ *       in: query
+ *       required: false
+ *       type: string
+ *       description: Work
+ *     - name: education
+ *       in: query
+ *       required: false
+ *       type: string
+ *       description: Education
+ *     - name: ethnicity
+ *       in: query
+ *       required: false
+ *       type: string
+ *       description: Ethnicity
+ *     - name: tribalAffiliation
+ *       in: query
+ *       required: false
+ *       type: string
+ *       description: Tribal affiliation
+ *     - name: tribe
+ *       in: query
+ *       required: false
+ *       type: string
+ *       description: Tribe
+ *     - name: financialStatus
+ *       in: query
+ *       required: false
+ *       type: string
+ *       description: Financial Status
+ *     - name: healthStatus
+ *       in: query
+ *       required: false
+ *       type: string
+ *       description: Health Status
+ *     - name: language
+ *       in: query
+ *       required: false
+ *       type: string
+ *       description: Default app language
  *     - name: limit
  *       in: query
  *       required: false
