@@ -10,6 +10,7 @@ module.exports = {
         duration: 365, // days
         price: 240,
         status: true,
+        currency:'usd',
         createdAt: new Date(),
         updatedAt: new Date()
       },
@@ -20,6 +21,7 @@ module.exports = {
         duration: 90, // days
         price: 90,
         status: true,
+        currency:'usd',
         createdAt: new Date(),
         updatedAt: new Date()
       },
@@ -30,6 +32,7 @@ module.exports = {
         duration: 30, // days
         price: 40,
         status: true,
+        currency:'usd',
         createdAt: new Date(),
         updatedAt: new Date()
       },
@@ -40,6 +43,7 @@ module.exports = {
         duration: 365, // days
         price: 120,
         status: true,
+        currency:'usd',
         createdAt: new Date(),
         updatedAt: new Date()
       },
@@ -50,6 +54,7 @@ module.exports = {
         duration: 90, // days
         price: 60,
         status: true,
+        currency:'usd',
         createdAt: new Date(),
         updatedAt: new Date()
       },
@@ -60,6 +65,40 @@ module.exports = {
         duration: 30, // days
         price: 30,
         status: true,
+        currency:'usd',
+        createdAt: new Date(),
+        updatedAt: new Date()
+      },
+      {
+        productId: 'price_1NiKokC4S2tXm16mCpS4Fq0E',
+        name: 'Silver',
+        gender: 'male',
+        duration: 365, // days
+        price: 450,
+        status: true,
+        currency:'sar',
+        createdAt: new Date(),
+        updatedAt: new Date()
+      },
+      {
+        productId: 'plan_P3VEcHzyDO2Mah',
+        name: 'Silver',
+        gender: 'male',
+        duration: 90, // days
+        price: 75,
+        status: true,
+        currency:'sar',
+        createdAt: new Date(),
+        updatedAt: new Date()
+      },
+      {
+        productId: 'plan_P3VEyKKREI5w9x',
+        name: 'Silver',
+        gender: 'male',
+        duration: 30, // days
+        price: 113,
+        status: true,
+        currency:'sar',
         createdAt: new Date(),
         updatedAt: new Date()
       },
@@ -70,6 +109,7 @@ module.exports = {
         duration: 365, // days
         price: 84,
         status: true,
+        currency:'usd',
         createdAt: new Date(),
         updatedAt: new Date()
       },
@@ -80,6 +120,7 @@ module.exports = {
         duration: 90, // days
         price: 39,
         status: true,
+        currency:'usd',
         createdAt: new Date(),
         updatedAt: new Date()
       },
@@ -90,6 +131,7 @@ module.exports = {
         duration: 30, // days
         price: 20,
         status: true,
+        currency:'usd',
         createdAt: new Date(),
         updatedAt: new Date()
       },
@@ -100,6 +142,7 @@ module.exports = {
         duration: null, // days
         price: null,
         status: true,
+        currency:'usd',
         createdAt: new Date(),
         updatedAt: new Date()
       },
@@ -107,6 +150,7 @@ module.exports = {
         productId: null,
         name: 'Regular',
         gender: 'female',
+        currency:'usd',
         duration: null, // days
         price: null,
         status: true,

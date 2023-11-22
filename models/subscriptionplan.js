@@ -22,7 +22,8 @@ module.exports = (sequelize, DataTypes) => {
     gender: DataTypes.STRING,
     duration: DataTypes.INTEGER,
     price: DataTypes.INTEGER,
-    status: DataTypes.BOOLEAN
+    status: DataTypes.BOOLEAN,
+    currency: DataTypes.STRING
   }, {
     sequelize,
     modelName: 'SubscriptionPlan',

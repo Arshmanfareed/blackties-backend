@@ -27,6 +27,9 @@ module.exports = {
       status: {
         type: Sequelize.BOOLEAN
       },
+      currency: {
+        type: Sequelize.STRING(10)
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE
