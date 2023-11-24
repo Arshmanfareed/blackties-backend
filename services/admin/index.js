@@ -10,4 +10,5 @@ module.exports = {
   editUsername: require('./user').editUsername,
   getUserDetails: require('./user').getUserDetails,
   getCounters: require('./user').getCounters,
+  listAllUsers: require('./user').listAllUsers
 }

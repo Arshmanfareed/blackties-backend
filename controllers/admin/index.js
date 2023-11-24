@@ -12,6 +12,15 @@ module.exports = {
     }
     return responseFunctions._200(res, data, 'Data fetched successfully')
   },
+  listAllUsers: async (req, res) => {
+    const { body } = req
+    const { limit, offset } = req.query
+    const [err, data] = await to(adminService.listAllUsers(body, {limit: limit ? limit : 10, offset: offset ? offset : 0}))
+    if (err) {
+      return responseFunctions._400(res, err.message)
+    }
+    return responseFunctions._200(res, data, 'Data fetched successfully')
+  },
   suspendUser: async (req, res) => {
     const { body, params } = req
     const { id: userId } = params

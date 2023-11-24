@@ -42,7 +42,7 @@ module.exports = {
 
     let whereOnUserProfile = {}
     if (gender) {
-      whereOnUserProfile['sex'] = gender
+      whereOnUserProfile['sex'] = ['female']
     }
     if (nationality) {
       whereOnUserProfile['nationality'] = nationality
@@ -147,6 +147,184 @@ module.exports = {
       },
       where: whereOnUser,
       include: includeTables,
+    })
+    return { count, users }
+  },
+  listAllUsers: async (body, query) => {
+    const {
+      search,
+      status: queryStatus,
+      usernameOrCode,
+      gender,
+      age,
+      memberShipStatus,
+      nationality,
+      country,
+      city,
+      height,
+      weight,
+      religiousity,
+      work,
+      education,
+      ethnicity,
+      tribe,
+      financialStatus,
+      healthStatus,
+      language,
+    } = body
+
+    const {limit, offset} = query
+
+    console.log(language, tribe)
+
+    const usernameOrCodeQuery = usernameOrCode ? `%${usernameOrCode}%` : '%%'
+    let whereOnUser = {
+      role: roles.USER,
+      [Op.or]: {
+        username: { [Op.like]: usernameOrCodeQuery },
+        code: { [Op.like]: usernameOrCodeQuery },
+      },
+    }
+
+    // User profile where clause
+
+    let whereOnUserProfile = {}
+    if (gender) {
+      whereOnUserProfile['sex'] = gender
+    }
+    if (nationality) {
+      whereOnUserProfile['nationality'] = nationality
+    }
+    if (country) {
+      whereOnUserProfile['country'] = country
+    }
+    if (city) {
+      whereOnUserProfile['city'] = city
+    }
+    if (height) {
+      whereOnUserProfile['height'] = {
+        [Op.between]: [height[0], height[1]],
+      }
+    }
+    if (weight) {
+      whereOnUserProfile['weight'] = {
+        [Op.between]: [weight[0], weight[1]],
+      }
+    }
+    if (religiousity) {
+      whereOnUserProfile['religiousity'] = religiousity
+    }
+    if (work) {
+      whereOnUserProfile['work'] = work
+    }
+    if (education) {
+      whereOnUserProfile['education'] = education
+    }
+    if (ethnicity) {
+      whereOnUserProfile['ethnicity'] = ethnicity
+    }
+    if (tribe) {
+      whereOnUserProfile['tribe'] = tribe
+    }
+    if (financialStatus) {
+      whereOnUserProfile['financialStatus'] = financialStatus
+    }
+    if (healthStatus) {
+      whereOnUserProfile['healthStatus'] = healthStatus
+    }
+
+    // User setting where clause
+
+    let whereOnUserSettings = {}
+    if (memberShipStatus) {
+      whereOnUserSettings['membership'] = memberShipStatus
+    }
+    if (language) {
+      whereOnUserSettings['language'] = language
+    }
+
+    // User where clause
+
+    if (queryStatus) {
+      whereOnUser['status'] = queryStatus
+    }
+
+    const includeTables = [
+      {
+        model: db.BlockedUser,
+        as: 'blockedUser',
+      },
+      {
+        model: db.UserSetting,
+        as: 'UserSetting',
+      },
+      {
+        model: db.Profile,
+        as: 'Profile',
+      },
+    ]
+    if (Object.keys(whereOnUserProfile).length > 0) {
+      includeTables.filter((el) => el.as === 'Profile')[0].where =
+        whereOnUserProfile
+    }
+    if (Object.keys(whereOnUserSettings).length > 0) {
+      includeTables.filter((el) => el.as === 'UserSetting')[0].where =
+        whereOnUserSettings
+    }
+    switch (queryStatus) {
+      case status.DEACTIVATED:
+        includeTables.push({
+          model: db.DeactivatedUser,
+          attributes: ['reason', 'feedback', 'createdAt'],
+        })
+        break
+      case status.SUSPENDED:
+        includeTables.push({
+          model: db.SuspendedUser,
+        })
+        break
+      default:
+        break
+    }
+    const today = new Date()
+
+    const userAttributesToSelect = [
+      'id',
+      'email',
+      'username',
+      'status',
+      'createdAt',
+      'code',
+      [
+        Sequelize.literal(
+          `TIMESTAMPDIFF(YEAR, dateOfBirth, '${today.toISOString()}')`
+        ),
+        'age',
+      ],
+    ]
+
+    const count = await db.User.count({
+      include: includeTables,
+      where: whereOnUser,
+      distinct: true,
+    })
+    const users = await db.User.findAll({
+      limit: Number(limit) || 10,
+      offset: Number(offset) || 0,
+      attributes: {
+        exclude: ['password', 'otp', 'otpExpiry', 'tempEmail', 'socketId'],
+      },
+      where: whereOnUser,
+      include: includeTables,
+      attributes: userAttributesToSelect,
+      having: age
+        ? {
+            age: {
+              [Op.gte]: age[0],
+              [Op.lte]: age[1],
+            },
+          }
+        : {},
     })
     return { count, users }
   },

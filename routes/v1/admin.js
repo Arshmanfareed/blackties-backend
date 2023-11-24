@@ -136,6 +136,119 @@ router.get('/users', auth, isAdmin, adminController.getUsers)
 
 /**
  * @swagger
+ * /admin/users:
+ *   post:
+ *     summary: List All users based on filters
+ *     consumes:
+ *      - application/json
+ *     produces:
+ *      - application/json
+ *     parameters:
+ *     - name: x-auth-token
+ *       in: header
+ *       required: true
+ *       type: string
+ *       description: an authorization header
+ *     - name: limit
+ *       in: query
+ *       required: false
+ *       type: number
+ *       description: Limit
+ *     - name: offset
+ *       in: query
+ *       required: false
+ *       type: number
+ *       description: Offset
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               usernameOrCode:
+ *                 type: string
+ *               status:
+ *                 type: string
+ *               gender:
+ *                 type: string
+ *               sortBy:
+ *                 type: string
+ *               sortOrder:
+ *                 type: string
+ *               age:
+ *                 type: array
+ *                 items:
+ *                   type: integer
+ *                 minItems: 2
+ *                 maxItems: 2
+ *                 example: [18, 80]
+ *               nationality:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *               country:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *               city:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *               height:
+ *                 type: array
+ *                 items:
+ *                   type: integer
+ *                 minItems: 2
+ *                 maxItems: 2
+ *                 example: [130, 210]
+ *               weight:
+ *                 type: array
+ *                 items:
+ *                   type: integer
+ *                 minItems: 2
+ *                 maxItems: 2
+ *                 example: [30, 200]
+ *               ethnicity:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *               healthStatus:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *               language:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *               religiosity:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *               tribe:
+ *                 type: string
+ *               education:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *               financialStatus:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *     tags:
+ *     - Admin
+ *     operationId: listAllUsers
+ *     deprecated: false
+ *     responses:
+ *       '200':
+ *         description: ''
+ *         headers: {}
+ */
+router.post('/users', auth, isAdmin, adminController.listAllUsers)
+
+
+/**
+ * @swagger
  * /admin/user/{id}/suspend:
  *   post:
  *     summary: Suspend a user for 1,3 6 months or indefinitely
