@@ -86,31 +86,7 @@ module.exports = {
     const { productId } = body
     console.log(productId, "Product ID")
 
-    // const plan1 = await stripe.plans.create({
-    //   amount: 11300,
-    //   currency: 'SAR',
-    //   interval: 'month',
-    //   product: 'prod_Nv3mQyUTd3zGu1',
-    //   interval_count:1
-    // });
-    // const plan2 = await stripe.plans.create({
-    //   amount: 22500,
-    //   currency: 'SAR',
-    //   interval: 'month',
-    //   product: 'prod_Nv3mG2N9h0d62Y',
-    //   interval_count:3
-    // });
-    // const plan3 = await stripe.plans.create({
-    //   amount: 45000,
-    //   currency: 'SAR',
-    //   interval: 'month',
-    //   product: 'prod_Nv3mPaXKf09HuO',
-    //   interval_count:3
-    // });
-
-    // console.log(plan1, "Plan One month SAR")
-    // console.log(plan2, "Plan Three month SAR")
-    // console.log(plan3, "Plan Year SAR")
+   
 
     const payload = {
       line_items: [
@@ -127,15 +103,9 @@ module.exports = {
         type: constants.paymentType.SUBSCRIPTION
       },
     }
-    const plans = await stipeUtils.getAllPlans({limit:30})
-    console.log(plans, "PLans")
-    // if(plans){
-    //   const product = await stipeUtils.getProduct(plans.product)
-    //   console.log(product, "Product with stripe")
-    // }
-
-    // const session = await stipeUtils.createCheckoutSession(payload, hostAddress)
-    return { sessionUrl: '' }
+    
+    const session = await stipeUtils.createCheckoutSession(payload, hostAddress)
+    return { sessionUrl: session?.url}
   },
   purchaseIndividualFeature: async (userId, featureId) => {
     const t = await db.sequelize.transaction()
