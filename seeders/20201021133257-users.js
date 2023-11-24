@@ -42,74 +42,74 @@ module.exports = {
     )
     console.log("usersCreated => ", usersCreated)
     // creating user Profiles
-    for (let user of usersCreated) {
-      await queryInterface.bulkInsert(
-        'Profiles',
-        [
-          {
-            userId: user.id, 
-            sex: "Male", 
-            dateOfBirth: "2001-02-03", 
-            height: 160, 
-            weight: 150, 
-            country: "Pakistan", 
-            city: "Karachi", 
-            nationality: "Pakistani", 
-            religiosity: "Religious", 
-            education: "Bachelors", 
-            skinColor: "White", 
-            ethnicity: "Persian", 
-            maritalStatus: "Single",
-            createdAt: new Date(),
-            updatedAt: new Date(),
-          },
-        ],
-        {}
-      )
-      await queryInterface.bulkInsert(
-        'UserLanguages',
-        [
-          {
-            userId: user.id,
-            language: "English",
-            createdAt: new Date(),
-            updatedAt: new Date(),
-          },
-          {
-            userId: user.id,
-            language: "Urdu",
-            createdAt: new Date(),
-            updatedAt: new Date(),
-          },
-        ],
-        {}
-      )
-      await queryInterface.bulkInsert(
-        'Wallet',
-        [
-          {
-            userId: user.id,
-            amount: 0,
-            createdAt: new Date(),
-            updatedAt: new Date(),
-          },
-        ],
-        {}
-      )
-      await queryInterface.bulkInsert(
-        'UserSetting',
-        [
-          {
-            userId: user.id,
-            isNotificationEnabled: true, 
-            isPremium: false,
-            createdAt: new Date(),
-            updatedAt: new Date(),
-          },
-        ],
-        {}
-      )
-    }
+    // for (let user of usersCreated) {
+    //   await queryInterface.bulkInsert(
+    //     'Profiles',
+    //     [
+    //       {
+    //         userId: user.id, 
+    //         sex: "Male", 
+    //         dateOfBirth: "2001-02-03", 
+    //         height: 160, 
+    //         weight: 150, 
+    //         country: "Pakistan", 
+    //         city: "Karachi", 
+    //         nationality: "Pakistani", 
+    //         religiosity: "Religious", 
+    //         education: "Bachelors", 
+    //         skinColor: "White", 
+    //         ethnicity: "Persian", 
+    //         maritalStatus: "Single",
+    //         createdAt: new Date(),
+    //         updatedAt: new Date(),
+    //       },
+    //     ],
+    //     {}
+    //   )
+    //   await queryInterface.bulkInsert(
+    //     'UserLanguages',
+    //     [
+    //       {
+    //         userId: user.id,
+    //         language: "English",
+    //         createdAt: new Date(),
+    //         updatedAt: new Date(),
+    //       },
+    //       {
+    //         userId: user.id,
+    //         language: "Urdu",
+    //         createdAt: new Date(),
+    //         updatedAt: new Date(),
+    //       },
+    //     ],
+    //     {}
+    //   )
+    //   await queryInterface.bulkInsert(
+    //     'Wallet',
+    //     [
+    //       {
+    //         userId: user.id,
+    //         amount: 0,
+    //         createdAt: new Date(),
+    //         updatedAt: new Date(),
+    //       },
+    //     ],
+    //     {}
+    //   )
+    //   await queryInterface.bulkInsert(
+    //     'UserSetting',
+    //     [
+    //       {
+    //         userId: user.id,
+    //         isNotificationEnabled: true, 
+    //         isPremium: false,
+    //         createdAt: new Date(),
+    //         updatedAt: new Date(),
+    //       },
+    //     ],
+    //     {}
+    //   )
+    // }
   },
 
   down: async (queryInterface, Sequelize) => {
