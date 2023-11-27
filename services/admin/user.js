@@ -182,12 +182,12 @@ module.exports = {
       role: roles.USER,
       [Op.and]: date && date.length > 0 ? [
         db.Sequelize.where(
-          db.Sequelize.fn('date', db.Sequelize.col('createdAt')),
+          db.Sequelize.fn('date', db.Sequelize.col('User.createdAt')),
           '>=',
           date
         ),
         db.Sequelize.where(
-          db.Sequelize.fn('date', db.Sequelize.col('createdAt')),
+          db.Sequelize.fn('date', db.Sequelize.col('User.createdAt')),
           '<=',
           date
         ),
@@ -280,17 +280,20 @@ module.exports = {
       {
         model: db.BlockedUser,
         as: 'blockedUser',
+       
       },
       {
         model: db.UserSetting,
         as: 'UserSetting',
+       
       },
       {
         model: db.Profile,
         as: 'Profile',
+       
       },
     ]
-    if (Object.keys(whereOnUserProfile).length > 0) {
+    if (Object.keys(whereOnUserProfile).length > 0 || (age && age.length > 0)) {
       includeTables.filter((el) => el.as === 'Profile')[0].where =
         whereOnUserProfile
     }
@@ -322,16 +325,17 @@ module.exports = {
       'status',
       'createdAt',
       'code',
-    ]
-
-    if (age && age.length > 0) {
-      userAttributesToSelect.push([
+      [
         Sequelize.literal(
           `TIMESTAMPDIFF(YEAR, dateOfBirth, '${today.toISOString()}')`
         ),
         'age',
-      ])
-    }
+      ]
+    ]
+
+    // if (age && age.length > 0) {
+    //   userAttributesToSelect.push()
+    // }
 
     const count = await db.User.count({
       // include: includeTables,
