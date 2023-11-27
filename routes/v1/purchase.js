@@ -71,6 +71,8 @@ router.get('/stripe-cancel', purchaseController.cancelStripePurchase)
  *             properties:
  *               productId:
  *                 type: string
+ *               currency:
+ *                 type: string
  *     tags:
  *     - Purchase
  *     operationId: purchasePremiumPlan

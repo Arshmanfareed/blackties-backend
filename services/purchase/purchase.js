@@ -3,6 +3,7 @@ const constants = require('../../config/constants')
 const stipeUtils = require('../../utils/stripe')
 const moment = require('moment')
 const helperFunctions = require('../../helpers')
+const { stripe } = require('../../config/stripe')
 
 module.exports = {
   createStripePurchaseLink: async (body, hostAddress, userId) => {
@@ -83,6 +84,10 @@ module.exports = {
   },
   buyPremiumMembership: async (body, hostAddress, userId) => {
     const { productId } = body
+    console.log(productId, "Product ID")
+
+   
+
     const payload = {
       line_items: [
         {
@@ -98,8 +103,9 @@ module.exports = {
         type: constants.paymentType.SUBSCRIPTION
       },
     }
+    
     const session = await stipeUtils.createCheckoutSession(payload, hostAddress)
-    return { sessionUrl: session.url }
+    return { sessionUrl: session?.url}
   },
   purchaseIndividualFeature: async (userId, featureId) => {
     const t = await db.sequelize.transaction()
