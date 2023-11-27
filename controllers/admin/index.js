@@ -14,8 +14,8 @@ module.exports = {
   },
   listAllUsers: async (req, res) => {
     const { body } = req
-    const { limit, offset } = req.query
-    const [err, data] = await to(adminService.listAllUsers(body, {limit: limit ? limit : 10, offset: offset ? offset : 0}))
+    const { limit, offset, date } = req.query
+    const [err, data] = await to(adminService.listAllUsers(body, {limit: limit ? limit : 10, offset: offset ? offset : 0, date}))
     if (err) {
       return responseFunctions._400(res, err.message)
     }

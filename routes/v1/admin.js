@@ -159,6 +159,11 @@ router.get('/users', auth, isAdmin, adminController.getUsers)
  *       required: false
  *       type: number
  *       description: Offset
+ *     - name: date
+ *       in: query
+ *       required: false
+ *       type: string
+ *       description: Date of registeration
  *     requestBody:
  *       required: true
  *       content:

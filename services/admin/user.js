@@ -173,79 +173,106 @@ module.exports = {
       language,
     } = body
 
-    const {limit, offset} = query
+    const { limit, offset, date } = query
 
     console.log(language, tribe)
 
     const usernameOrCodeQuery = usernameOrCode ? `%${usernameOrCode}%` : '%%'
     let whereOnUser = {
       role: roles.USER,
+      [Op.and]: date && date.length > 0 ? [
+        db.Sequelize.where(
+          db.Sequelize.fn('date', db.Sequelize.col('createdAt')),
+          '>=',
+          date
+        ),
+        db.Sequelize.where(
+          db.Sequelize.fn('date', db.Sequelize.col('createdAt')),
+          '<=',
+          date
+        ),
+      ] : [],
       [Op.or]: {
         username: { [Op.like]: usernameOrCodeQuery },
         code: { [Op.like]: usernameOrCodeQuery },
       },
     }
 
+    // if (date && date.length > 0) {
+    //   whereOnUser[] = [
+    //     db.Sequelize.where(
+    //       db.Sequelize.fn('date', db.Sequelize.col('createdAt')),
+    //       '>=',
+    //       date
+    //     ),
+    //     db.Sequelize.where(
+    //       db.Sequelize.fn('date', db.Sequelize.col('createdAt')),
+    //       '<=',
+    //       date
+    //     ),
+    //   ]
+    // }
+
     // User profile where clause
 
     let whereOnUserProfile = {}
-    if (gender) {
+    if (gender && gender.length > 0) {
       whereOnUserProfile['sex'] = gender
     }
-    if (nationality) {
+    if (nationality && nationality.length > 0) {
       whereOnUserProfile['nationality'] = nationality
     }
-    if (country) {
+    if (country && country.length > 0) {
       whereOnUserProfile['country'] = country
     }
-    if (city) {
+    if (city && city.length > 0) {
       whereOnUserProfile['city'] = city
     }
-    if (height) {
+    if (height && height.length > 0) {
       whereOnUserProfile['height'] = {
         [Op.between]: [height[0], height[1]],
       }
     }
-    if (weight) {
+    if (weight && weight.length > 0) {
       whereOnUserProfile['weight'] = {
         [Op.between]: [weight[0], weight[1]],
       }
     }
-    if (religiousity) {
+    if (religiousity && religiousity.length > 0) {
       whereOnUserProfile['religiousity'] = religiousity
     }
-    if (work) {
+    if (work && work.length > 0) {
       whereOnUserProfile['work'] = work
     }
-    if (education) {
+    if (education && education.length > 0) {
       whereOnUserProfile['education'] = education
     }
-    if (ethnicity) {
+    if (ethnicity && ethnicity.length > 0) {
       whereOnUserProfile['ethnicity'] = ethnicity
     }
-    if (tribe) {
+    if (tribe && tribe.length > 0) {
       whereOnUserProfile['tribe'] = tribe
     }
-    if (financialStatus) {
+    if (financialStatus && financialStatus.length > 0) {
       whereOnUserProfile['financialStatus'] = financialStatus
     }
-    if (healthStatus) {
+    if (healthStatus && healthStatus.length > 0) {
       whereOnUserProfile['healthStatus'] = healthStatus
     }
 
     // User setting where clause
 
     let whereOnUserSettings = {}
-    if (memberShipStatus) {
+    if (memberShipStatus && memberShipStatus.length > 0) {
       whereOnUserSettings['membership'] = memberShipStatus
     }
-    if (language) {
+    if (language && language.length > 0) {
       whereOnUserSettings['language'] = language
     }
 
     // User where clause
 
-    if (queryStatus) {
+    if (queryStatus && queryStatus.length > 0) {
       whereOnUser['status'] = queryStatus
     }
 
@@ -288,23 +315,26 @@ module.exports = {
     }
     const today = new Date()
 
-    const userAttributesToSelect = [
+    let userAttributesToSelect = [
       'id',
       'email',
       'username',
       'status',
       'createdAt',
       'code',
-      [
+    ]
+
+    if (age && age.length > 0) {
+      userAttributesToSelect.push([
         Sequelize.literal(
           `TIMESTAMPDIFF(YEAR, dateOfBirth, '${today.toISOString()}')`
         ),
         'age',
-      ],
-    ]
+      ])
+    }
 
     const count = await db.User.count({
-      include: includeTables,
+      // include: includeTables,
       where: whereOnUser,
       distinct: true,
     })
@@ -317,14 +347,15 @@ module.exports = {
       where: whereOnUser,
       include: includeTables,
       attributes: userAttributesToSelect,
-      having: age
-        ? {
-            age: {
-              [Op.gte]: age[0],
-              [Op.lte]: age[1],
-            },
-          }
-        : {},
+      having:
+        age && age.length > 0
+          ? {
+              age: {
+                [Op.gte]: age[0],
+                [Op.lte]: age[1],
+              },
+            }
+          : {},
     })
     return { count, users }
   },
