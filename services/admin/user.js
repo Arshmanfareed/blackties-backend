@@ -338,7 +338,7 @@ module.exports = {
     // }
 
     const count = await db.User.count({
-      // include: includeTables,
+      include: date && date.length > 0 ? [] : includeTables,
       where: whereOnUser,
       distinct: true,
     })
