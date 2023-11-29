@@ -136,7 +136,7 @@ router.get('/users', auth, isAdmin, adminController.getUsers)
 
 /**
  * @swagger
- * /admin/users:
+ * /admin/users/list:
  *   post:
  *     summary: List All users based on filters
  *     consumes:
@@ -249,7 +249,7 @@ router.get('/users', auth, isAdmin, adminController.getUsers)
  *         description: ''
  *         headers: {}
  */
-router.post('/users', auth, isAdmin, adminController.listAllUsers)
+router.post('/users/list', auth, isAdmin, adminController.listAllUsers)
 
 
 /**
