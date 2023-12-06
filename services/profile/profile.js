@@ -333,7 +333,7 @@ module.exports = {
       },
       {
         model: db.UserSetting,
-        attributes: ['isPremium', 'membership']
+        attributes: ['isPremium', 'membership','lastSeen']
       },
     ]
     if (loginUserId) {
