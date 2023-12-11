@@ -45,6 +45,7 @@ module.exports = {
       'status',
       'createdAt',
       'code',
+      'isOnline',
       [Sequelize.literal(`TIMESTAMPDIFF(YEAR, dateOfBirth, '${today.toISOString()}')`), 'age'],
     ]
     const includeTables = [
@@ -90,6 +91,7 @@ module.exports = {
           code: { [Op.like]: usernameOrCodeQuery },
         },
       },
+      
       attributes: userAttributesToSelect,
       include: includeTables,
       having: {
@@ -99,8 +101,9 @@ module.exports = {
         }
       },
       order: [
+        ['isOnline', 'DESC'],
         sortOrderQuery
-      ]
+      ],
     })
     const paginatedRecords = getPaginatedResult(users, limit, offset)
     return { count: users.length, rows: paginatedRecords }
