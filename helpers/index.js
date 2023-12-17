@@ -51,6 +51,17 @@ const helperFunctions = {
         status: 1
       }
     })
+    const userMatch = await db.Match.findOne({
+      where: {
+        [Op.or]: [
+          { otherUserId: userId }, // either match b/w user1 or user2
+          { userId: userId }, // either match b/w user1 or user2
+         
+        ],
+        isCancelled: 0
+        
+      }
+    })
     let user = await db.User.findOne({
       where: { id: userId },
       include: [
@@ -70,8 +81,11 @@ const helperFunctions = {
         }
       ]
     })
+
+    
     user = JSON.parse(JSON.stringify(user))
     user['userFeatures'] = userFeatures
+    user['userMatch'] = userMatch
     return user
   },
   createUserFeature: async (userId, featureId, featureType, validityType, expiryDate, remaining, t) => {

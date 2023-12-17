@@ -448,14 +448,27 @@ module.exports = {
       },
       order: [['id', 'DESC']]
     })
+    userMatch = db.Match.findOne({
+      where: {
+        [Op.or]: [
+          { otherUserId: otherUserId }, // either match b/w user1 or user2
+          { userId: otherUserId }, // either match b/w user1 or user2
+         
+        ],
+        isCancelled: 0
+        
+      }
+    })
+
     const promiseResolved = await Promise.all([
       extraInfoRequest,
       pictureRequest,
       contactDetailsRequest,
-      pendingContactDetails
+      pendingContactDetails,
+      userMatch
     ])
     ;
-    [extraInfoRequest, pictureRequest, contactDetailsRequest, pendingContactDetails] = promiseResolved
-    return { user, pictureRequest, extraInfoRequest, contactDetailsRequest, pendingContactDetails }
+    [extraInfoRequest, pictureRequest, contactDetailsRequest, pendingContactDetails, userMatch] = promiseResolved
+    return { user, pictureRequest, extraInfoRequest, contactDetailsRequest, pendingContactDetails, userMatch }
   },
 }
