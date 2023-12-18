@@ -451,8 +451,8 @@ module.exports = {
     userMatch = db.Match.findOne({
       where: {
         [Op.or]: [
-          { otherUserId: otherUserId }, // either match b/w user1 or user2
-          { userId: otherUserId }, // either match b/w user1 or user2
+          { otherUserId: otherUserId }, // either match b/w user1
+          { userId: otherUserId }, // either match b/w user2
          
         ],
         isCancelled: 0
