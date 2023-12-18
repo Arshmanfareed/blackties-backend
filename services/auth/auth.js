@@ -103,6 +103,7 @@ module.exports = {
         }
       ]
     })
+   
     if (!user) {
       throw new Error('Wrong email or password')
     }
@@ -119,6 +120,17 @@ module.exports = {
       }
       throw new Error(errorMessage)
     }
+    const userMatch = await db.Match.findOne({
+      where: {
+        [Op.or]: [
+          { otherUserId: user.id }, // either match b/w user1 or user2
+          { userId: user.id }, // either match b/w user1 or user2
+         
+        ],
+        isCancelled: 0
+        
+      }
+    })
     // update fcmToken in db
     await db.User.update({ fcmToken: fcmToken || null, lastLogin: new Date() }, { where: { id: user.id } })
     user = JSON.parse(JSON.stringify(user))
@@ -128,6 +140,7 @@ module.exports = {
     delete jwtPayload['Wallet']
     const authToken = generateJWT(jwtPayload)
     user['authToken'] = authToken
+    user['userMatch'] = userMatch
     return user
   },
   activateAccount: async (userId, code) => {
