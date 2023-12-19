@@ -7,6 +7,7 @@ const sendMail = require('../../utils/sendgrid-mail')
 const { generateJWT } = require('../../utils/generate-jwt')
 const helpers = require('../../helpers')
 const { translate } = require('../../utils/translation')
+const constants = require('../../config/constants')
 
 module.exports = {
   verifyCode: async (body) => {
@@ -73,7 +74,26 @@ module.exports = {
       const authToken = generateJWT(userCreated)
       userCreated['Wallet'] = wallet
       userCreated['UserSetting'] = userSetting
-      return { userCreated, profileCreated, JWTToken: authToken }
+
+      let userFeature = {
+        userId: userCreated.id,
+        featureId: 12,
+        featureType: constants.featureTypes.ANSWER_QUESTION,
+        status:1
+      }
+    
+      if(sex == constants.gender.MALE){
+        let date = new Date()
+        date.setDate(date.getDate() + 2);
+        userFeature['validityType'] = constants.featureValidity.DAYS
+        userFeature['expiryDate'] = date
+      }else{
+        userFeature['validityType'] = constants.featureValidity.LIFETIME
+      }
+
+      let userFeatureCreated = await db.UserFeature.create({...userFeature})
+
+      return { userCreated, profileCreated, JWTToken: authToken, userFeature: userFeatureCreated }
     } catch (error) {
       console.log(error);
       await t.rollback()
