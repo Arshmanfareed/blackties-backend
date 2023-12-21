@@ -566,6 +566,42 @@ router.post('/extra-info/question/:id/answer', auth, answerQuestion, userControl
 
 /**
  * @swagger
+ * /user/extra-information/{id}:
+ *   get:
+ *     summary: get user extra info request
+ *     consumes:
+ *      - application/json
+ *     produces:
+ *      - application/json
+ *     tags:
+ *     - User
+ *     parameters:
+ *     - name: x-auth-token
+ *       in: header
+ *       required: true
+ *       type: string
+ *       description: an authorization header
+ *     - name: loggedInUserId
+ *       in: query
+ *       required: false
+ *       type: string
+ *       description: Id of logged in user
+ *     - name: id
+ *       in: path
+ *       required: true
+ *       type: string
+ *       description: Id of the user whose extra-information you want to fetch
+ *     operationId: getUserExtraInfoRequest
+ *     deprecated: false
+ *     responses:
+ *       '200':
+ *         description: ''
+ *         headers: {}
+ */
+router.get('/extra-information/:id',auth, userController.getUserExtraInfoRequest)
+
+/**
+ * @swagger
  * /user/{id}/seen:
  *   post:
  *     summary: Add seen to user profile (Users who clicked on my card (User info popup opens) or Users who opened my User info page (through URL))
