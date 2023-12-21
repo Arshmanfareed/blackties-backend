@@ -973,7 +973,7 @@ module.exports = {
       // sending extra info request and question on socket
       const socketData = {
         extraInfoRequest: _extraInfoRequest,
-        isFirstRequest: isFirstRequest,
+        isFirstRequest: isFirstRequest ? isFirstRequest : false,
         user: {
           username: user?.dataValues?.username,
           userId: user?.dataValues?.id,
