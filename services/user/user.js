@@ -865,6 +865,10 @@ module.exports = {
         },
         order: [['id', 'DESC']],
       })
+      let isFirstRequest = null;
+      if(!extraInfoRequest){
+        isFirstRequest = true
+      }
       if (
         extraInfoRequest &&
         extraInfoRequest.requesterUserId === requesterUserId &&
@@ -969,6 +973,7 @@ module.exports = {
       // sending extra info request and question on socket
       const socketData = {
         extraInfoRequest: _extraInfoRequest,
+        isFirstRequest: isFirstRequest,
         user: {
           username: user?.dataValues?.username,
           userId: user?.dataValues?.id,
