@@ -1053,74 +1053,75 @@ module.exports = {
     console.log(requestId, 'requestId')
     const t = await db.sequelize.transaction()
     try {
-     
       const userQuestionAnswer = await db.UserQuestionAnswer.findOne({
         where: { id: requestId },
       })
       console.log(userQuestionAnswer, 'updatedRequest')
-     
-        // notification for rejected request
-        let notification = await db.Notification.create(
-          {
-            userId: userQuestionAnswer.askingUserId,
-            resourceId: userQuestionAnswer.askedUserId,
-            resourceType: 'USER',
-            notificationType: notificationType.EXTRA_INFO_REQUEST_REJECTED,
-            status: 0,
-          },
-          { transaction: t }
-        )
-        // delete question associated to this request
-        await db.UserQuestionAnswer.destroy({
-          where: { id: requestId },
-          transaction: t,
-        })
-        // sending notification on socket
-        notification = JSON.parse(JSON.stringify(notification))
-        const userNameAndCode = await common.getUserAttributes(
-          notification.resourceId,
-          ['id', 'username', 'code']
-        )
-        notification['User'] = userNameAndCode
-        await t.commit()
-        let _extraInfoRequest = await db.ExtraInfoRequest.findOne({
-          where: {
-            [Op.or]: [
-              { requesterUserId:userQuestionAnswer.askingUserId, requesteeUserId:userQuestionAnswer.askedUserId },
-              {
-                requesterUserId: userQuestionAnswer.askedUserId,
-                requesteeUserId: userQuestionAnswer.askingUserId,
-              },
-            ],
-          },
-          include: {
-            model: db.UserQuestionAnswer,
-          },
-          order: [['id', 'DESC']],
-        })
-  
-        let user = await db.User.findOne({
-          where: {
-            id: userQuestionAnswer.askedUserId,
-          },
-        })
-  
-        // sending extra info request and question on socket
-        const socketData = {
-          extraInfoRequest: _extraInfoRequest,
-          user: {
-            username: user?.dataValues?.username,
-            userId: user?.dataValues?.id,
-          },
-        }
 
-        socketFunctions.transmitDataOnRealtime(
-          socketEvents.QUESTION_CANCELED,
-          userQuestionAnswer.askedUserId,
-          socketData
-        )
-      
-      
+      // notification for rejected request
+      let notification = await db.Notification.create(
+        {
+          userId: userQuestionAnswer.askingUserId,
+          resourceId: userQuestionAnswer.askedUserId,
+          resourceType: 'USER',
+          notificationType: notificationType.EXTRA_INFO_REQUEST_REJECTED,
+          status: 0,
+        },
+        { transaction: t }
+      )
+      // delete question associated to this request
+      await db.UserQuestionAnswer.destroy({
+        where: { id: requestId },
+        transaction: t,
+      })
+      // sending notification on socket
+      notification = JSON.parse(JSON.stringify(notification))
+      const userNameAndCode = await common.getUserAttributes(
+        notification.resourceId,
+        ['id', 'username', 'code']
+      )
+      notification['User'] = userNameAndCode
+      await t.commit()
+      let _extraInfoRequest = await db.ExtraInfoRequest.findOne({
+        where: {
+          [Op.or]: [
+            {
+              requesterUserId: userQuestionAnswer.askingUserId,
+              requesteeUserId: userQuestionAnswer.askedUserId,
+            },
+            {
+              requesterUserId: userQuestionAnswer.askedUserId,
+              requesteeUserId: userQuestionAnswer.askingUserId,
+            },
+          ],
+        },
+        include: {
+          model: db.UserQuestionAnswer,
+        },
+        order: [['id', 'DESC']],
+      })
+
+      let user = await db.User.findOne({
+        where: {
+          id: userQuestionAnswer.askedUserId,
+        },
+      })
+
+      // sending extra info request and question on socket
+      const socketData = {
+        extraInfoRequest: _extraInfoRequest,
+        user: {
+          username: user?.dataValues?.username,
+          userId: user?.dataValues?.id,
+        },
+      }
+
+      socketFunctions.transmitDataOnRealtime(
+        socketEvents.QUESTION_CANCELED,
+        userQuestionAnswer.askedUserId,
+        socketData
+      )
+
       return true
     } catch (error) {
       await t.rollback()
@@ -1531,5 +1532,29 @@ module.exports = {
     const dataInString = response.Body.toString('utf8')
     const jsonData = await csvtojsonV2().fromString(dataInString)
     return jsonData
+  },
+  getUserExtraInfoRequest: async (loginUserId, otherUserId) => {
+    let extraInfoRequest = null
+
+    if (!loginUserId) {
+      return { extraInfoRequest }
+    }
+    const requestsWhereClause = {
+      [Op.or]: [
+        { requesterUserId: loginUserId, requesteeUserId: otherUserId },
+        { requesterUserId: otherUserId, requesteeUserId: loginUserId },
+      ],
+    }
+    extraInfoRequest = await db.ExtraInfoRequest.findOne({
+      where: requestsWhereClause,
+      include: {
+        model: db.UserQuestionAnswer,
+      },
+      order: [['id', 'DESC']],
+    })
+
+    // const promiseResolved = await Promise.all([extraInfoRequest]);
+    // [extraInfoRequest] = promiseResolved
+    return  extraInfoRequest 
   },
 }
