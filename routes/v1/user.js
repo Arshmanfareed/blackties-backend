@@ -119,6 +119,37 @@ router.post('/request/contact-details/:id/respond', auth, userController.respond
 
 /**
  * @swagger
+ * /user/request/contact-details/{id}/cancel:
+ *   post:
+ *     summary: Respond to the request of contact details (either accept or reject)
+ *     consumes:
+ *      - application/json
+ *     produces:
+ *      - application/json
+ *     tags:
+ *     - User
+ *     parameters:
+ *     - name: x-auth-token
+ *       in: header
+ *       required: true
+ *       type: string
+ *       description: an authorization header
+ *     - name: id
+ *       in: path
+ *       required: true
+ *       type: string
+ *       description: Id of the request of contact details
+ *     operationId: cancelContactDetails
+ *     deprecated: false
+ *     responses:
+ *       '200':
+ *         description: ''
+ *         headers: {}
+ */
+router.post('/request/contact-details/:id/cancel', auth, userController.cancelContactDetails)
+
+/**
+ * @swagger
  * /user/{id}/block:
  *   post:
  *     summary: Block a user

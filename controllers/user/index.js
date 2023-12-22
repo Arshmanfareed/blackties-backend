@@ -32,6 +32,15 @@ module.exports = {
     }
     return responseFunctions._200(res, data, 'Responded on request successfully')
   },
+  cancelContactDetails: async (req, res) => {
+    const { id: requestId } = req.params
+    
+    const [err, data] = await to(userService.cancelContactDetails(requestId))
+    if (err) {
+      return responseFunctions._400(res, err.message)
+    }
+    return responseFunctions._200(res, data, 'Responded on request successfully')
+  },
   blockUser: async (req, res) => {
     const { user, params, body } = req
     const { id: blockedUserId } = params

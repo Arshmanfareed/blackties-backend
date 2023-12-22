@@ -310,6 +310,27 @@ module.exports = {
       throw new Error(error.message)
     }
   },
+  cancelContactDetails: async (requestId) => {
+    const t = await db.sequelize.transaction()
+    try {
+      let contactDetailsRequest = await db.ContactDetailsRequest.findOne({
+        where: { id: requestId },
+      })
+      if (contactDetailsRequest.status !== requestStatus.PENDING) {
+        throw new Error("You've already responded to this request")
+      }
+      
+      
+      await db.ContactDetailsRequest.destroy({ where: { id: requestId }, transaction: t })
+      await t.commit()
+      
+      return true
+    } catch (error) {
+      console.log(error)
+      await t.rollback()
+      throw new Error(error.message)
+    }
+  },
   blockUser: async (blockerUserId, blockedUserId, reasons) => {
     const alreadyBlocked = await db.BlockedUser.findOne({
       where: { blockerUserId, blockedUserId },
