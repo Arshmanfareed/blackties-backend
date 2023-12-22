@@ -473,6 +473,15 @@ router.post('/:id/request/extra-info', auth, extraInformationRequest, userContro
  *             properties:
  *               status:
  *                 type: string
+ *               questions:
+ *                 type: array
+ *                 items:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: number
+ *                     answer:
+ *                       type: string
  *     parameters:
  *     - name: x-auth-token
  *       in: header

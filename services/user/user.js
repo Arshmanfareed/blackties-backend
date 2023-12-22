@@ -865,16 +865,21 @@ module.exports = {
         },
         order: [['id', 'DESC']],
       })
-      let isFirstRequest = null;
-      if(!extraInfoRequest){
-        isFirstRequest = true
-      }
+      
+
       if (
         extraInfoRequest &&
         extraInfoRequest.requesterUserId === requesterUserId &&
         extraInfoRequest.status === requestStatus.REJECTED
       ) {
         throw new Error('your request was previously rejected.')
+      }
+      let isFirstRequest = null
+      if (
+        !extraInfoRequest ||
+        (extraInfoRequest && extraInfoRequest?.status == requestStatus.REJECTED)
+      ) {
+        isFirstRequest = true
       }
       if (
         !extraInfoRequest ||
@@ -1002,7 +1007,7 @@ module.exports = {
       throw new Error(error.message)
     }
   },
-  acceptOrRejectExtraInfoRequest: async (requestId, status) => {
+  acceptOrRejectExtraInfoRequest: async (requestId, status, questions) => {
     console.log(requestId, 'requestId')
     const { ACCEPTED, REJECTED } = requestStatus
     const updateStatus = status === ACCEPTED ? ACCEPTED : REJECTED
@@ -1033,6 +1038,7 @@ module.exports = {
           where: { extraInfoRequestId: requestId },
           transaction: t,
         })
+        await t.commit()
         // sending notification on socket
         notification = JSON.parse(JSON.stringify(notification))
         const userNameAndCode = await common.getUserAttributes(
@@ -1045,8 +1051,114 @@ module.exports = {
           updatedRequest.requesterUserId,
           notification
         )
+      }else if(status === ACCEPTED){
+        if(!questions || questions.length == 0){
+          throw new Error('Questions should have at least one answer')
+        }
+        let questionId = questions[0].id
+        for (const question of questions) {
+          await db.UserQuestionAnswer.update(
+            {
+              answer:question.answer,
+              status: true,
+            },
+            { where: { id: question.id }, transaction: t }
+          )
+        }
+        
+        const updatedQuestion = await db.UserQuestionAnswer.findOne({
+          where: { id: questionId },
+        })
+        
+  
+        // send notification
+        let notification = await db.Notification.create(
+          {
+            userId: updatedQuestion.askingUserId,
+            resourceId: updatedQuestion.askedUserId,
+            resourceType: 'USER',
+            notificationType: notificationType.QUESTION_ANSWERED,
+            status: 0,
+          },
+          { transaction: t }
+        )
+        await t.commit()
+        // push notification
+        const isToggleOn = await helperFunctions.checkForPushNotificationToggle(
+          updatedQuestion.askingUserId,
+          updatedQuestion.askedUserId,
+          'receiveAnswer'
+        )
+        if (isToggleOn) {
+          // check for toggles on or off
+          const { fcmToken } = await db.User.findOne({
+            where: { id: updatedQuestion.askingUserId },
+            attributes: ['fcmToken'],
+          })
+          pushNotification.sendNotificationSingle(
+            fcmToken,
+            notificationType.QUESTION_ANSWERED,
+            notificationType.QUESTION_ANSWERED
+          )
+        }
+  
+        let _answerRequest = await db.ExtraInfoRequest.findOne({
+          where: {
+            [Op.or]: [
+              {
+                requesterUserId: updatedQuestion.askingUserId,
+                requesteeUserId: updatedQuestion.askedUserId,
+              },
+              {
+                requesterUserId: updatedQuestion.askedUserId,
+                requesteeUserId: updatedQuestion.askingUserId,
+              },
+            ],
+          },
+          include: {
+            model: db.UserQuestionAnswer,
+          },
+          order: [['id', 'DESC']],
+        })
+  
+        console.log(_answerRequest, 'Answer request')
+  
+        let user = await db.User.findOne({
+          where: {
+            id: updatedQuestion.askedUserId,
+          },
+        })
+  
+        // sending extra info request and question on socket
+        const socketData = {
+          extraInfoRequest: _answerRequest,
+          isFirstResponse:true,
+          user: {
+            username: user?.dataValues?.username,
+            userId: user?.dataValues?.id,
+          },
+        }
+  
+        // sending answer on socket
+        socketFunctions.transmitDataOnRealtime(
+          socketEvents.ANSWER_RECEIVED,
+          updatedQuestion.askingUserId,
+          socketData
+        )
+        // sending notification on socket
+        notification = JSON.parse(JSON.stringify(notification))
+        const userNameAndCode = await common.getUserAttributes(
+          notification.resourceId,
+          ['id', 'username', 'code']
+        )
+        notification['User'] = userNameAndCode
+        socketFunctions.transmitDataOnRealtime(
+          socketEvents.NEW_NOTIFICATION,
+          updatedQuestion.askingUserId,
+          notification
+        )
       }
-      await t.commit()
+      
       return true
     } catch (error) {
       await t.rollback()
@@ -1214,6 +1326,7 @@ module.exports = {
       // sending extra info request and question on socket
       const socketData = {
         extraInfoRequest: _answerRequest,
+        isFirstResponse:false,
         user: {
           username: user?.dataValues?.username,
           userId: user?.dataValues?.id,
@@ -1560,6 +1673,6 @@ module.exports = {
 
     // const promiseResolved = await Promise.all([extraInfoRequest]);
     // [extraInfoRequest] = promiseResolved
-    return  extraInfoRequest 
+    return extraInfoRequest
   },
 }
