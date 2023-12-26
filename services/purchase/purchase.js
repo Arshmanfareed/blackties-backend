@@ -44,8 +44,11 @@ module.exports = {
         const { userId, type, productId, currency } = session.metadata
         if (type === constants.paymentType.PURCHASE) {
           // handle topup payment success
+          console.log(session.amount_total, "Amount total session")
           let amountToBeAdded = session.amount_total / 100
           if (currency == 'sar' || currency == 'SAR') {
+          console.log(amountToBeAdded, "amount To Be Added")
+
             // converting saudi riyal to usd
             amountToBeAdded = amountToBeAdded / process.env.USD_TO_RIYAL_RATE
 
