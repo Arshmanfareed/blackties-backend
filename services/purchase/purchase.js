@@ -61,7 +61,7 @@ module.exports = {
           })
           await db.Transaction.create({
             userId,
-            amount: amountToBeAdded,
+            amount: 300,
             type: 'TOPUP_BY_USER',
             status: true,
           })
