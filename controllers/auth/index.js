@@ -57,6 +57,19 @@ module.exports = {
     }
     return responseFunctions._200(res, data, 'Reset password link has been sent to your email.')
   },
+  emailConfirm: async (req, res) => {
+    const { body } = req
+    // const { error } = authValidations.validateResetPassword(body)
+    // if (error) {
+    //   return responseFunctions._400(res, error.details[0].message)
+    // }
+    const { email } = body
+    const [err, data] = await to(authService.emailConfirm(email))
+    if (err) {
+      return responseFunctions._400(res, err.message)
+    }
+    return responseFunctions._200(res, data, 'Confirmation link has been sent to your email.')
+  },
   verifyPasswordResetLink: async (req, res) => {
     const { id } = req.user
     const [err, data] = await to(authService.verifyPasswordResetLink(id))

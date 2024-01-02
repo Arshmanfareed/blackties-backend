@@ -13,6 +13,7 @@ const { generateJWT } = require('../../utils/generate-jwt')
 const helpers = require('../../helpers')
 const { translate } = require('../../utils/translation')
 const constants = require('../../config/constants')
+const helperFunctions = require('../../helpers')
 
 module.exports = {
   verifyCode: async (body) => {
@@ -176,7 +177,7 @@ module.exports = {
           featureId: 13,
           featureType: constants.featureTypes.EXTRA_INFORMATION_REQUEST,
           status: 1,
-          validityType:constants.featureValidity.LIFETIME
+          validityType: constants.featureValidity.LIFETIME,
         })
       }
 
@@ -306,6 +307,32 @@ module.exports = {
       link: resetPasswordLink,
     }
     sendMail(templatedId, email, 'Password Reset Link', dynamicParams)
+    return true
+  },
+  emailConfirm: async (email) => {
+    const user = await db.User.findOne({
+      where: { email },
+      attributes: { exclude: ['password'] },
+    })
+
+    if (!user) throw new Error('User does not Exist.')
+    const userSetting = await db.UserSetting.findOne({
+      where: { userId: user.id },
+    })
+    if (userSetting && userSetting.isEmailVerified) {
+      throw new Error('User email has already been verified')
+    }
+    const verificationCode = Math.floor(100000 + Math.random() * 900000)
+
+    await db.User.update(
+      {
+        otp: verificationCode,
+        otpExpiry: new Date(),
+      },
+      { where: { id: user.id } }
+    )
+    helperFunctions.sendAccountActivationLink(email, user.id, verificationCode)
+
     return true
   },
   verifyPasswordResetLink: async (userId) => {

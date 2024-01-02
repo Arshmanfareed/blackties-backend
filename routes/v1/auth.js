@@ -254,6 +254,36 @@ router.get('/validate-reset-password-link', auth, authController.verifyPasswordR
  */
 router.post('/change-password', auth, authController.changePassword)
 
+/**
+ * @swagger
+ * /auth/email-confirm:
+ *   post:
+ *     summary: Email confirm api will send a confirmation link to user on email
+ *     consumes:
+ *      - application/json
+ *     produces:
+ *      - application/json
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *             properties:
+ *               email:
+ *                 type: string
+ *     tags:
+ *     - Auth
+ *     operationId: emailConfirm
+ *     deprecated: false
+ *     responses:
+ *       '200':
+ *         description: ''
+ *         headers: {}
+ */
+router.post('/email-confirm', authController.emailConfirm)
 
 // Logout 
 /**
