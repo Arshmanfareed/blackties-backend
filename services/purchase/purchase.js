@@ -50,7 +50,7 @@ module.exports = {
           if (currency == 'sar' || currency == 'SAR') {
             // converting saudi riyal to usd
             amountToBeAdded =
-            amountToBeAdded / process.env.USD_TO_RIYAL_RATE || 3.75
+            amountToBeAdded / 3.75
             console.log(amountToBeAdded, 'amount To Be Added')
             amountToBeAdded = amountToBeAdded.toFixed(2)
           }
