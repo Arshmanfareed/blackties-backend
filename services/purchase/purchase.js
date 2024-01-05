@@ -51,9 +51,10 @@ module.exports = {
             // converting saudi riyal to usd
             amountToBeAdded =
             amountToBeAdded / 3.75
-            console.log(amountToBeAdded, 'amount To Be Added')
             amountToBeAdded = amountToBeAdded.toFixed(2)
+            console.log(amountToBeAdded, 'amount To Be Added')
           }
+          
           await db.Wallet.increment('amount', {
             by: amountToBeAdded,
             where: { userId },
@@ -64,6 +65,7 @@ module.exports = {
             amount: amountToBeAdded,
             type: 'TOPUP_BY_USER',
             status: true,
+            currency:currency
           })
         } else {
           // handle subscription success

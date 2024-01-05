@@ -30,13 +30,18 @@ module.exports = {
         },
       },
       amount: {
-        type: Sequelize.INTEGER(3)
+        type: Sequelize.FLOAT
       },
       type: {
         type: Sequelize.STRING(50)
       },
       status: {
         type: Sequelize.BOOLEAN
+      },
+      currency: {
+        type: Sequelize.STRING(50),
+        allowNull: true,
+        
       },
       createdAt: {
         allowNull: false,
