@@ -1696,4 +1696,54 @@ module.exports = {
     // [extraInfoRequest] = promiseResolved
     return extraInfoRequest
   },
+  getMyRequestOfPicture: async (userId) => {
+    return db.PictureRequest.findAll({
+      attributes: ['id', 'requesterUserId', 'requesteeUserId', 'isViewed',  'status', 'imageUrl'],
+      where: {
+        requesterUserId: userId,
+        // imageUrl: {
+        //   [Op.ne]: null,
+        // },
+        status:{
+          [Op.ne]:requestStatus.REJECTED
+        }
+      },
+      include: {
+        model: db.User,
+        as: 'pictureRequesteeUser',
+        attributes: [
+          'id',
+          'username',
+          'code',
+          [
+            Sequelize.literal(
+              `EXISTS(SELECT 1 FROM SavedProfiles WHERE userId = ${userId} AND savedUserId = pictureRequesteeUser.id)`
+            ),
+            'isSaved',
+          ],
+        ],
+        include: [
+          {
+            model: db.Profile,
+          },
+          {
+            model: db.UserSetting,
+            attributes: ['isPremium', 'membership'],
+          },
+          {
+            model: db.BlockedUser,
+            as: 'blockedUser',
+            where: { blockerUserId: userId },
+            required: false,
+          },
+          {
+            model: db.BlockedUser,
+            as: 'blockerUser',
+            where: { blockedUserId: userId },
+            required: false,
+          },
+        ],
+      },
+    })
+  },
 }
