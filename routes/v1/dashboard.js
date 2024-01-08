@@ -301,4 +301,30 @@ router.get('/my-request/more-info', auth, userController.getUsersIRequestedMoreI
  */
 router.get('/incoming-request/more-info', auth, userController.getUsersWhoRequestedMoreInfoFromMe)
 
+/**
+ * @swagger
+ * /dashboard/my-request/picture:
+ *   get:
+ *     summary: Users who have been requested or sent picture by user and who haven't rejected (if reject, user will not appear) (My Request tab)
+ *     consumes:
+ *      - application/json
+ *     produces:
+ *      - application/json
+ *     parameters:
+ *     - name: x-auth-token
+ *       in: header
+ *       required: true
+ *       type: string
+ *       description: an authorization header
+ *     tags:
+ *     - Dashboard
+ *     operationId: getMyRequestOfPicture
+ *     deprecated: false
+ *     responses:
+ *       '200':
+ *         description: ''
+ *         headers: {}
+ */
+router.get('/my-request/picture', auth, userController.getMyRequestOfPicture)
+
 module.exports = router
