@@ -854,6 +854,12 @@ module.exports = {
         notificationType.MATCH_CANCELLED,
         notificationType.MATCH_CANCELLED
       )
+
+      socketFunctions.transmitDataOnRealtime(
+        socketEvents.NEW_NOTIFICATION,
+        otherUserId,
+        {}
+      )
     }
     return true
   },
