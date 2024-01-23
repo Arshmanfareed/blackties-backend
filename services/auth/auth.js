@@ -220,11 +220,11 @@ module.exports = {
     })
 
     if (!user) {
-      throw new Error('Wrong email or password')
+      throw new Error('Enter a valid email')
     }
     const isCorrectPassword = await bcryptjs.compare(password, user.password)
     if (!isCorrectPassword) {
-      throw new Error('Wrong email or password')
+      throw new Error('Enter a valid password')
     }
     if (user.status === status.DEACTIVATED) {
       // deactivated user
