@@ -160,13 +160,105 @@ module.exports = {
       const { description: descriptionBefore } = await db.Profile.findOne({
         where: { userId },
       })
+      console.log(descriptionBefore, 'User Description on updated')
+
+      let userProfile = JSON.parse(
+        JSON.stringify(await db.Profile.findOne({ where: { userId: userId } }))
+      )
+      delete userProfile['description']
+      delete userProfile['tribe']
+      delete userProfile['longitude']
+      delete userProfile['latitude']
+      delete userProfile['occupationStatus']
+      delete userProfile['occupationField']
+      delete userProfile['occupationFunction']
+      delete userProfile['reading']
+      delete userProfile['family']
+      delete userProfile['noAFanOf']
+      delete userProfile['letsTalkAbout']
+      delete userProfile['movies']
+      delete userProfile['clothing']
+      delete userProfile['countryOfEducation']
+      delete userProfile['beard']
+      console.log(userProfile, 'User Profile on updated')
+
+      const findNullValues = Object.values(userProfile).filter(
+        (el) => el === null
+      )
+      console.log(findNullValues, 'User Profile null values on updated')
+
       if (Object.keys(body).length > 0) {
         await db.Profile.update(
           { ...body },
           { where: { userId }, transaction: t }
         )
+
+       
       }
+
       await t.commit()
+
+      if (findNullValues.length > 0) {
+        let updatedProfile = JSON.parse(
+          JSON.stringify(
+            await db.Profile.findOne({ where: { userId: userId } })
+          )
+        )
+        delete updatedProfile['description']
+        delete updatedProfile['tribe']
+        delete updatedProfile['longitude']
+        delete updatedProfile['latitude']
+        delete updatedProfile['occupationStatus']
+        delete updatedProfile['occupationField']
+        delete updatedProfile['occupationFunction']
+        delete updatedProfile['reading']
+        delete updatedProfile['family']
+        delete updatedProfile['noAFanOf']
+        delete updatedProfile['letsTalkAbout']
+        delete updatedProfile['movies']
+        delete updatedProfile['clothing']
+        delete updatedProfile['countryOfEducation']
+        delete updatedProfile['beard']
+        console.log(updatedProfile, 'User Profile on updated')
+
+        const findUpdatedNullValues = Object.values(updatedProfile).filter(
+          (el) => el === null
+        )
+        console.log(
+          findUpdatedNullValues,
+          'User Updated Profile null values on updated'
+        )
+        if (findUpdatedNullValues.length == 0) {
+          await db.UserSetting
+          if (updatedProfile?.sex == constants.gender.MALE) {
+            let date = new Date()
+            date.setDate(date.getDate() + 2)
+
+            await db.UserFeature.create({
+              userId: userId,
+              featureId: 12,
+              featureType: constants.featureTypes.ANSWER_QUESTION,
+              status: 1,
+              validityType: constants.featureValidity.DAYS,
+              expiryDate: date,
+            })
+          } else {
+            await db.UserFeature.create({
+              userId: userId,
+              featureId: 11,
+              featureType: constants.featureTypes.PICTURE_REQUEST,
+              status: 1,
+              validityType: constants.featureValidity.COUNT,
+              remaining: 3,
+            })
+          }
+          await db.UserSetting.update(
+            { isFilledAllInfo: true },
+            { where: { userId } }
+          )
+        }
+      }
+
       if (body?.description) {
         // add description reward only first time
         if (!descriptionBefore) {
@@ -443,21 +535,22 @@ module.exports = {
     pendingContactDetails = db.ContactDetailsRequest.findOne({
       where: {
         [Op.and]: [
-          { requesterUserId: loginUserId, status: constants.requestStatus.PENDING },
+          {
+            requesterUserId: loginUserId,
+            status: constants.requestStatus.PENDING,
+          },
         ],
       },
-      order: [['id', 'DESC']]
+      order: [['id', 'DESC']],
     })
     userMatch = db.Match.findOne({
       where: {
         [Op.or]: [
           { otherUserId: otherUserId }, // either match b/w user1
           { userId: otherUserId }, // either match b/w user2
-         
         ],
-        isCancelled: 0
-        
-      }
+        isCancelled: 0,
+      },
     })
 
     const promiseResolved = await Promise.all([
@@ -465,10 +558,22 @@ module.exports = {
       pictureRequest,
       contactDetailsRequest,
       pendingContactDetails,
-      userMatch
+      userMatch,
     ])
-    ;
-    [extraInfoRequest, pictureRequest, contactDetailsRequest, pendingContactDetails, userMatch] = promiseResolved
-    return { user, pictureRequest, extraInfoRequest, contactDetailsRequest, pendingContactDetails, userMatch }
+    ;[
+      extraInfoRequest,
+      pictureRequest,
+      contactDetailsRequest,
+      pendingContactDetails,
+      userMatch,
+    ] = promiseResolved
+    return {
+      user,
+      pictureRequest,
+      extraInfoRequest,
+      contactDetailsRequest,
+      pendingContactDetails,
+      userMatch,
+    }
   },
 }
