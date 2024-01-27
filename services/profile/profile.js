@@ -231,17 +231,18 @@ module.exports = {
         if (findUpdatedNullValues.length == 0) {
           await db.UserSetting
           if (updatedProfile?.sex == constants.gender.MALE) {
-            let date = new Date()
-            date.setDate(date.getDate() + 2)
+            // let date = new Date()
+            // date.setDate(date.getDate() + 2)
 
-            await db.UserFeature.create({
-              userId: userId,
-              featureId: 12,
-              featureType: constants.featureTypes.ANSWER_QUESTION,
-              status: 1,
-              validityType: constants.featureValidity.DAYS,
-              expiryDate: date,
-            })
+            // await db.UserFeature.create({
+            //   userId: userId,
+            //   featureId: 12,
+            //   featureType: constants.featureTypes.ANSWER_QUESTION,
+            //   status: 1,
+            //   validityType: constants.featureValidity.DAYS,
+            //   expiryDate: date,
+            // })
+            await helperFunctions.giveAllInfoFilledReward(userId)
           } else {
             await db.UserFeature.create({
               userId: userId,
