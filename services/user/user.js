@@ -282,9 +282,20 @@ module.exports = {
         transaction: t,
       })
       await t.commit()
-      contactDetailsRequest = JSON.parse(JSON.stringify(contactDetailsRequest))
-      contactDetailsRequest['status'] = requestUpdatePayload['status']
-      const socketData = { contactDetailsRequest, contactDetailsByFemale }
+      contactDetailsRequest = JSON.parse(JSON.stringify(
+        await db.ContactDetailsRequest.findOne({
+          where:{
+            id: requestId
+          }
+        })
+      ))
+      // contactDetailsRequest['status'] = requestUpdatePayload['status']
+      const findContactDetails = JSON.parse(JSON.stringify(await db.ContactDetails.findOne({
+        where:{
+          contactDetailsRequestId: requestId
+        }
+      })))
+      const socketData = { contactDetailsRequest, contactDetails: findContactDetails}
       // sending respond of contact details request on socket
       socketFunctions.transmitDataOnRealtime(
         socketEvents.CONTACT_DETAILS_RESPOND,
