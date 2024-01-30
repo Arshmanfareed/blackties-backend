@@ -1659,20 +1659,20 @@ module.exports = {
   },
   createNotification: async (userId, otherUserId, body) => {
     const { type } = body
-    const user = await db.User.findOne({ where: { id: userId } })
+    const user = await db.User.findOne({ where: { id: otherUserId } })
     // checking if "STRUGGLING_TO_CONNECT"
-    if (type === notificationType.STRUGGLING_TO_CONNECT) {
-      const notificationExist = await db.Notification.findOne({
-        where: {
-          userId: otherUserId,
-          resourceId: userId,
-          notificationType: type,
-        },
-      })
-      if (notificationExist) {
-        return false
-      }
-    }
+    // if (type === notificationType.STRUGGLING_TO_CONNECT) {
+    //   const notificationExist = await db.Notification.findOne({
+    //     where: {
+    //       userId: otherUserId,
+    //       resourceId: userId,
+    //       notificationType: type,
+    //     },
+    //   })
+    //   if (notificationExist) {
+    //     return false
+    //   }
+    // }
     await pushNotification.sendNotificationSingle(user.fcmToken, type, type)
     // generating notification for the first time.
     await db.Notification.create({
@@ -1682,6 +1682,19 @@ module.exports = {
       notificationType: type,
       status: false,
     })
+    const contactDetailRequest = JSON.parse(JSON.stringify(await db.ContactDetailsRequest.findOne({
+      where:{
+        requesteeUserId: otherUserId
+      }
+    })))
+    if (type === notificationType.STRUGGLING_TO_CONNECT) {
+      socketFunctions.transmitDataOnRealtime(
+        socketEvents.STRUGGLING_TO_CONNECT,
+        otherUserId,
+        contactDetailRequest
+      )
+
+    }
     return true
   },
   getFileContentFromS3: async (filename) => {
