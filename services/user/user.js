@@ -295,7 +295,16 @@ module.exports = {
           contactDetailsRequestId: requestId
         }
       })))
-      const socketData = { contactDetailsRequest, contactDetails: findContactDetails}
+      const matchRes = JSON.parse(JSON.stringify(await db.Match.findOne({
+        where: {
+          [Op.or]: [
+            { userId: requesterUserId, otherUserId: requesteeUserId }, // either match b/w user1 or user2
+            { userId: requesteeUserId, otherUserId: requesterUserId }, // or match b/w user2 or user1
+          ],
+          // isCancelled: false
+        }
+      })))
+      const socketData = { contactDetailsRequest, contactDetails: findContactDetails, match: matchRes}
       // sending respond of contact details request on socket
       socketFunctions.transmitDataOnRealtime(
         socketEvents.CONTACT_DETAILS_RESPOND,
