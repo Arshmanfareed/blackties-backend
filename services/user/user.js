@@ -282,29 +282,43 @@ module.exports = {
         transaction: t,
       })
       await t.commit()
-      contactDetailsRequest = JSON.parse(JSON.stringify(
-        await db.ContactDetailsRequest.findOne({
-          where:{
-            id: requestId
-          }
-        })
-      ))
+      contactDetailsRequest = JSON.parse(
+        JSON.stringify(
+          await db.ContactDetailsRequest.findOne({
+            where: {
+              id: requestId,
+            },
+          })
+        )
+      )
       // contactDetailsRequest['status'] = requestUpdatePayload['status']
-      const findContactDetails = JSON.parse(JSON.stringify(await db.ContactDetails.findOne({
-        where:{
-          contactDetailsRequestId: requestId
-        }
-      })))
-      const matchRes = JSON.parse(JSON.stringify(await db.Match.findOne({
-        where: {
-          [Op.or]: [
-            { userId: requesterUserId, otherUserId: requesteeUserId }, // either match b/w user1 or user2
-            { userId: requesteeUserId, otherUserId: requesterUserId }, // or match b/w user2 or user1
-          ],
-          // isCancelled: false
-        }
-      })))
-      const socketData = { contactDetailsRequest, contactDetails: findContactDetails, match: matchRes}
+      const findContactDetails = JSON.parse(
+        JSON.stringify(
+          await db.ContactDetails.findOne({
+            where: {
+              contactDetailsRequestId: requestId,
+            },
+          })
+        )
+      )
+      const matchRes = JSON.parse(
+        JSON.stringify(
+          await db.Match.findOne({
+            where: {
+              [Op.or]: [
+                { userId: requesterUserId, otherUserId: requesteeUserId }, // either match b/w user1 or user2
+                { userId: requesteeUserId, otherUserId: requesterUserId }, // or match b/w user2 or user1
+              ],
+              // isCancelled: false
+            },
+          })
+        )
+      )
+      const socketData = {
+        contactDetailsRequest,
+        contactDetails: findContactDetails,
+        match: matchRes,
+      }
       // sending respond of contact details request on socket
       socketFunctions.transmitDataOnRealtime(
         socketEvents.CONTACT_DETAILS_RESPOND,
@@ -339,11 +353,13 @@ module.exports = {
       if (contactDetailsRequest.status !== requestStatus.PENDING) {
         throw new Error("You've already responded to this request")
       }
-      
-      
-      await db.ContactDetailsRequest.destroy({ where: { id: requestId }, transaction: t })
+
+      await db.ContactDetailsRequest.destroy({
+        where: { id: requestId },
+        transaction: t,
+      })
       await t.commit()
-      
+
       return true
     } catch (error) {
       console.log(error)
@@ -850,6 +866,14 @@ module.exports = {
         },
       }
     )
+    await db.ContactDetailsRequest.destroy({
+      where: {
+        [Op.or]: [
+          { requesterUserId: userId, requesteeUserId: otherUserId }, // either match b/w user1 or user2
+          { requesterUserId: otherUserId, requesteeUserId: userId }, // or match b/w user2 or user1
+        ],
+      },
+    })
     await db.Notification.create({
       userId: otherUserId,
       resourceId: userId,
@@ -917,7 +941,6 @@ module.exports = {
         },
         order: [['id', 'DESC']],
       })
-      
 
       if (
         extraInfoRequest &&
@@ -1103,26 +1126,25 @@ module.exports = {
           updatedRequest.requesterUserId,
           notification
         )
-      }else if(status === ACCEPTED){
-        if(!questions || questions.length == 0){
+      } else if (status === ACCEPTED) {
+        if (!questions || questions.length == 0) {
           throw new Error('Questions should have at least one answer')
         }
         let questionId = questions[0].id
         for (const question of questions) {
           await db.UserQuestionAnswer.update(
             {
-              answer:question.answer,
+              answer: question.answer,
               status: true,
             },
             { where: { id: question.id }, transaction: t }
           )
         }
-        
+
         const updatedQuestion = await db.UserQuestionAnswer.findOne({
           where: { id: questionId },
         })
-        
-  
+
         // send notification
         let notification = await db.Notification.create(
           {
@@ -1153,7 +1175,7 @@ module.exports = {
             notificationType.QUESTION_ANSWERED
           )
         }
-  
+
         let _answerRequest = await db.ExtraInfoRequest.findOne({
           where: {
             [Op.or]: [
@@ -1172,25 +1194,25 @@ module.exports = {
           },
           order: [['id', 'DESC']],
         })
-  
+
         console.log(_answerRequest, 'Answer request')
-  
+
         let user = await db.User.findOne({
           where: {
             id: updatedQuestion.askedUserId,
           },
         })
-  
+
         // sending extra info request and question on socket
         const socketData = {
           extraInfoRequest: _answerRequest,
-          isFirstResponse:true,
+          isFirstResponse: true,
           user: {
             username: user?.dataValues?.username,
             userId: user?.dataValues?.id,
           },
         }
-  
+
         // sending answer on socket
         socketFunctions.transmitDataOnRealtime(
           socketEvents.ANSWER_RECEIVED,
@@ -1210,7 +1232,7 @@ module.exports = {
           notification
         )
       }
-      
+
       return true
     } catch (error) {
       await t.rollback()
@@ -1378,7 +1400,7 @@ module.exports = {
       // sending extra info request and question on socket
       const socketData = {
         extraInfoRequest: _answerRequest,
-        isFirstResponse:false,
+        isFirstResponse: false,
         user: {
           username: user?.dataValues?.username,
           userId: user?.dataValues?.id,
@@ -1687,18 +1709,21 @@ module.exports = {
       notificationType: type,
       status: false,
     })
-    const contactDetailRequest = JSON.parse(JSON.stringify(await db.ContactDetailsRequest.findOne({
-      where:{
-        requesteeUserId: otherUserId
-      }
-    })))
+    const contactDetailRequest = JSON.parse(
+      JSON.stringify(
+        await db.ContactDetailsRequest.findOne({
+          where: {
+            requesteeUserId: otherUserId,
+          },
+        })
+      )
+    )
     if (type === notificationType.STRUGGLING_TO_CONNECT) {
       socketFunctions.transmitDataOnRealtime(
         socketEvents.STRUGGLING_TO_CONNECT,
         otherUserId,
         contactDetailRequest
       )
-
     }
     return true
   },
@@ -1742,15 +1767,22 @@ module.exports = {
   },
   getMyRequestOfPicture: async (userId) => {
     return db.PictureRequest.findAll({
-      attributes: ['id', 'requesterUserId', 'requesteeUserId', 'isViewed',  'status', 'imageUrl'],
+      attributes: [
+        'id',
+        'requesterUserId',
+        'requesteeUserId',
+        'isViewed',
+        'status',
+        'imageUrl',
+      ],
       where: {
         requesterUserId: userId,
         // imageUrl: {
         //   [Op.ne]: null,
         // },
-        status:{
-          [Op.ne]:requestStatus.REJECTED
-        }
+        status: {
+          [Op.ne]: requestStatus.REJECTED,
+        },
       },
       include: {
         model: db.User,
