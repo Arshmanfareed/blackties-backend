@@ -72,6 +72,7 @@ module.exports = {
     CONTACT_DETAILS_SENT: 'contact-details-sent',
     CONTACT_DETAILS_RESPOND: 'contact-details-respond',
     STRUGGLING_TO_CONNECT: 'struggling-to-connect',
+    CANCEL_MATCH: 'cancel-match'
   },
   rewardPurpose: {
     EMAIL_VERIFIED: 'EMAIL_VERIFIED',

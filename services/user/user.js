@@ -880,6 +880,11 @@ module.exports = {
         otherUserId,
         {}
       )
+      socketFunctions.transmitDataOnRealtime(
+        socketEvents.CANCEL_MATCH,
+        otherUserId,
+        {}
+      )
     }
     return true
   },
