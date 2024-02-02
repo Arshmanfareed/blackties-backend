@@ -32,6 +32,19 @@ module.exports = {
     }
     return responseFunctions._200(res, data, 'Responded on request successfully')
   },
+  reSendContactDetails: async (req, res) => {
+    const { id: requestId } = req.params
+    const { body } = req
+    const { error } = userValidations.validateRespondToRequestContactDetails(body)
+    if (error) {
+      return responseFunctions._400(res, error.details[0].message)
+    }
+    const [err, data] = await to(userService.reSendContactDetails(requestId, body))
+    if (err) {
+      return responseFunctions._400(res, err.message)
+    }
+    return responseFunctions._200(res, data, 'Responded on request successfully')
+  },
   cancelContactDetails: async (req, res) => {
     const { id: requestId } = req.params
     

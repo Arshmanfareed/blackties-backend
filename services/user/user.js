@@ -344,6 +344,136 @@ module.exports = {
       throw new Error(error.message)
     }
   },
+  reSendContactDetails: async (requestId, body) => {
+    const t = await db.sequelize.transaction()
+    try {
+      let contactDetailsRequest = await db.ContactDetailsRequest.findOne({
+        where: { id: requestId },
+      })
+      await db.ContactDetails.destroy({ where: { contactDetailsRequestId: requestId }, transaction: t })
+     
+      /*
+        either accept or reject  
+      */
+      const {
+        name,
+        personToContact,
+        nameOfContact,
+        phoneNo,
+        message,
+        status,
+        isFemaleResponding,
+      } = body
+      /*
+        Are you sure you want to match with this user?
+        Note: All other pending incoming requests will be cancelled
+      */
+      const requestUpdatePayload = {}
+      let notification, contactDetailsByFemale
+      const { requesterUserId, requesteeUserId } = contactDetailsRequest
+      const notificationPayload = {
+        userId: requesterUserId,
+        resourceId: requesteeUserId,
+        resourceType: 'USER',
+        status: false,
+      }
+      if (status === requestStatus.ACCEPTED) {
+        // accepted
+        requestUpdatePayload['status'] = requestStatus.ACCEPTED
+        if (isFemaleResponding) {
+          contactDetailsByFemale = await db.ContactDetails.create(
+            {
+              contactDetailsRequestId: requestId,
+              name,
+              personToContact,
+              nameOfContact,
+              phoneNo,
+              message,
+              status: true,
+            },
+            { transaction: t }
+          )
+        }
+        // if accept a match is created between these two users
+        if (!isFemaleResponding) {
+          await db.ContactDetails.update(
+            { status: true },
+            { where: { contactDetailsRequestId: requestId } }
+          )
+        }
+        await helperFunctions.createMatchIfNotExist(
+          requesterUserId,
+          requesteeUserId,
+          t
+        )
+        // generate notification of match
+        notificationPayload['notificationType'] = notificationType.MATCH_CREATED
+        notification = await db.Notification.create(notificationPayload, {
+          transaction: t,
+        })
+        // push notification
+        const isToggleOn = await helperFunctions.checkForPushNotificationToggle(
+          notificationPayload.userId,
+          requesteeUserId,
+          'getMatched'
+        )
+        if (isToggleOn) {
+          // check for toggles on or off
+          const { fcmToken } = await db.User.findOne({
+            where: { id: notificationPayload.userId },
+            attributes: ['fcmToken'],
+          })
+          pushNotification.sendNotificationSingle(
+            fcmToken,
+            notificationPayload.notificationType,
+            notificationPayload.notificationType
+          )
+        }
+      } else {
+        // rejected
+        requestUpdatePayload['status'] = requestStatus.REJECTED
+        notificationPayload['notificationType'] =
+          contactDetailsRequest.isFromFemale
+            ? notificationType.CONTACT_DETAILS_SENT_REJECTED
+            : notificationType.CONTACT_DETAILS_REQUEST_REJECTED
+        // generate notification of reject
+        notification = await db.Notification.create(notificationPayload, {
+          transaction: t,
+        })
+      }
+      await db.ContactDetailsRequest.update(requestUpdatePayload, {
+        where: { id: requestId },
+        transaction: t,
+      })
+      await t.commit()
+      contactDetailsRequest = JSON.parse(JSON.stringify(contactDetailsRequest))
+      contactDetailsRequest['status'] = requestUpdatePayload['status']
+      const socketData = { contactDetailsRequest, contactDetailsByFemale }
+      // sending respond of contact details request on socket
+      socketFunctions.transmitDataOnRealtime(
+        socketEvents.CONTACT_DETAILS_RESPOND,
+        requesterUserId,
+        socketData
+      )
+      // sending notification on socket
+      notification = JSON.parse(JSON.stringify(notification))
+      const userNameAndCode = await common.getUserAttributes(
+        notification.resourceId,
+        ['id', 'username', 'code']
+      )
+      notification['User'] = userNameAndCode
+      socketFunctions.transmitDataOnRealtime(
+        socketEvents.NEW_NOTIFICATION,
+        requesterUserId,
+        notification
+      )
+      return true
+    } catch (error) {
+      console.log(error)
+      await t.rollback()
+      throw new Error(error.message)
+    }
+  },
   cancelContactDetails: async (requestId) => {
     const t = await db.sequelize.transaction()
     try {
@@ -1709,6 +1839,11 @@ module.exports = {
       notificationType: type,
       status: false,
     })
+    const contactDetailRequest = JSON.parse(JSON.stringify(await db.ContactDetailsRequest.findOne({
+      where:{
+        requesteeUserId: otherUserId
+      }
+    })))
     const contactDetailRequest = JSON.parse(
       JSON.stringify(
         await db.ContactDetailsRequest.findOne({
