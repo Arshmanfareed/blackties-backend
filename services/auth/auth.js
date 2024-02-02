@@ -218,7 +218,6 @@ module.exports = {
         },
       ],
     })
-
     if (!user) {
       throw new Error('Wrong email or password')
     }

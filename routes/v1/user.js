@@ -959,7 +959,7 @@ router.post('/:id/push-notification', auth, answerQuestion, userController.sendP
  *         description: ''
  *         headers: {}
  */
-router.post('/:id/notification', auth, answerQuestion, userController.createNotification)
+router.post('/:id/notification', auth, userController.createNotification)
 
 /**
  * @swagger
