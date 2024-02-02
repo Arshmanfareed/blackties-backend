@@ -1839,11 +1839,6 @@ module.exports = {
       notificationType: type,
       status: false,
     })
-    const contactDetailRequest = JSON.parse(JSON.stringify(await db.ContactDetailsRequest.findOne({
-      where:{
-        requesteeUserId: otherUserId
-      }
-    })))
     const contactDetailRequest = JSON.parse(
       JSON.stringify(
         await db.ContactDetailsRequest.findOne({
