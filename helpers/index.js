@@ -2,7 +2,7 @@ const { sequelize } = require('../models')
 const db = require('../models')
 const { Op, Sequelize, QueryTypes } = require('sequelize')
 const sendMail = require('../utils/sendgrid-mail')
-const { gender, rewardPurpose, featureTypes, featureValidity, status, suspensionCriteria } = require('../config/constants')
+const { gender, rewardPurpose, featureTypes, featureValidity, status, suspensionCriteria, requestStatus } = require('../config/constants')
 const moment = require('moment')
 const common = require('./common')
 
@@ -62,6 +62,17 @@ const helperFunctions = {
         
       }
     })
+    const userStruggling = await db.ContactDetailsRequest.findAll({
+      where: {
+        [Op.or]: [
+          { requesteeUserId: userId }, // either match b/w user1 or user2
+          { requesterUserId: userId }, // either match b/w user1 or user2
+         
+        ],
+        status: requestStatus.STRUGGLING
+        
+      }
+    })
     let user = await db.User.findOne({
       where: { id: userId },
       include: [
@@ -86,6 +97,7 @@ const helperFunctions = {
     user = JSON.parse(JSON.stringify(user))
     user['userFeatures'] = userFeatures
     user['userMatch'] = userMatch
+    user['strugglingUsers'] = userStruggling
     return user
   },
   createUserFeature: async (userId, featureId, featureType, validityType, expiryDate, remaining, t) => {

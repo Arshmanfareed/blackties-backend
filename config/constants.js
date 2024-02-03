@@ -20,7 +20,8 @@ module.exports = {
   requestStatus: {
     PENDING: 'PENDING',
     ACCEPTED: 'ACCEPTED',
-    REJECTED: 'REJECTED'
+    REJECTED: 'REJECTED',
+    STRUGGLING: 'STRUGGLING'
   },
   paymentType: {
     PURCHASE: 'PURCHASE',
