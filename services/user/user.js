@@ -448,11 +448,37 @@ module.exports = {
       await t.commit()
       contactDetailsRequest = JSON.parse(JSON.stringify(contactDetailsRequest))
       contactDetailsRequest['status'] = requestUpdatePayload['status']
-      const socketData = { contactDetailsRequest, contactDetailsByFemale }
+      const findContactDetails = JSON.parse(
+        JSON.stringify(
+          await db.ContactDetails.findOne({
+            where: {
+              contactDetailsRequestId: requestId,
+            },
+          })
+        )
+      )
+      const matchRes = JSON.parse(
+        JSON.stringify(
+          await db.Match.findOne({
+            where: {
+              [Op.or]: [
+                { userId: requesterUserId, otherUserId: requesteeUserId }, // either match b/w user1 or user2
+                { userId: requesteeUserId, otherUserId: requesterUserId }, // or match b/w user2 or user1
+              ],
+              // isCancelled: false
+            },
+          })
+        )
+      )
+      const socketData = {
+        contactDetailsRequest,
+        contactDetails: findContactDetails,
+        match: matchRes,
+      }
       // sending respond of contact details request on socket
       socketFunctions.transmitDataOnRealtime(
         socketEvents.CONTACT_DETAILS_RESPOND,
-        requesterUserId,
+        contactDetailsRequest?.isFromFemale ? requesteeUserId : requesterUserId,
         socketData
       )
       // sending notification on socket
@@ -464,7 +490,7 @@ module.exports = {
       notification['User'] = userNameAndCode
       socketFunctions.transmitDataOnRealtime(
         socketEvents.NEW_NOTIFICATION,
-        requesterUserId,
+        contactDetailsRequest?.isFromFemale ? requesteeUserId : requesterUserId,
         notification
       )
       return true
@@ -1817,6 +1843,21 @@ module.exports = {
   createNotification: async (userId, otherUserId, body) => {
     const { type } = body
     const user = await db.User.findOne({ where: { id: otherUserId } })
+    if(!user){
+      return false
+    }
+    const requestsWhereClause = {
+      [Op.or]: [
+        { requesterUserId: userId, requesteeUserId: otherUserId },
+        { requesterUserId: otherUserId, requesteeUserId: userId },
+      ],
+    }
+    const contactDetail = await db.ContactDetailsRequest.update({status: 'STRUGGLING'}, {
+      where: requestsWhereClause
+    })
+    if(!contactDetail){
+      return false
+    }
     // checking if "STRUGGLING_TO_CONNECT"
     // if (type === notificationType.STRUGGLING_TO_CONNECT) {
     //   const notificationExist = await db.Notification.findOne({
