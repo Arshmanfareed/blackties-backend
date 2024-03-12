@@ -13,6 +13,7 @@ const bcryptjs = require('bcryptjs')
 const common = require('../../helpers/common')
 const { to } = require('../../utils/error-handler')
 const sendSms = require('../../utils/send-sms')
+const sendMail = require('../../utils/sendgrid-mail')
 const { readFileFromS3 } = require('../../utils/read-file')
 const csvtojsonV2 = require('csvtojson')
 
@@ -117,6 +118,22 @@ module.exports = {
         notificationPayload['notificationType'] =
           notificationType.CONTACT_DETAILS_REQUEST
       }
+
+      const requesteeUser = await db.User.findOne({
+        where: { id: requesteeUserId },
+        attributes: ['email'],
+      });
+
+      if (requesteeUser) {
+        
+        sendMail(
+          process.env.WELCOME_EMAIL_TEMPLATE_ID,
+          requesteeUser.email,
+          'Welcome to Mahabazzz',
+          { nickname: 'test' }
+        );
+      }
+
       // generate notification
       let notification = await db.Notification.create(notificationPayload, {
         transaction: t,
@@ -1144,6 +1161,21 @@ module.exports = {
           { transaction: t }
         )
         askedQuestions.push(questionCreated)
+
+        const requesteeUser = await db.User.findOne({
+          where: { id: requesteeUserId },
+          attributes: ['email'],
+        });
+  
+        if (requesteeUser) {
+          // Sending email to the requestee
+          sendMail(
+            process.env.WELCOME_EMAIL_TEMPLATE_ID,
+            requesteeUser.email, // Using requestee's email dynamically
+            'Welcome to Mahabazzz',
+            { nickname: 'test' }
+          );
+        }
       }
       // create notification
       let notification = await db.Notification.create(
@@ -1205,6 +1237,8 @@ module.exports = {
           id: requesterUserId,
         },
       })
+
+      
 
       // sending extra info request and question on socket
       const socketData = {
@@ -1602,7 +1636,22 @@ module.exports = {
     if (seenExist) {
       return false
     }
+    
     await db.UserSeen.create({ viewerId, viewedId })
+
+    const seenProfile = await db.User.findOne({
+      where: { id: viewedId },
+      attributes: ['email'],
+    });
+
+    if (seenProfile) {
+      sendMail(
+        process.env.WELCOME_EMAIL_TEMPLATE_ID,
+        seenProfile.email,
+        'Welcome to Mahabazzz',
+        { nickname: 'test' }
+      );
+    }
     return true
   },
   getUsersWhoSeenMyProfile: async (userId, limit, offset) => {

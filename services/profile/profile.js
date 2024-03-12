@@ -1,6 +1,7 @@
 const db = require('../../models')
 const constants = require('../../config/constants')
 const { Op, where, Sequelize } = require('sequelize')
+const sendMail = require('../../utils/sendgrid-mail')
 const { getPaginatedResult } = require('../../utils/array-paginate')
 const helperFunctions = require('../../helpers')
 
@@ -287,6 +288,20 @@ module.exports = {
     })
     if (!isAlreadySaved) {
       await db.SavedProfile.create({ userId, savedUserId })
+      const savedUser = await db.User.findOne({
+        where: { id: savedUserId },
+        attributes: ['email'],
+      });
+
+      if (savedUser) {
+        
+        sendMail(
+          process.env.WELCOME_EMAIL_TEMPLATE_ID,
+          savedUser.email,
+          'Welcome to Mahabazzz',
+          { nickname: 'test' }
+        );
+      }
       return true
     }
     await db.SavedProfile.destroy({ where: { userId, savedUserId } })
