@@ -2,11 +2,11 @@ const { MAIL_FROM, SENDGRID_API_KEY } = process.env
 const sgMail = require('@sendgrid/mail')
 sgMail.setApiKey(SENDGRID_API_KEY);
 
-module.exports = async (templateId, recipient, subject, dynamicParams) => {
+module.exports = async (templateId, recipient, subject, dynamicParams,  mailForm = MAIL_FROM) => {
   try {
     const message = {
       to: recipient,
-      from: MAIL_FROM, // Use the email address or domain you verified above
+      from: mailForm, // Use the email address or domain you verified above
       subject,
       templateId,
       dynamicTemplateData: dynamicParams

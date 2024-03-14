@@ -121,16 +121,25 @@ module.exports = {
 
       const requesteeUser = await db.User.findOne({
         where: { id: requesteeUserId },
-        attributes: ['email'],
+        attributes: ['email', 'username'],
       });
 
-      if (requesteeUser) {
-        
+      const C_user = await db.User.findOne({
+        where: { id: requesterUserId },
+        attributes: ['email', 'username'], 
+      });
+
+      if (requesteeUser) {      
+        const username = requesteeUser.username; 
+        const user = C_user.username; 
+        const message = `Hello ${username}! ${user} requested your contact details`;
+
         sendMail(
-          process.env.WELCOME_EMAIL_TEMPLATE_ID,
+          process.env.USER_NOTIFICATION_TEMPLATE_ID,
           requesteeUser.email,
           'Welcome to Mahabazzz',
-          { nickname: 'test' }
+          { message } ,
+          process.env.MAIL_FROM_NOTIFICATION,
         );
       }
 
@@ -1164,16 +1173,25 @@ module.exports = {
 
         const requesteeUser = await db.User.findOne({
           where: { id: requesteeUserId },
-          attributes: ['email'],
+          attributes: ['email', 'username'],
         });
-  
-        if (requesteeUser) {
-          // Sending email to the requestee
+
+        const C_user = await db.User.findOne({
+          where: { id: requesterUserId },
+          attributes: ['email', 'username'], 
+        });
+
+        if (requesteeUser) {          
+          const username = requesteeUser.username; 
+          const user = C_user.username; 
+          const message = `Hello ${username}! ${user} have asked you questions`;
+
           sendMail(
-            process.env.WELCOME_EMAIL_TEMPLATE_ID,
-            requesteeUser.email, // Using requestee's email dynamically
+            process.env.USER_NOTIFICATION_TEMPLATE_ID,
+            requesteeUser.email,
             'Welcome to Mahabazzz',
-            { nickname: 'test' }
+            { message } ,
+            process.env.MAIL_FROM_NOTIFICATION,
           );
         }
       }
@@ -1641,15 +1659,25 @@ module.exports = {
 
     const seenProfile = await db.User.findOne({
       where: { id: viewedId },
-      attributes: ['email'],
+      attributes: ['email', 'username'],
+    });
+
+    const C_user = await db.User.findOne({
+      where: { id: viewerId },
+      attributes: ['email', 'username'], 
     });
 
     if (seenProfile) {
+      const username = seenProfile.username; 
+      const user = C_user.username; 
+      const message = `Hello ${username}! ${user} saw your profile`;
+
       sendMail(
-        process.env.WELCOME_EMAIL_TEMPLATE_ID,
+        process.env.USER_NOTIFICATION_TEMPLATE_ID,
         seenProfile.email,
         'Welcome to Mahabazzz',
-        { nickname: 'test' }
+        { message },
+        process.env.MAIL_FROM_NOTIFICATION,
       );
     }
     return true
