@@ -288,18 +288,30 @@ module.exports = {
     })
     if (!isAlreadySaved) {
       await db.SavedProfile.create({ userId, savedUserId })
-      const savedUser = await db.User.findOne({
-        where: { id: savedUserId },
-        attributes: ['email'],
+      
+      const C_user = await db.User.findOne({
+        where: { id: userId },
+        attributes: ['email', 'username'], 
       });
 
+      const savedUser = await db.User.findOne({
+        where: { id: savedUserId },
+        attributes: ['email', 'username'], 
+      });
+
+      
       if (savedUser) {
-        
+
+        const username = savedUser.username; 
+        const user = C_user.username; 
+        const message = `Hello ${username}! ${user} saved your profile`;
+
         sendMail(
-          process.env.WELCOME_EMAIL_TEMPLATE_ID,
+          process.env.USER_NOTIFICATION_TEMPLATE_ID,
           savedUser.email,
           'Welcome to Mahabazzz',
-          { nickname: 'test' }
+          { message },
+          process.env.MAIL_FROM_NOTIFICATION,
         );
       }
       return true
