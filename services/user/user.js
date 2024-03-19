@@ -121,12 +121,12 @@ module.exports = {
 
       const requesteeUser = await db.User.findOne({
         where: { id: requesteeUserId },
-        attributes: ['email', 'username'],
+        attributes: ['email', 'username', 'code'],
       });
 
       const C_user = await db.User.findOne({
         where: { id: requesterUserId },
-        attributes: ['email', 'username'], 
+        attributes: ['email', 'username', 'code'], 
       });
 
       if (requesteeUser) {      
@@ -171,7 +171,8 @@ module.exports = {
         pushNotification.sendNotificationSingle(
           fcmToken,
           notificationPayload.notificationType,
-          notificationPayload.notificationType
+          notificationPayload.notificationType,
+          C_user
         )
       }
       const socketData = {
@@ -279,7 +280,14 @@ module.exports = {
           requesteeUserId,
           'getMatched'
         )
+        
         if (isToggleOn) {
+
+          const requesteeUser = await db.User.findOne({
+            where: { id: requesteeUserId },
+            attributes: ['email', 'username', 'code'],
+          });
+
           // check for toggles on or off
           const { fcmToken } = await db.User.findOne({
             where: { id: notificationPayload.userId },
@@ -288,7 +296,8 @@ module.exports = {
           pushNotification.sendNotificationSingle(
             fcmToken,
             notificationPayload.notificationType,
-            notificationPayload.notificationType
+            notificationPayload.notificationType,
+            requesteeUser
           )
         }
       } else {
@@ -444,6 +453,10 @@ module.exports = {
           'getMatched'
         )
         if (isToggleOn) {
+          const requesteeUser = await db.User.findOne({
+            where: { id: requesteeUserId },
+            attributes: ['email', 'username', 'code'],
+          });
           // check for toggles on or off
           const { fcmToken } = await db.User.findOne({
             where: { id: notificationPayload.userId },
@@ -452,7 +465,8 @@ module.exports = {
           pushNotification.sendNotificationSingle(
             fcmToken,
             notificationPayload.notificationType,
-            notificationPayload.notificationType
+            notificationPayload.notificationType,
+            requesteeUser
           )
         }
       } else {
@@ -646,6 +660,12 @@ module.exports = {
       )
       if (isToggleOn) {
         // check for toggles on or off
+
+        const requesteeUser = await db.User.findOne({
+          where: { id: requesteeUserId },
+          attributes: ['email', 'username', 'code'],
+        });
+        
         const { fcmToken } = await db.User.findOne({
           where: { id: requesteeUserId },
           attributes: ['fcmToken'],
@@ -653,7 +673,8 @@ module.exports = {
         pushNotification.sendNotificationSingle(
           fcmToken,
           notificationType.PICTURE_REQUEST,
-          notificationType.PICTURE_REQUEST
+          notificationType.PICTURE_REQUEST,
+          requesteeUser
         )
       }
       const requesterUser = await db.User.findOne({
@@ -708,6 +729,10 @@ module.exports = {
         'receivePicture'
       )
       if (isToggleOn) {
+        const requesterUser = await db.User.findOne({
+          where: { id: updatedRequest.requesterUserId },
+          attributes: ['email', 'username', 'code'],
+        });
         // check for toggles on or off
         const { fcmToken } = await db.User.findOne({
           where: { id: notificationPayload.userId },
@@ -716,7 +741,8 @@ module.exports = {
         pushNotification.sendNotificationSingle(
           fcmToken,
           notificationPayload.notificationType,
-          notificationPayload.notificationType
+          notificationPayload.notificationType,
+          requesterUser
         )
       }
     } else if (dataToUpdate?.status === requestStatus.REJECTED) {
@@ -1071,6 +1097,12 @@ module.exports = {
     )
     if (isToggleOn) {
       // check for toggles on or off
+
+      const requesterUser = await db.User.findOne({
+        where: { id: userId },
+        attributes: ['email', 'username', 'code'],
+      });
+
       const { fcmToken } = await db.User.findOne({
         where: { id: otherUserId },
         attributes: ['fcmToken'],
@@ -1078,7 +1110,8 @@ module.exports = {
       pushNotification.sendNotificationSingle(
         fcmToken,
         notificationType.MATCH_CANCELLED,
-        notificationType.MATCH_CANCELLED
+        notificationType.MATCH_CANCELLED,
+        requesterUser
       )
 
       socketFunctions.transmitDataOnRealtime(
@@ -1223,6 +1256,11 @@ module.exports = {
       )
       if (isToggleOn) {
         // check for toggles on or off
+        const requesteeUser = await db.User.findOne({
+          where: { id: requesteeUserId },
+          attributes: ['email', 'username', 'code'],
+        });
+
         const { fcmToken } = await db.User.findOne({
           where: { id: requesteeUserId },
           attributes: ['fcmToken'],
@@ -1230,7 +1268,8 @@ module.exports = {
         pushNotification.sendNotificationSingle(
           fcmToken,
           notificationType.QUESTION_RECEIVED,
-          notificationType.QUESTION_RECEIVED
+          notificationType.QUESTION_RECEIVED,
+          requesteeUser
         )
       }
 
@@ -1373,6 +1412,11 @@ module.exports = {
         )
         if (isToggleOn) {
           // check for toggles on or off
+          const askedUser = await db.User.findOne({
+            where: { id: updatedQuestion.askedUserId },
+            attributes: ['email', 'username', 'code'],
+          });
+
           const { fcmToken } = await db.User.findOne({
             where: { id: updatedQuestion.askingUserId },
             attributes: ['fcmToken'],
@@ -1380,7 +1424,8 @@ module.exports = {
           pushNotification.sendNotificationSingle(
             fcmToken,
             notificationType.QUESTION_ANSWERED,
-            notificationType.QUESTION_ANSWERED
+            notificationType.QUESTION_ANSWERED,
+            askedUser
           )
         }
 
@@ -1567,6 +1612,11 @@ module.exports = {
       )
       if (isToggleOn) {
         // check for toggles on or off
+        const askedUser = await db.User.findOne({
+          where: { id: updatedQuestion.askedUserId },
+          attributes: ['email', 'username', 'code'],
+        });
+
         const { fcmToken } = await db.User.findOne({
           where: { id: updatedQuestion.askingUserId },
           attributes: ['fcmToken'],
@@ -1574,7 +1624,8 @@ module.exports = {
         pushNotification.sendNotificationSingle(
           fcmToken,
           notificationType.QUESTION_ANSWERED,
-          notificationType.QUESTION_ANSWERED
+          notificationType.QUESTION_ANSWERED,
+          askedUser
         )
       }
 
@@ -1908,12 +1959,14 @@ module.exports = {
         id: userId,
       },
     })
+    
     if (!user.fcmToken) {
       throw new Error('Other user does not have FCM token.')
     }
     const { title, description } = body
+   
     const [err, data] = await to(
-      pushNotification.sendNotificationSingle(user.fcmToken, title, description)
+      pushNotification.sendNotificationSingle(user.fcmToken, title, description, user)
     )
     return { err, data }
   },
