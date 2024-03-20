@@ -3,7 +3,9 @@ const { gender } = require('../config/constants')
 
 module.exports = {
   validateVerifyCode: function (obj) {
+    console.log("adasdas", obj)
     const schema = Joi.object({
+      
       userId: Joi.number().required().label('userId').messages({
         'any.required': `{#label} is Required`,
         'string.email': 'Enter a valid email',
@@ -14,6 +16,18 @@ module.exports = {
       code: Joi.string().required().label('Code').messages({
         'any.required': `{#label} is Required`,
       }),
+    })
+    return schema.validate(obj, { allowUnknown: true })
+  },
+  validateUpdateLanguage: function (obj) {
+    const schema = Joi.object({
+      userId: Joi.number().required().label('userId').messages({
+        'any.required': `{#label} is Required`,
+      }),
+      language: Joi.string().required().label('language').messages({
+        'any.required': `{#label} is Required`,
+      }),
+     
     })
     return schema.validate(obj, { allowUnknown: true })
   },

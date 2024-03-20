@@ -172,7 +172,8 @@ module.exports = {
           fcmToken,
           notificationPayload.notificationType,
           notificationPayload.notificationType,
-          C_user
+          C_user,
+          requesteeUser
         )
       }
       const socketData = {
@@ -661,19 +662,25 @@ module.exports = {
       if (isToggleOn) {
         // check for toggles on or off
 
+        const requesterUser = await db.User.findOne({
+          where: { id: requesteeUserId },
+          attributes: ['email', 'username', 'code'],
+        });
+
         const requesteeUser = await db.User.findOne({
           where: { id: requesteeUserId },
           attributes: ['email', 'username', 'code'],
         });
         
         const { fcmToken } = await db.User.findOne({
-          where: { id: requesteeUserId },
+          where: { id: requesterUserId },
           attributes: ['fcmToken'],
         })
         pushNotification.sendNotificationSingle(
           fcmToken,
           notificationType.PICTURE_REQUEST,
           notificationType.PICTURE_REQUEST,
+          requesterUser,
           requesteeUser
         )
       }
@@ -729,8 +736,8 @@ module.exports = {
         'receivePicture'
       )
       if (isToggleOn) {
-        const requesterUser = await db.User.findOne({
-          where: { id: updatedRequest.requesterUserId },
+        const requesteeUser = await db.User.findOne({
+          where: { id: updatedRequest.requesteeUserId },
           attributes: ['email', 'username', 'code'],
         });
         // check for toggles on or off
@@ -742,7 +749,7 @@ module.exports = {
           fcmToken,
           notificationPayload.notificationType,
           notificationPayload.notificationType,
-          requesterUser
+          requesteeUser
         )
       }
     } else if (dataToUpdate?.status === requestStatus.REJECTED) {

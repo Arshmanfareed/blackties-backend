@@ -37,6 +37,38 @@ const auth = require('../../middlewares/auth')
  */
 router.post('/verify-code', authController.verifyCode)
 
+// verify otp 
+/**
+ * @swagger
+ * /auth/update-language:
+ *   post:
+ *     summary: update language
+ *     consumes:
+ *      - application/json
+ *     produces:
+ *      - application/json
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               userId:
+ *                 type: integer
+ *               language:
+ *                 type: string
+ *     tags:
+ *     - Auth
+ *     operationId: updateLanguage
+ *     deprecated: false
+ *     responses:
+ *       '200':
+ *         description: ''
+ *         headers: {}
+ */
+router.post('/update-language',auth,authController.updateLanguage)
+
 /**
  * @swagger
  * /auth/signup:
