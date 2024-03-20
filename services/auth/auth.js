@@ -51,6 +51,27 @@ module.exports = {
       throw Error('Incorrect OTP, please try again')
     }
   },
+  UpdateLanguage: async (body) => {
+    const { userId, language } = body
+    let user = await db.User.findOne({
+      where: { id: userId },
+      attributes: { exclude: ['password'] },
+    })
+    if (!user) {
+      throw new Error('User does not exist.')
+    }
+    if (language == 'en' || language == 'ar' ) {
+      
+      // remove the old and update the new
+      await db.User.update(
+        { language: language },
+        { where: { id: user.id } }
+      )
+     
+    } else {
+      throw Error('You can only select EN or AR.')
+    }
+  },
   logout: async (userId) => {
     return db.User.update({ fcmToken: null }, { where: { id: userId } })
   },

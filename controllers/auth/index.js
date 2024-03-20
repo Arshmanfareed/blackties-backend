@@ -31,6 +31,31 @@ module.exports = {
     }
     return responseFunctions._200(res, data, 'Your phone number has been successfully updated')
   },
+
+  updateLanguage: async (req, res) => {
+    // validation
+    const { body } = req
+
+    if (body.userId) {
+      body.userId = parseInt(body.userId);
+    }
+    // console.log("userid------------------------------------", body.language)
+
+    if (!body || !body.userId || !body.language) {
+        return responseFunctions._400(res, "Missing required fields");
+    }
+    
+    const { error } = authValidations.validateUpdateLanguage(body)
+    if (error) {
+      return responseFunctions._400(res, error.details[0].message)
+    }
+    const [err, data] = await to(authService.UpdateLanguage(body))
+    if (err) {
+      return responseFunctions._400(res, err.message)
+    }
+    return responseFunctions._200(res, data, `Your language has been successfully updated ${body.language}`)
+  },
+
   login: async (req, res) => {
     // validation
     const { body } = req
