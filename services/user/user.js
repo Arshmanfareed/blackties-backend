@@ -286,7 +286,12 @@ module.exports = {
 
           const requesteeUser = await db.User.findOne({
             where: { id: requesteeUserId },
-            attributes: ['email', 'username', 'code'],
+            attributes: ['email', 'username', 'code', 'language'],
+          });
+
+          const requesterUser = await db.User.findOne({
+            where: { id: requesterUserId },
+            attributes: ['email', 'username', 'code', 'language'],
           });
 
           // check for toggles on or off
@@ -298,7 +303,8 @@ module.exports = {
             fcmToken,
             notificationPayload.notificationType,
             notificationPayload.notificationType,
-            requesteeUser
+            requesteeUser,
+            requesterUser
           )
         }
       } else {
@@ -456,7 +462,11 @@ module.exports = {
         if (isToggleOn) {
           const requesteeUser = await db.User.findOne({
             where: { id: requesteeUserId },
-            attributes: ['email', 'username', 'code'],
+            attributes: ['email', 'username', 'code', 'language'],
+          });
+          const requesterUser = await db.User.findOne({
+            where: { id: requesterUserId },
+            attributes: ['email', 'username', 'code', 'language'],
           });
           // check for toggles on or off
           const { fcmToken } = await db.User.findOne({
@@ -467,7 +477,8 @@ module.exports = {
             fcmToken,
             notificationPayload.notificationType,
             notificationPayload.notificationType,
-            requesteeUser
+            requesteeUser,
+            requesterUser
           )
         }
       } else {
@@ -738,8 +749,13 @@ module.exports = {
       if (isToggleOn) {
         const requesteeUser = await db.User.findOne({
           where: { id: updatedRequest.requesteeUserId },
-          attributes: ['email', 'username', 'code'],
+          attributes: ['email', 'username', 'code', 'language'],
         });
+        const requesterUser = await db.User.findOne({
+          where: { id: updatedRequest.requesterUserId },
+          attributes: ['email', 'username', 'code', 'language'],
+        });
+        
         // check for toggles on or off
         const { fcmToken } = await db.User.findOne({
           where: { id: notificationPayload.userId },
@@ -749,7 +765,8 @@ module.exports = {
           fcmToken,
           notificationPayload.notificationType,
           notificationPayload.notificationType,
-          requesteeUser
+          requesteeUser,
+          requesterUser
         )
       }
     } else if (dataToUpdate?.status === requestStatus.REJECTED) {
@@ -1110,6 +1127,11 @@ module.exports = {
         attributes: ['email', 'username', 'code'],
       });
 
+      const otherUser = await db.User.findOne({
+        where: { id: otherUserId },
+        attributes: ['email', 'username', 'code', 'language'],
+      });
+
       const { fcmToken } = await db.User.findOne({
         where: { id: otherUserId },
         attributes: ['fcmToken'],
@@ -1118,7 +1140,8 @@ module.exports = {
         fcmToken,
         notificationType.MATCH_CANCELLED,
         notificationType.MATCH_CANCELLED,
-        requesterUser
+        requesterUser,
+        otherUser
       )
 
       socketFunctions.transmitDataOnRealtime(
@@ -1268,6 +1291,11 @@ module.exports = {
           attributes: ['email', 'username', 'code'],
         });
 
+        const requesterUser = await db.User.findOne({
+          where: { id: requesterUserId },
+          attributes: ['email', 'username', 'code', 'language'],
+        });
+
         const { fcmToken } = await db.User.findOne({
           where: { id: requesteeUserId },
           attributes: ['fcmToken'],
@@ -1276,7 +1304,8 @@ module.exports = {
           fcmToken,
           notificationType.QUESTION_RECEIVED,
           notificationType.QUESTION_RECEIVED,
-          requesteeUser
+          requesteeUser,
+          requesterUser
         )
       }
 
@@ -1424,6 +1453,11 @@ module.exports = {
             attributes: ['email', 'username', 'code'],
           });
 
+          const askingUser = await db.User.findOne({
+            where: { id: updatedQuestion.askingUserId },
+            attributes: ['email', 'username', 'code', 'language'],
+          });
+
           const { fcmToken } = await db.User.findOne({
             where: { id: updatedQuestion.askingUserId },
             attributes: ['fcmToken'],
@@ -1432,7 +1466,8 @@ module.exports = {
             fcmToken,
             notificationType.QUESTION_ANSWERED,
             notificationType.QUESTION_ANSWERED,
-            askedUser
+            askedUser,
+            askingUser
           )
         }
 
@@ -1624,6 +1659,11 @@ module.exports = {
           attributes: ['email', 'username', 'code'],
         });
 
+        const askingUser = await db.User.findOne({
+          where: { id: updatedQuestion.askingUserId },
+          attributes: ['email', 'username', 'code', 'language'],
+        });
+
         const { fcmToken } = await db.User.findOne({
           where: { id: updatedQuestion.askingUserId },
           attributes: ['fcmToken'],
@@ -1632,7 +1672,8 @@ module.exports = {
           fcmToken,
           notificationType.QUESTION_ANSWERED,
           notificationType.QUESTION_ANSWERED,
-          askedUser
+          askedUser,
+          askingUser
         )
       }
 
