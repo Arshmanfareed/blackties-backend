@@ -477,8 +477,8 @@ module.exports = {
             fcmToken,
             notificationPayload.notificationType,
             notificationPayload.notificationType,
-            requesteeUser,
-            requesterUser
+            requesterUser,
+            requesteeUser
           )
         }
       } else {
@@ -691,8 +691,8 @@ module.exports = {
           fcmToken,
           notificationType.PICTURE_REQUEST,
           notificationType.PICTURE_REQUEST,
-          requesterUser,
-          requesteeUser
+          requesteeUser,
+          requesterUser
         )
       }
       const requesterUser = await db.User.findOne({
@@ -1303,9 +1303,9 @@ module.exports = {
         pushNotification.sendNotificationSingle(
           fcmToken,
           notificationType.QUESTION_RECEIVED,
-          notificationType.QUESTION_RECEIVED,
-          requesteeUser,
-          requesterUser
+          notificationType.QUESTION_RECEIVED,          
+          requesterUser,
+          requesteeUser
         )
       }
 
