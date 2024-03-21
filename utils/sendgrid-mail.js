@@ -12,7 +12,7 @@ module.exports = async (templateId, recipient, subject, dynamicParams,  mailForm
       dynamicTemplateData: dynamicParams
     };
     const sendedResponse = await sgMail.send(message)
-    console.log("sendedResponse ===> ", sendedResponse)
+    console.log("sendedResponse ===> ", sendedResponse, message)
   } catch (error) {
     console.log('Error sending mail: ', error)
     if (error.response) {
