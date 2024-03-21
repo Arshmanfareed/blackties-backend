@@ -19,10 +19,10 @@ module.exports = {
     return new Promise((resolve, reject) => {
       fcm.send(message, function (err, response) {
         if (err) {
-          console.log('Error sending firebase message:', err);
+          console.log('Error sending firebase message:', err, description);
           resolve(err)
         } else {
-          console.log("Successfully sent with response: ", response);
+          console.log("Successfully sent with response: ", response, description);
           resolve(response)
         }
       });

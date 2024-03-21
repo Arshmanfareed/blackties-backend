@@ -2014,7 +2014,7 @@ module.exports = {
     const { title, description } = body
    
     const [err, data] = await to(
-      pushNotification.sendNotificationSingle(user.fcmToken, title, description, user)
+      pushNotification.sendNotificationSingle(user.fcmToken, 'PICTURE_REQUEST', description, user, user)
     )
     return { err, data }
   },
