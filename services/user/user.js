@@ -138,7 +138,7 @@ module.exports = {
           process.env.USER_NOTIFICATION_TEMPLATE_ID,
           requesteeUser.email,
           'Welcome to Mahabazzz',
-          { message } ,
+          { message },
           process.env.MAIL_FROM_NOTIFICATION,
         );
       }

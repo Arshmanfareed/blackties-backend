@@ -6,7 +6,7 @@ module.exports = async (templateId, recipient, subject, dynamicParams,  mailForm
   try {
     const message = {
       to: recipient,
-      from: mailForm, // Use the email address or domain you verified above
+      from: mailForm,
       subject,
       templateId,
       dynamicTemplateData: dynamicParams
