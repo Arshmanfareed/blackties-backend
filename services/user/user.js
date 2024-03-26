@@ -575,16 +575,19 @@ module.exports = {
       throw new Error(error.message)
     }
   },
-  blockUser: async (blockerUserId, blockedUserId, reasons) => {
+  blockUser: async (blockerUserId, blockedUserId, reasons, ip) => {
     const alreadyBlocked = await db.BlockedUser.findOne({
       where: { blockerUserId, blockedUserId },
     })
     if (alreadyBlocked) {
       throw new Error("You've already blocked this user.")
     }
+    console.log('Client IsadadP Address:', ip);
+    const blockerUserIpAddress = ip
     const blockedUser = await db.BlockedUser.create({
       blockerUserId,
       blockedUserId,
+      blockerUserIpAddress,
       status: true,
     })
     const blockedReasons = reasons.map((reason) => {

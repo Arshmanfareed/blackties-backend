@@ -12,8 +12,8 @@ module.exports = {
       [
         {
           role: roles.USER,
-          email: "dummy_user1@yopmail.com", 
-          username: "dummy_user1", 
+          email: "dummy_user1123@yopmail.com", 
+          username: "dummy_user11231", 
           password: hashed, 
           status: status.ACTIVE,
           createdAt: new Date(),
@@ -21,8 +21,8 @@ module.exports = {
         },
         {
           role: roles.USER,
-          email: "dummy_user2@yopmail.com", 
-          username: "dummy_user2", 
+          email: "dummy_user21231@yopmail.com", 
+          username: "dummy_user2123", 
           password: hashed, 
           status: status.ACTIVE,
           createdAt: new Date(),
@@ -30,8 +30,8 @@ module.exports = {
         },
         {
           role: roles.USER,
-          email: "dummy_user3@yopmail.com", 
-          username: "dummy_user3", 
+          email: "dummy_user3132@yopmail.com", 
+          username: "dummy_user3123", 
           password: hashed, 
           status: status.ACTIVE,
           createdAt: new Date(),
