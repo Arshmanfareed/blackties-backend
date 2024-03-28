@@ -9,6 +9,7 @@ module.exports = {
     const t = await db.sequelize.transaction()
     try {
       // get those users whose suspend end date is today
+      console.log("check if cron run--------------------------------------")
       const suspendedUsers = await db.SuspendedUser.findAll({
         where: {
           suspendEndDate: {

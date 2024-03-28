@@ -594,7 +594,7 @@ module.exports = {
       return { reason, blockedId: blockedUser.id, status: true }
     })
     await db.BlockReason.bulkCreate(blockedReasons)
-    helperFunctions.autoSuspendUserOnBlocks(blockedUserId) // suspend user on lot of blocks
+    helperFunctions.autoSuspendUserOnBlocks(blockedUserId, blockerUserId, blockerUserIpAddress) // suspend user on lot of blocks
     return blockedUser
   },
   unblockUser: async (blockerUserId, blockedUserId) => {
