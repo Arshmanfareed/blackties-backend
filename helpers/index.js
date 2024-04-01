@@ -405,16 +405,6 @@ const helperFunctions = {
           console.log('deactivated');
           await db.User.update({ status: status.DEACTIVATED }, { where: { id: blockedUserId }, transaction: t })
           await db.UserSetting.update({ isEmailVerified: 0, membership: 'Regular' }, { where: { userId: blockedUserId }, transaction: t })
-          await db.ExtraInfoRequests.destroy({ where: { requesterUserId: blockedUserId }, transaction: t });
-          await db.ExtraInfoRequests.destroy({
-            where: {
-              [Op.or]: [
-                { requesterUserId: blockedUserId },
-                { requesteeUserId: blockedUserId }
-              ]
-            },
-            transaction: t
-          });
         }
         
       }
