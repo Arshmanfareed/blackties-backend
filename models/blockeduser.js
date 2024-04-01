@@ -20,15 +20,23 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'blockedUserId',
         as: 'blockedUser'
       });
+      
 
       BlockedUser.hasMany(models.BlockReason, {
         foreignKey: 'blockedId',
       })
+
+      BlockedUser.belongsTo(models.UserSetting, {  // Add this association
+        foreignKey: 'blockerUserId',
+        as: 'blockerUserSetting'
+      })
+      
     }
   }
   BlockedUser.init({
     blockerUserId: DataTypes.INTEGER,
     blockedUserId: DataTypes.INTEGER,
+    blockerUserIpAddress: DataTypes.STRING,
     status: DataTypes.BOOLEAN
   }, {
     sequelize,

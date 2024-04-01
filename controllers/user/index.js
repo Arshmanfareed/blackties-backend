@@ -58,16 +58,20 @@ module.exports = {
     const { user, params, body } = req
     const { id: blockedUserId } = params
     const { id: blockerUserId } = user
+
+    const ip = req.body.ip;
+
+  
     const { error } = userValidations.validateBlockUser(body)
     if (error) {
       return responseFunctions._400(res, error.details[0].message)
     }
     const { reason } = body
-    const [err, data] = await to(userService.blockUser(blockerUserId, blockedUserId, reason))
+    const [err, data] = await to(userService.blockUser(blockerUserId, blockedUserId, reason, ip))
     if (err) {
       return responseFunctions._400(res, err.message)
     }
-    return responseFunctions._200(res, data, 'User blocked successfully')
+    return responseFunctions._200(res, data, `User blocked successfully ${ip}`)
   },
   unblockUser: async (req, res) => {
     const { user, params } = req

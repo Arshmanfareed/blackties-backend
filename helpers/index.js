@@ -1,6 +1,6 @@
 const { sequelize } = require('../models')
 const db = require('../models')
-const { Op, Sequelize, QueryTypes } = require('sequelize')
+const { Op, fn, col, Sequelize, QueryTypes } = require('sequelize')
 const sendMail = require('../utils/sendgrid-mail')
 const { gender, rewardPurpose, featureTypes, featureValidity, status, suspensionCriteria, requestStatus } = require('../config/constants')
 const moment = require('moment')
@@ -237,7 +237,7 @@ const helperFunctions = {
       }
     }
   },
-  autoSuspendUserOnBlocks: async (blockedUserId) => {
+  autoSuspendUserOnBlocks: async (blockedUserId, blockerUserId, blockerUserIpAddress) => {
     const t = await db.sequelize.transaction()
     try {
       /*
@@ -250,51 +250,173 @@ const helperFunctions = {
         if third time user will be banned/suspend for 6 months
         if fourth time user will be banned/suspend for indefinitely
       */
-      const promisesResolved = await Promise.allSettled([
-        db.BlockedUser.count({
+
+
+        const blockedUsers = await db.BlockedUser.findAll({
+          attributes: [
+            'id',
+            'blockerUserId',
+            'blockerUserIpAddress',
+            'blockedUserId',
+            [sequelize.literal('MIN(blockreasons.blockedId)'), 'blockedId'],
+            [sequelize.literal('MIN(blockreasons.reason)'), 'reason'],
+            [sequelize.literal('MIN(blockerUserSetting.userId)'), 'userId'],
+            [sequelize.literal('MIN(blockerUserSetting.isEmailVerified)'), 'isEmailVerified'],
+          ],
+          include: [
+            {
+              model: db.BlockReason,
+              attributes: [],
+              where: {
+                reason: {
+                  [Op.ne]: 'not_suitable_for_me'
+                }
+              },
+              required: false
+            },
+            {
+              model: db.UserSetting,
+              attributes: [],
+              as: 'blockerUserSetting', // Correct alias
+              where: {
+                isEmailVerified: 1
+              },
+              required: false
+            }
+          ],
           where: {
-            blockedUserId,
+            blockedUserId: 5,
             createdAt: {
               [Op.between]: [moment().subtract(30, 'days').utc(), moment().utc()]
-              // * Reason for block should not be 'Not Suitable for me' if multiple options are selected, block is counted.
             }
-          }
-        }),
-        db.BlockedUser.count({
+          },
+          group: ['blockerUserIpAddress']
+        });
+
+        const blockedUsersFor90Days = await db.BlockedUser.findAll({
+          attributes: [
+            'id',
+            'blockerUserId',
+            'blockerUserIpAddress',
+            'blockedUserId',
+            [sequelize.literal('MIN(blockreasons.blockedId)'), 'blockedId'],
+            [sequelize.literal('MIN(blockreasons.reason)'), 'reason'],
+            [sequelize.literal('MIN(blockerUserSetting.userId)'), 'userId'],
+            [sequelize.literal('MIN(blockerUserSetting.isEmailVerified)'), 'isEmailVerified'],
+          ],
+          include: [
+            {
+              model: db.BlockReason,
+              attributes: [],
+              where: {
+                reason: {
+                  [Op.ne]: 'not_suitable_for_me'
+                }
+              },
+              required: false
+            },
+            {
+              model: db.UserSetting,
+              attributes: [],
+              as: 'blockerUserSetting', // Correct alias
+              where: {
+                isEmailVerified: 1
+              },
+              required: false
+            }
+          ],
           where: {
-            blockedUserId,
+            blockedUserId: 5,
             createdAt: {
               [Op.between]: [moment().subtract(90, 'days').utc(), moment().utc()]
             }
-            // * Reason for block should not be 'Not Suitable for me' if multiple options are selected, block is counted.
           },
-        }),
-        db.User.findOne({
-          where: { id: blockedUserId },
-          attributes: ['status'],
-          include: {
-            model: db.UserSetting,
-            attributes: ['suspendCount']
-          }
-        }),
-      ])
-      const blocksIn30Days = promisesResolved[0].status == 'fulfilled' ? promisesResolved[0].value : 0
-      const blocksIn90Days = promisesResolved[1].status == 'fulfilled' ? promisesResolved[1].value : 0
+          group: ['blockerUserIpAddress']
+        });
+                      
+        const promisesResolved = await Promise.allSettled([
+          db.BlockedUser.count({
+            where: {
+              blockedUserId,
+              createdAt: {
+                [Op.between]: [moment().subtract(30, 'days').utc(), moment().utc()]
+              }
+            },
+            include: [{
+              model: db.UserSetting,
+              as: 'blockerUserSetting', // Specify the alias for the association
+              where: {
+                userId: blockerUserId,
+              }
+            }]
+          }),
+          db.BlockedUser.count({
+            where: {
+              blockedUserId,
+              createdAt: {
+                [Op.between]: [moment().subtract(90, 'days').utc(), moment().utc()]
+              }
+            },
+            include: [{
+              model: db.UserSetting,
+              as: 'blockerUserSetting', // Specify the alias for the association
+              where: {
+                userId: blockerUserId,
+                isEmailVerified: 1
+              }
+            }]
+          }),
+          db.User.findOne({
+            where: { id: blockedUserId },
+            attributes: ['status'],
+            include: {
+              model: db.UserSetting,
+            }
+          })
+        ]);
+        
+        const userSetting = await db.UserSetting.findOne({
+          where: { userId: blockedUserId },
+          attributes: ['suspendCount'],
+        })
+
+      const blocksIn30Days = blockedUsers.length
+      const blocksIn90Days = blockedUsersFor90Days.length
       const user = promisesResolved[2].status == 'fulfilled' ? promisesResolved[2].value : {}
+      console.log('blocksIn30Days', blocksIn30Days);
+      console.log('blocksIn90Days', blocksIn90Days);
 
       let suspendEndDate = null
-      if (user?.status === status.ACTIVE && (blocksIn30Days >= 10 || blocksIn90Days >= 20)) {
+      if (user?.status === status.ACTIVE && (blocksIn30Days >= 8 || blocksIn90Days >= 20)) {
         const { suspendCount: noOfTimesUserPreviouslySuspended } = user.UserSetting; // get it from user setting table
         let period = unit = null;
         if (noOfTimesUserPreviouslySuspended in suspensionCriteria) {
           ({ period, unit } = suspensionCriteria[noOfTimesUserPreviouslySuspended]);
           suspendEndDate = moment().add(period, unit)
         }
-        // suspend a user based on suspend period
-        await db.User.update({ status: status.SUSPENDED }, { where: { id: blockedUserId }, transaction: t })
-        await db.SuspendedUser.create({ userId: blockedUserId, reason: 'DUE_TO_BLOCKS', suspendEndDate, status: true, duration: period }, { transaction: t })
-        // * increment no of times user banned due to block by users
-        await db.UserSetting.increment('suspendCount', { by: 1, where: { userId: blockedUserId }, transaction: t })
+        if(userSetting.suspendCount != 3){
+          console.log('ACTIVE');
+          // suspend a user based on suspend period
+          await db.User.update({ status: status.SUSPENDED }, { where: { id: blockedUserId }, transaction: t })
+          await db.SuspendedUser.create({ userId: blockedUserId, reason: 'DUE_TO_BLOCKS', suspendEndDate, status: true, duration: period }, { transaction: t })
+          // * increment no of times user banned due to block by users
+          await db.UserSetting.increment('suspendCount', { by: 1, where: { userId: blockedUserId }, transaction: t })
+        }else{
+          console.log('deactivated');
+          await db.User.update({ status: status.DEACTIVATED }, { where: { id: blockedUserId }, transaction: t })
+          await db.UserSetting.update({ isEmailVerified: 0, membership: 'Regular' }, { where: { userId: blockedUserId }, transaction: t })
+          await db.ExtraInfoRequests.destroy({ where: { requesterUserId: blockedUserId }, transaction: t });
+          await db.ExtraInfoRequests.destroy({
+            where: {
+              [Op.or]: [
+                { requesterUserId: blockedUserId },
+                { requesteeUserId: blockedUserId }
+              ]
+            },
+            transaction: t
+          });
+        }
+        
       }
       await t.commit()
     } catch (error) {
