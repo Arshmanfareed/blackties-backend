@@ -29,10 +29,6 @@ module.exports = {
           as: 'blockedUserId',
         },
       },
-      blockerUserIpAddress: { 
-        type: Sequelize.STRING,
-        allowNull: false,
-      },
       status: {
         type: Sequelize.BOOLEAN
       },
