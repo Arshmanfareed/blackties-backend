@@ -387,7 +387,7 @@ const helperFunctions = {
       console.log('blocksIn90Days', blocksIn90Days);
 
       let suspendEndDate = null
-      if (user?.status === status.ACTIVE && (blocksIn30Days >= 10 || blocksIn90Days >= 20)) {
+      if (user?.status === status.ACTIVE && (blocksIn30Days >= 8 || blocksIn90Days >= 20)) {
         const { suspendCount: noOfTimesUserPreviouslySuspended } = user.UserSetting; // get it from user setting table
         let period = unit = null;
         if (noOfTimesUserPreviouslySuspended in suspensionCriteria) {
@@ -405,6 +405,16 @@ const helperFunctions = {
           console.log('deactivated');
           await db.User.update({ status: status.DEACTIVATED }, { where: { id: blockedUserId }, transaction: t })
           await db.UserSetting.update({ isEmailVerified: 0, membership: 'Regular' }, { where: { userId: blockedUserId }, transaction: t })
+          await db.ExtraInfoRequests.destroy({ where: { requesterUserId: blockedUserId }, transaction: t });
+          await db.ExtraInfoRequests.destroy({
+            where: {
+              [Op.or]: [
+                { requesterUserId: blockedUserId },
+                { requesteeUserId: blockedUserId }
+              ]
+            },
+            transaction: t
+          });
         }
         
       }
