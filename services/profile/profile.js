@@ -492,7 +492,7 @@ module.exports = {
   },
   getUserProfileWithDetails: async (loginUserId, otherUserId) => {
     let extraInfoRequest = (pictureRequest = contactDetailsRequest = null)
-    const userAttributes = ['id', 'username', 'email', 'code', 'createdAt']
+    const userAttributes = ['id', 'username', 'email', 'code', 'createdAt', 'status']
     let includeTables = [
       {
         model: db.Profile,

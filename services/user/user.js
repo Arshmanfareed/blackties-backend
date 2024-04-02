@@ -849,6 +849,7 @@ module.exports = {
           'email',
           'username',
           'code',
+          'status',
           [
             Sequelize.literal(
               `EXISTS(SELECT 1 FROM SavedProfiles WHERE userId = ${userId} AND savedUserId = requesteeUser.id)`
@@ -1001,6 +1002,7 @@ module.exports = {
           'email',
           'username',
           'code',
+          'status',
           [
             Sequelize.literal(
               `EXISTS(SELECT 1 FROM SavedProfiles WHERE userId = ${userId} AND savedUserId = requesteeUser.id)`
@@ -1845,6 +1847,7 @@ module.exports = {
           'email',
           'username',
           'code',
+          'status',
           [
             Sequelize.literal(
               `EXISTS(SELECT 1 FROM SavedProfiles WHERE userId = ${userId} AND savedUserId = requesteeUser.id)`
@@ -2143,6 +2146,7 @@ module.exports = {
           'id',
           'username',
           'code',
+          'status',
           [
             Sequelize.literal(
               `EXISTS(SELECT 1 FROM SavedProfiles WHERE userId = ${userId} AND savedUserId = pictureRequesteeUser.id)`
