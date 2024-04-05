@@ -257,14 +257,20 @@ module.exports = {
       const hours = Math.ceil(difference / (1000 * 60 * 60));
       if (hours <= 0) {
         // If 48 hours have passed
-        throw new Error("user_deactivated_by_own");
-        
+        const response = {
+          resCheck: {
+              key: "user_deactivated_by_own",
+              userId: 6,
+              is_login: false
+          }
+        };
+        // Send response to client-side
+       return response;
         
       } else {
         // If within 48 hours
         throw new Error(`You have decided to deactivate your account. Log back in ${hours} hours if you decide to re-activate it`);
       }    
-      // throw new Error(`You have decided to deactivate your account. Log back in ${hours} hours if you decide to re-activate it`);
     }
     if (user.status === status.DEACTIVATED) {
       // deactivated user
