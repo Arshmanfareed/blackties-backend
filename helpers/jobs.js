@@ -9,7 +9,6 @@ module.exports = {
     const t = await db.sequelize.transaction()
     try {
       // get those users whose suspend end date is today
-      console.log("check if cron run--------------------------------------")
       const suspendedUsers = await db.SuspendedUser.findAll({
         where: {
           suspendEndDate: {
@@ -23,6 +22,41 @@ module.exports = {
         await db.User.update({ status: status.ACTIVE }, { where: { id: userIds }, transaction: t });
         // Delete all suspended users in bulk
         await db.SuspendedUser.destroy({ where: { userId: userIds }, transaction: t });
+      }
+      await t.commit();
+    } catch (error) {
+      await t.rollback();
+      console.log("Error in unsuspendUsers cron: ", error)
+    }
+  },
+  deleteUser: async () => {
+    const t = await db.sequelize.transaction()
+    try {
+      // get those users whose suspend end date is today
+      console.log("check if cron run**************************")
+      // Calculate the date one month ago
+      const oneMonthAgo = new Date();
+      oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+
+      // Retrieve data where createdAt date is one month or more in the past
+      const deactivatedUsers = await db.DeactivatedUser.findAll({
+      where: {
+        createdAt: {
+          [Op.lt]: oneMonthAgo
+        }
+      }
+      });
+
+      // Do something with the retrieved data
+      console.log(deactivatedUsers);
+      if (deactivatedUsers.length > 0) {
+        const userIds = deactivatedUsers.map((user) => user.userId);
+        // Update status for all suspended users in bulk
+        await db.User.update({ email: 'email_deleted', phoneNo: '' }, { where: { id: userIds }, transaction: t });
+        // Delete all suspended users in bulk
+        await db.DeactivatedUser.destroy({ where: { userId: userIds }, transaction: t });
+
+        console.log('user delted')
       }
       await t.commit();
     } catch (error) {
