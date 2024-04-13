@@ -239,12 +239,38 @@ module.exports = {
         },
       ],
     })
+
+  
+    
     if (!user) {
       throw new Error('Wrong email or password')
     }
     const isCorrectPassword = await bcryptjs.compare(password, user.password)
     if (!isCorrectPassword) {
       throw new Error('Wrong email or password')
+    }
+
+    if (user.DeactivatedUser) {
+      const createdAt = new Date(user.DeactivatedUser.createdAt);
+      const futureTime = new Date(createdAt.getTime() + (48 * 60 * 60 * 1000)); // 48 hours * 60 minutes * 60 seconds * 1000 milliseconds
+      const difference = futureTime - Date.now();
+      const hours = Math.ceil(difference / (1000 * 60 * 60));
+      if (hours <= 0) {
+        // If 48 hours have passed
+        const response = {
+          resCheck: {
+              key: "user_deactivated_by_own",
+              userId: 6,
+              is_login: false
+          }
+        };
+        // Send response to client-side
+       return response;
+        
+      } else {
+        // If within 48 hours
+        throw new Error(`You have decided to deactivate your account. Log back in ${hours} hours if you decide to re-activate it`);
+      }    
     }
     if (user.status === status.DEACTIVATED) {
       // deactivated user
@@ -465,19 +491,20 @@ module.exports = {
   },
   reactivateAccount: async (body) => {
     const t = await db.sequelize.transaction()
+    
     try {
       const { userId } = body
       const { createdAt } = await db.DeactivatedUser.findOne({
         where: { userId },
       })
-      const deactivatedAt = moment(createdAt)
-      const dateNow = moment(Date.now())
-      const deactivationDuration = dateNow.diff(deactivatedAt, 'days')
-      if (deactivationDuration >= 30) {
-        throw new Error(
-          'You account reactivation period has passed, now you cannot reactivate your account.'
-        )
-      }
+      // const deactivatedAt = moment(createdAt)
+      // const dateNow = moment(Date.now())
+      // const deactivationDuration = dateNow.diff(deactivatedAt, 'days')
+      // if (deactivationDuration >= 30) {
+      //   throw new Error(
+      //     'You account reactivation period has passed, now you cannot reactivate your account.'
+      //   )
+      // }
       // update user status in db
       await Promise.allSettled([
         db.User.update(
