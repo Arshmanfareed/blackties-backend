@@ -4,7 +4,7 @@
 module.exports = {
   up: async (queryInterface, Sequelize) => {
     // Add your alterations here
-    await queryInterface.addColumn('blockedusers', 'blockerUserIpAddress', {
+    await queryInterface.addColumn('BlockedUsers', 'blockerUserIpAddress', {
       type: Sequelize.STRING,
       allowNull: true,
     });
@@ -12,6 +12,6 @@ module.exports = {
 
   down: async (queryInterface, Sequelize) => {
     // Revert the alterations here
-    await queryInterface.removeColumn('blockedusers', 'blockerUserIpAddress');
+    await queryInterface.removeColumn('BlockedUsers', 'blockerUserIpAddress');
   }
 };
