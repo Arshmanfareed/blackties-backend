@@ -33,6 +33,10 @@ module.exports =
         "title": "المطابقة",
         "message": "أنت مطابق مع {{username}} ({{code}})"
     },
+    "CONTACT_DETAILS_RESEND": {
+      "title": "إعادة طلب",
+      "message": "حدّث {{username}} ({{code}}) تفاصيل الاتصال لديهم"
+    },
     "MATCH_CANCELLED": {
         "title": "إلغاء المطابقة",
         "message": "{{username}} ({{code}}) قد قام بإلغاء المطابقة"
