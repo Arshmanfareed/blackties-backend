@@ -99,6 +99,10 @@ en:  {
     "title": "Request rejected",
     "message": "{{username}} ({{code}}) has rejected your contact details sent"
   },
+  CONTACT_DETAILS_RESEND: {
+    "title": "Request resend",
+    "message": "{{username}} ({{code}}) has updated their contact details"
+  },
   MATCH_CREATED: {
     "title": "Match",
     "message": "You are matched with {{username}} ({{code}})"

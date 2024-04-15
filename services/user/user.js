@@ -121,12 +121,12 @@ module.exports = {
 
       const requesteeUser = await db.User.findOne({
         where: { id: requesteeUserId },
-        attributes: ['email', 'username', 'code'],
+        attributes: ['email', 'username', 'code', 'language'],
       });
 
       const C_user = await db.User.findOne({
         where: { id: requesterUserId },
-        attributes: ['email', 'username', 'code'], 
+        attributes: ['email', 'username', 'code', 'language'], 
       });
 
       if (requesteeUser) {      
@@ -393,7 +393,7 @@ module.exports = {
         where: { id: requestId },
       })
       await db.ContactDetails.destroy({ where: { contactDetailsRequestId: requestId }, transaction: t })
-     
+
       /*
         either accept or reject  
       */
@@ -414,8 +414,8 @@ module.exports = {
       let notification, contactDetailsByFemale
       const { requesterUserId, requesteeUserId } = contactDetailsRequest
       const notificationPayload = {
-        userId: requesterUserId,
-        resourceId: requesteeUserId,
+        userId: requesteeUserId,
+        resourceId: requesterUserId,
         resourceType: 'USER',
         status: false,
       }
@@ -449,10 +449,17 @@ module.exports = {
           t
         )
         // generate notification of match
-        notificationPayload['notificationType'] = notificationType.MATCH_CREATED
+        notificationPayload['notificationType'] = notificationType.CONTACT_DETAILS_RESEND
         notification = await db.Notification.create(notificationPayload, {
           transaction: t,
         })
+
+        // const CONTACT_DETAILS_RESPOND = '';
+
+        // notificationPayload['notificationType'] = notificationType.CONTACT_DETAILS_RESEND
+        // notification = await db.Notification.create(notificationPayload, {
+        //   transaction: t,
+        // })
         // push notification
         const isToggleOn = await helperFunctions.checkForPushNotificationToggle(
           notificationPayload.userId,
@@ -678,12 +685,12 @@ module.exports = {
 
         const requesterUser = await db.User.findOne({
           where: { id: requesteeUserId },
-          attributes: ['email', 'username', 'code'],
+          attributes: ['email', 'username', 'code', 'language'],
         });
 
         const requesteeUser = await db.User.findOne({
           where: { id: requesteeUserId },
-          attributes: ['email', 'username', 'code'],
+          attributes: ['email', 'username', 'code', 'language'],
         });
         
         const { fcmToken } = await db.User.findOne({
@@ -1129,7 +1136,7 @@ module.exports = {
 
       const requesterUser = await db.User.findOne({
         where: { id: userId },
-        attributes: ['email', 'username', 'code'],
+        attributes: ['email', 'username', 'code', 'language'],
       });
 
       const otherUser = await db.User.findOne({
@@ -1293,7 +1300,7 @@ module.exports = {
         // check for toggles on or off
         const requesteeUser = await db.User.findOne({
           where: { id: requesteeUserId },
-          attributes: ['email', 'username', 'code'],
+          attributes: ['email', 'username', 'code', 'language'],
         });
 
         const requesterUser = await db.User.findOne({
@@ -1455,7 +1462,7 @@ module.exports = {
           // check for toggles on or off
           const askedUser = await db.User.findOne({
             where: { id: updatedQuestion.askedUserId },
-            attributes: ['email', 'username', 'code'],
+            attributes: ['email', 'username', 'code', 'language'],
           });
 
           const askingUser = await db.User.findOne({
@@ -1661,7 +1668,7 @@ module.exports = {
         // check for toggles on or off
         const askedUser = await db.User.findOne({
           where: { id: updatedQuestion.askedUserId },
-          attributes: ['email', 'username', 'code'],
+          attributes: ['email', 'username', 'code', 'language'],
         });
 
         const askingUser = await db.User.findOne({
@@ -2055,7 +2062,7 @@ module.exports = {
     //     return false
     //   }
     // }
-    await pushNotification.sendNotificationSingle(user.fcmToken, type, type)
+    // await pushNotification.sendNotificationSingle(user.fcmToken, type, type)
     // generating notification for the first time.
     await db.Notification.create({
       userId: otherUserId,
