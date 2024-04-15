@@ -4,6 +4,8 @@ const notify_tra = require('../config/notification-trans')
 module.exports = {
   sendNotificationSingle: async (token, key, body, user, notifyUser) => {
     if(!token) return false
+
+
   
     let title = notify_tra[notifyUser.language][key] ? notify_tra[notifyUser.language][key].title : key;
     let description = notify_tra[notifyUser.language][key] ? notify_tra[notifyUser.language][key].message : key;

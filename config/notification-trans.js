@@ -33,6 +33,10 @@ module.exports =
         "title": "المطابقة",
         "message": "أنت مطابق مع {{username}} ({{code}})"
     },
+    "CONTACT_DETAILS_RESEND": {
+      "title": "إعادة طلب",
+      "message": "حدّث {{username}} ({{code}}) تفاصيل الاتصال لديهم"
+    },
     "MATCH_CANCELLED": {
         "title": "إلغاء المطابقة",
         "message": "{{username}} ({{code}}) قد قام بإلغاء المطابقة"
@@ -98,6 +102,10 @@ en:  {
   CONTACT_DETAILS_SENT_REJECTED: {
     "title": "Request rejected",
     "message": "{{username}} ({{code}}) has rejected your contact details sent"
+  },
+  CONTACT_DETAILS_RESEND: {
+    "title": "Request resend",
+    "message": "{{username}} ({{code}}) has updated their contact details"
   },
   MATCH_CREATED: {
     "title": "Match",
