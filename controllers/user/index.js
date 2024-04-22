@@ -132,6 +132,16 @@ module.exports = {
     }
     return responseFunctions._200(res, data, 'Data fetched successfully')
   },
+
+  // getUserPeriodicNotifications: async (req, res) => {
+  //   const { id: userId } = req.user
+  //   const { limit, offset, status } = req.query
+  //   const [err, data] = await to(userService.getUserPeriodicNotifications(userId, Number(limit || 10), Number(offset || 0), status))
+  //   if (err) {
+  //     return responseFunctions._400(res, err.message)
+  //   }
+  //   return responseFunctions._200(res, data, 'Data fetched successfully')
+  // },
   getMyRequestOfContactDetails: async (req, res) => {
     const { id: userId } = req.user
     const [err, data] = await to(userService.getMyRequestOfContactDetails(userId))
