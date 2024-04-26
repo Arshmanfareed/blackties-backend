@@ -6,7 +6,6 @@ module.exports = {
     if(!token) return false
 
 
-    console.log('=============================', key, notifyUser)
   
     let title = notify_tra[notifyUser.language][key] ? notify_tra[notifyUser.language][key].title : key;
     let description = notify_tra[notifyUser.language][key] ? notify_tra[notifyUser.language][key].message : key;
