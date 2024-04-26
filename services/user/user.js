@@ -684,7 +684,7 @@ module.exports = {
         // check for toggles on or off
 
         const requesterUser = await db.User.findOne({
-          where: { id: requesteeUserId },
+          where: { id: requesterUserId },
           attributes: ['email', 'username', 'code', 'language'],
         });
 
@@ -694,15 +694,15 @@ module.exports = {
         });
         
         const { fcmToken } = await db.User.findOne({
-          where: { id: requesterUserId },
+          where: { id: requesteeUserId },
           attributes: ['fcmToken'],
         })
         pushNotification.sendNotificationSingle(
           fcmToken,
           notificationType.PICTURE_REQUEST,
           notificationType.PICTURE_REQUEST,
-          requesteeUser,
-          requesterUser
+          requesterUser,
+          requesteeUser
         )
       }
       const requesterUser = await db.User.findOne({

@@ -56,7 +56,7 @@ module.exports = {
     if (Object.values(constants.gender).includes(gender)) {
       whereFilterProfile['sex'] = gender
     }
-    let sortOrderQuery = [db.UserSetting, 'lastSeen', 'ASC'] // default sorting
+    let sortOrderQuery = [db.UserSetting, 'lastSeen', 'DESC'] // default sorting
     if (sortBy != 'lastSeen') {
       sortOrderQuery = [sortBy, sortOrder]
     }
