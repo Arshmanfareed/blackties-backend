@@ -1,8 +1,8 @@
-const { MAIL_FROM, SENDGRID_API_KEY } = process.env
+const { MAIL_FROM_NOTIFICATION, SENDGRID_API_KEY } = process.env
 const sgMail = require('@sendgrid/mail')
 sgMail.setApiKey(SENDGRID_API_KEY);
 
-module.exports = async (templateId, recipient, subject, dynamicParams,  mailForm = MAIL_FROM) => {
+module.exports = async (templateId, recipient, subject, dynamicParams,  mailForm = MAIL_FROM_NOTIFICATION) => {
   try {
     const message = {
       to: recipient,
