@@ -278,9 +278,11 @@ module.exports = {
     } else if (user.status === status.SUSPENDED) {
       let errorMessage = 'Your account has been suspended'
       if (user.SuspendedUser.duration == 1) {
-        errorMessage += ` for ${user.SuspendedUser.duration} month.`
-      }else {
-        errorMessage += ` for ${user.SuspendedUser.duration} months.`
+        errorMessage += ` for 1 month.`
+      }else if(user.SuspendedUser.duration == 2) {
+        errorMessage += ` for 3 months.`
+      }else{
+        errorMessage += ` for 6 months.`
       }
       throw new Error(errorMessage)
     }

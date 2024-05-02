@@ -417,6 +417,49 @@ router.patch('/request/:id', auth, uploadUserMedia.single('media'), userControll
  */
 router.get('/notification', auth, userController.getUserNotifications)
 
+
+/**
+ * @swagger
+ * /user/periodicnotification:
+ *   get:
+ *     summary: Get list of periodic notifications
+ *     consumes:
+ *      - application/json
+ *     produces:
+ *      - application/json
+ *     tags:
+ *     - User
+ *     parameters:
+ *     - name: x-auth-token
+ *       in: header
+ *       required: true
+ *       type: string
+ *       description: an authorization header
+ *     - name: limit
+ *       in: query
+ *       required: false
+ *       type: number
+ *       description: Limit
+ *     - name: offset
+ *       in: query
+ *       required: false
+ *       type: number
+ *       description: Offset
+ *     - name: status
+ *       in: query
+ *       required: false
+ *       type: number
+ *       description: status for getting read or unread or all periodic notifications (0 is for unread, 1 is for read, leave empty for getting all notifications)
+ *     operationId: getUserPeriodicNotifications
+ *     deprecated: false
+ *     responses:
+ *       '200':
+ *         description: ''
+ *         headers: {}
+ */
+// router.get('/periodicnotification', userController.getUserPeriodicNotifications)
+
+
 /**
  * @swagger
  * /user/notification:
