@@ -84,10 +84,10 @@ module.exports = {
   },
   emailConfirm: async (req, res) => {
     const { body } = req
-    // const { error } = authValidations.validateResetPassword(body)
-    // if (error) {
-    //   return responseFunctions._400(res, error.details[0].message)
-    // }
+    const { error } = authValidations.validateResetPassword(body)
+    if (error) {
+      return responseFunctions._400(res, error.details[0].message)
+    }
     const { email } = body
     const [err, data] = await to(authService.emailConfirm(email))
     if (err) {
