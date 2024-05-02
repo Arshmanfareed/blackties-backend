@@ -120,7 +120,6 @@ module.exports = {
           code: { [Op.like]: usernameOrCodeQuery },
         },
       },
-
       attributes: userAttributesToSelect,
       include: includeTables,
       having: {
@@ -129,8 +128,8 @@ module.exports = {
           [Op.lte]: age[1],
         },
       },
-      order: [['isOnline', 'DESC'], sortOrderQuery],
-    })
+      order: sortBy === 'createdAt' ? [['createdAt', 'DESC']] : [['isOnline', 'DESC']],
+    });
     const paginatedRecords = getPaginatedResult(users, limit, offset)
     return { count: users.length, rows: paginatedRecords }
   },
