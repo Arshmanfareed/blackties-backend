@@ -111,6 +111,7 @@ module.exports = {
         required: false,
       })
     }
+    const order = sortBy === '' ? [['isOnline', 'DESC']] : sortBy === 'lastSeen' ? [['isOnline', 'DESC'], sortOrderQuery] : [sortOrderQuery] ;
     const users = await db.User.findAll({
       where: {
         role: constants.roles.USER,
@@ -120,7 +121,6 @@ module.exports = {
           code: { [Op.like]: usernameOrCodeQuery },
         },
       },
-
       attributes: userAttributesToSelect,
       include: includeTables,
       having: {
@@ -129,8 +129,8 @@ module.exports = {
           [Op.lte]: age[1],
         },
       },
-      order: [['isOnline', 'DESC'], sortOrderQuery],
-    })
+      order,
+    });
     const paginatedRecords = getPaginatedResult(users, limit, offset)
     return { count: users.length, rows: paginatedRecords }
   },
