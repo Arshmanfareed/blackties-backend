@@ -8,7 +8,7 @@ const common = require('./common')
 
 const helperFunctions = {
   sendAccountActivationLink: async (email, userId, activationCode, lang = 'en') => {
-    const activationLink = process.env.BASE_URL_LOCAL + "/auth/account-activation/" + userId + "/" + activationCode
+    const activationLink = process.env.BASE_URL_DEV + "/auth/account-activation/" + userId + "/" + activationCode
     const templatedId = process.env.EMAIL_VERIFY_TEMPLATE_ID
     const dynamicParams = {
       link: activationLink
