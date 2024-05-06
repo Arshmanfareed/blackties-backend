@@ -285,7 +285,7 @@ const helperFunctions = {
             }
           ],
           where: {
-            blockedUserId: 5,
+            blockedUserId: blockedUserId,
             createdAt: {
               [Op.between]: [moment().subtract(30, 'days').utc(), moment().utc()]
             }

@@ -22,6 +22,7 @@ module.exports = {
         await db.User.update({ status: status.ACTIVE }, { where: { id: userIds }, transaction: t });
         // Delete all suspended users in bulk
         await db.SuspendedUser.destroy({ where: { userId: userIds }, transaction: t });
+        console.log("get deleted those users whose suspend end date is today*************************")
       }
       await t.commit();
     } catch (error) {
@@ -33,7 +34,7 @@ module.exports = {
     const t = await db.sequelize.transaction()
     try {
       // get those users whose suspend end date is today
-      console.log("check if cron run**************************")
+      
       // Calculate the date one month ago
       const oneMonthAgo = new Date();
       oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
