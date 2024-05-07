@@ -403,8 +403,46 @@ const helperFunctions = {
           await db.UserSetting.increment('suspendCount', { by: 1, where: { userId: blockedUserId }, transaction: t })
         }else{
           console.log('deactivated');
-          await db.User.update({ status: status.DEACTIVATED }, { where: { id: blockedUserId }, transaction: t })
+          await db.User.update({ status: status.DEACTIVATED, email: 'email_deleted', phoneNo: '' }, { where: { id: blockedUserId }, transaction: t })
           await db.UserSetting.update({ isEmailVerified: 0, membership: 'Regular' }, { where: { userId: blockedUserId }, transaction: t })
+          // await db.Match.destroy({ where: { userId: 5 }, transaction: t });
+          await db.Match.destroy({ 
+              where: { 
+                  [db.Sequelize.Op.or]: [
+                      { userId: blockedUserId },
+                      { otherUserId: blockedUserId }
+                  ]
+              }, 
+              transaction: t 
+          });
+          await db.ContactDetailsRequest.destroy({ 
+              where: { 
+                  [db.Sequelize.Op.or]: [
+                      { requesterUserId: blockedUserId },
+                      { requesteeUserId: blockedUserId }
+                  ]
+              }, 
+              transaction: t 
+          });
+          await db.PictureRequest.destroy({ 
+              where: { 
+                  [db.Sequelize.Op.or]: [
+                      { requesterUserId: blockedUserId },
+                      { requesteeUserId: blockedUserId }
+                  ]
+              }, 
+              transaction: t 
+          });
+          await db.ExtraInfoRequest.destroy({ 
+              where: { 
+                  [db.Sequelize.Op.or]: [
+                      { requesterUserId: blockedUserId },
+                      { requesteeUserId: blockedUserId }
+                  ]
+              }, 
+              transaction: t 
+          });
+
         }
         
       }
