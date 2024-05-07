@@ -2050,19 +2050,46 @@ module.exports = {
       return false
     }
     // checking if "STRUGGLING_TO_CONNECT"
-    // if (type === notificationType.STRUGGLING_TO_CONNECT) {
-    //   const notificationExist = await db.Notification.findOne({
-    //     where: {
-    //       userId: otherUserId,
-    //       resourceId: userId,
-    //       notificationType: type,
-    //     },
-    //   })
-    //   if (notificationExist) {
-    //     return false
-    //   }
-    // }
-    // await pushNotification.sendNotificationSingle(user.fcmToken, type, type)
+    if (type === notificationType.STRUGGLING_TO_CONNECT) {
+      const notificationExist = await db.Notification.findOne({
+        where: {
+          userId: otherUserId,
+          resourceId: userId,
+          notificationType: type,
+        },
+      })
+      if (notificationExist) {
+        return false
+      }
+
+      // const isToggleOn = await helperFunctions.checkForPushNotificationToggle(
+      //   otherUserId,
+      //   userId,
+      //   'STRUGGLING'
+      // )
+        const requesteeUser = await db.User.findOne({
+          where: { id: otherUserId },
+          attributes: ['email', 'username', 'code', 'language'],
+        });
+  
+        const C_user = await db.User.findOne({
+          where: { id: userId },
+          attributes: ['email', 'username', 'code', 'language'], 
+        });
+
+        const { fcmToken } = await db.User.findOne({
+          where: { id: otherUserId },
+          attributes: ['fcmToken'],
+        })
+        pushNotification.sendNotificationSingle(
+          fcmToken,
+          type,
+          type,
+          C_user,
+          requesteeUser
+        )
+      
+    }
     // generating notification for the first time.
     await db.Notification.create({
       userId: otherUserId,
