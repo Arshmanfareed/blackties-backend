@@ -367,9 +367,9 @@ module.exports = {
     const t = await db.sequelize.transaction()
     try {
       const user = await db.User.findOne({ where: { id: userId } })
-      if (user.status === status.SUSPENDED) {
-        throw new Error('User already suspended.')
-      }
+      // if (user.status === status.SUSPENDED) {
+      //   throw new Error('User already suspended.')
+      // }
       const { duration, reason } = body
       await db.User.update(
         { status: status.SUSPENDED },
