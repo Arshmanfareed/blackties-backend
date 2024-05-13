@@ -2210,6 +2210,7 @@ module.exports = {
           },
         ],
       },
+      group: ['requesteeUserId'],
     })
   },
 }
