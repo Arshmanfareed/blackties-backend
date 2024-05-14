@@ -735,6 +735,42 @@ module.exports = {
       throw new Error(error.message)
     }
   },
+  viewPicture: async (
+    requesterUserId,
+    requesteeUserId,
+    
+  ) => {
+    const t = await db.sequelize.transaction()
+    try {
+      // const alreadyRequested = await db.PictureRequest.findOne({ where: { requesterUserId, requesteeUserId, status: requestStatus.PENDING } })
+      // if (alreadyRequested) {
+      //   throw new Error("you've already requested picture to this user.")
+      // }
+      // create picture request
+      // let pictureRequest = await db.PictureRequest.create(
+      //   { requesterUserId, requesteeUserId, status: requestStatus.PENDING },
+      //   { transaction: t }
+      // )
+
+      await db.PictureRequest.update(
+        { isViewed: 1 },
+        { 
+          where: { 
+            requesterUserId: requesterUserId, 
+            requesteeUserId: requesteeUserId 
+          } 
+        }
+      );
+     
+     
+      await t.commit()
+      
+      return 'picture_viewed';
+    } catch (error) {
+      await t.rollback()
+      throw new Error(error.message)
+    }
+  },
   updatePictureRequest: async (requestId, dataToUpdate) => {
     // update picture request
     await db.PictureRequest.update(dataToUpdate, { where: { id: requestId } })
