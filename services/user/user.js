@@ -742,16 +742,6 @@ module.exports = {
   ) => {
     const t = await db.sequelize.transaction()
     try {
-      // const alreadyRequested = await db.PictureRequest.findOne({ where: { requesterUserId, requesteeUserId, status: requestStatus.PENDING } })
-      // if (alreadyRequested) {
-      //   throw new Error("you've already requested picture to this user.")
-      // }
-      // create picture request
-      // let pictureRequest = await db.PictureRequest.create(
-      //   { requesterUserId, requesteeUserId, status: requestStatus.PENDING },
-      //   { transaction: t }
-      // )
-
       await db.PictureRequest.update(
         { isViewed: 1 },
         { 
