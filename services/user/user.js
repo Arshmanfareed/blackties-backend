@@ -735,6 +735,32 @@ module.exports = {
       throw new Error(error.message)
     }
   },
+  viewPicture: async (
+    requesterUserId,
+    requesteeUserId,
+    
+  ) => {
+    const t = await db.sequelize.transaction()
+    try {
+      await db.PictureRequest.update(
+        { isViewed: 1 },
+        { 
+          where: { 
+            requesterUserId: requesterUserId, 
+            requesteeUserId: requesteeUserId 
+          } 
+        }
+      );
+     
+     
+      await t.commit()
+      
+      return 'picture_viewed';
+    } catch (error) {
+      await t.rollback()
+      throw new Error(error.message)
+    }
+  },
   updatePictureRequest: async (requestId, dataToUpdate) => {
     // update picture request
     await db.PictureRequest.update(dataToUpdate, { where: { id: requestId } })

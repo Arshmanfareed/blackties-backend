@@ -332,6 +332,37 @@ router.post('/:id/request/picture', auth, pictureRequest, userController.request
 
 /**
  * @swagger
+ * /user/{id}/view/picture:
+ *   patch:
+ *     summary: View picture from other user
+ *     consumes:
+ *      - application/json
+ *     produces:
+ *      - application/json
+ *     tags:
+ *     - User
+ *     parameters:
+ *     - name: x-auth-token
+ *       in: header
+ *       required: true
+ *       type: string
+ *       description: an authorization header
+ *     - name: id
+ *       in: path
+ *       required: true
+ *       type: string
+ *       description: Id of the user to which you are viewing picture
+ *     operationId: viewPicture
+ *     deprecated: false
+ *     responses:
+ *       '200':
+ *         description: ''
+ *         headers: {}
+ */
+router.patch('/:id/view/picture', auth, userController.viewPicture)
+
+/**
+ * @swagger
  * /user/request/{id}:
  *   patch:
  *     summary: Accept picture request and upload a picture, Reject picture request, view a photo send by user to updated isViewed key
