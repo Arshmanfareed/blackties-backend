@@ -761,6 +761,38 @@ module.exports = {
       throw new Error(error.message)
     }
   },
+
+  updateSubscription: async (
+    name,
+    gender,
+    duration,
+    currency,
+    price,
+    
+  ) => {
+    const t = await db.sequelize.transaction()
+    try {
+      await db.SubscriptionPlan.update(
+        { price: price },
+        { 
+          where: { 
+            name: name, 
+            gender: gender,
+            duration: duration,
+            currency: currency
+          } 
+        }
+      );
+
+      await t.commit()
+      
+      return 'price_updated';
+    } catch (error) {
+      await t.rollback()
+      throw new Error(error.message)
+    }
+  },
+
   updatePictureRequest: async (requestId, dataToUpdate) => {
     // update picture request
     await db.PictureRequest.update(dataToUpdate, { where: { id: requestId } })
