@@ -361,6 +361,38 @@ router.post('/:id/request/picture', auth, pictureRequest, userController.request
  */
 router.patch('/:id/view/picture', auth, userController.viewPicture)
 
+
+/**
+ * @swagger
+ * /user/update/subscription:
+ *   patch:
+ *     summary: Update Subscription from other user
+ *     consumes:
+ *      - application/json
+ *     produces:
+ *      - application/json
+ *     tags:
+ *     - User
+ *     parameters:
+ *     - name: x-auth-token
+ *       in: header
+ *       required: true
+ *       type: string
+ *       description: an authorization header
+ *     - name: id
+ *       in: path
+ *       required: true
+ *       type: string
+ *       description: Id of the user to which you are update Subscription
+ *     operationId: updateSubscription
+ *     deprecated: false
+ *     responses:
+ *       '200':
+ *         description: ''
+ *         headers: {}
+ */
+router.patch('/update/subscription', userController.updateSubscription)
+
 /**
  * @swagger
  * /user/request/{id}:
