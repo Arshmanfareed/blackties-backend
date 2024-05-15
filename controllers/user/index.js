@@ -119,8 +119,10 @@ module.exports = {
     return responseFunctions._200(res, data, 'Plan update successfully')
   },
   updatePictureRequest: async (req, res) => {
+    const { id: requesterUserId } = req.user
     const { file, body } = req
     const { id: requestId } = req.params
+    console.log('*************************************************', requesterUserId)
     const { error } = userValidations.validateUpdatePictureRequest(body)
     if (error) {
       return responseFunctions._400(res, error.details[0].message)
@@ -134,6 +136,7 @@ module.exports = {
     if (file) {
       dataToUpdate['imageUrl'] = file.location
       dataToUpdate['isViewed'] = false
+      dataToUpdate['pictureSentUserId'] = requesterUserId
     }
     const [err, data] = await to(userService.updatePictureRequest(requestId, dataToUpdate))
     if (err) {
