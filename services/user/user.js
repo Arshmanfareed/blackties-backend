@@ -1051,6 +1051,7 @@ module.exports = {
           },
         ],
       },
+      group: ['requesteeUserId', 'requesterUserId'],
     })
   },
   getUsersWhoRejectedMyProfile: async (userId) => {
@@ -2269,7 +2270,7 @@ module.exports = {
           },
         ],
       },
-      group: ['requesteeUserId'],
+      group: ['requesteeUserId', 'requesterUserId'],
     })
   },
 }
