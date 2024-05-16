@@ -110,9 +110,9 @@ module.exports = {
     return responseFunctions._200(res, data, 'Picture viewed successfully')
   },
   updateSubscription: async (req, res) => {
-    const { name, gender, duration, currency, price } = req.query;
+    const { name, gender, duration, currency, price, productId } = req.query;
     console.log(name, gender, duration, currency, price);
-    const [err, data] = await to(userService.updateSubscription(name, gender, duration, currency, price))
+    const [err, data] = await to(userService.updateSubscription(name, gender, duration, currency, price, productId))
     if (err) {
       return responseFunctions._400(res, err.message)
     }
@@ -122,7 +122,6 @@ module.exports = {
     const { id: requesterUserId } = req.user
     const { file, body } = req
     const { id: requestId } = req.params
-    console.log('*************************************************', requesterUserId)
     const { error } = userValidations.validateUpdatePictureRequest(body)
     if (error) {
       return responseFunctions._400(res, error.details[0].message)
