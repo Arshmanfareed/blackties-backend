@@ -916,6 +916,7 @@ module.exports = {
           'username',
           'code',
           'status',
+          'isOnline',
           [
             Sequelize.literal(
               `EXISTS(SELECT 1 FROM SavedProfiles WHERE userId = ${userId} AND savedUserId = requesteeUser.id)`
@@ -974,6 +975,7 @@ module.exports = {
           'email',
           'username',
           'code',
+          'isOnline',
           [
             Sequelize.literal(
               `EXISTS(SELECT 1 FROM SavedProfiles WHERE userId = ${userId} AND savedUserId = requesterUser.id)`
@@ -1022,6 +1024,7 @@ module.exports = {
           'id',
           'username',
           'code',
+          'isOnline',
           [
             Sequelize.literal(
               `EXISTS(SELECT 1 FROM SavedProfiles WHERE userId = ${userId} AND savedUserId = pictureRequesterUser.id)`
@@ -1070,6 +1073,7 @@ module.exports = {
           'username',
           'code',
           'status',
+          'isOnline',
           [
             Sequelize.literal(
               `EXISTS(SELECT 1 FROM SavedProfiles WHERE userId = ${userId} AND savedUserId = requesteeUser.id)`
@@ -1117,6 +1121,7 @@ module.exports = {
           'email',
           'username',
           'code',
+          'isOnline',
           [
             Sequelize.literal(
               `EXISTS(SELECT 1 FROM SavedProfiles WHERE userId = ${userId} AND savedUserId = requesterUser.id)`
@@ -1867,6 +1872,7 @@ module.exports = {
           'email',
           'username',
           'code',
+          'isOnline',
           [
             Sequelize.literal(
               `EXISTS(SELECT 1 FROM SavedProfiles WHERE userId = ${userId} AND savedUserId = viewerUser.id)`
@@ -1915,6 +1921,7 @@ module.exports = {
           'username',
           'code',
           'status',
+          'isOnline',
           [
             Sequelize.literal(
               `EXISTS(SELECT 1 FROM SavedProfiles WHERE userId = ${userId} AND savedUserId = requesteeUser.id)`
@@ -1962,6 +1969,7 @@ module.exports = {
           'email',
           'username',
           'code',
+          'isOnline',
           [
             Sequelize.literal(
               `EXISTS(SELECT 1 FROM SavedProfiles WHERE userId = ${userId} AND savedUserId = requesterUser.id)`
@@ -2241,6 +2249,7 @@ module.exports = {
           'username',
           'code',
           'status',
+          'isOnline',
           [
             Sequelize.literal(
               `EXISTS(SELECT 1 FROM SavedProfiles WHERE userId = ${userId} AND savedUserId = pictureRequesteeUser.id)`
