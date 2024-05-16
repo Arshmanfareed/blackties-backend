@@ -768,12 +768,13 @@ module.exports = {
     duration,
     currency,
     price,
+    productId,
     
   ) => {
     const t = await db.sequelize.transaction()
     try {
       await db.SubscriptionPlan.update(
-        { price: price },
+        { productId: productId },
         { 
           where: { 
             name: name, 
