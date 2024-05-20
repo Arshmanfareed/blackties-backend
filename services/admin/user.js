@@ -175,7 +175,6 @@ module.exports = {
 
     const { limit, offset, date } = query
 
-    console.log(language, tribe)
 
     const usernameOrCodeQuery = usernameOrCode ? `%${usernameOrCode}%` : '%%'
 
@@ -201,7 +200,6 @@ module.exports = {
       },
     };
     
-    console.log('*****************************************', whereOnUser)
 
     // if (date && date.length > 0) {
     //   whereOnUser[] = [
