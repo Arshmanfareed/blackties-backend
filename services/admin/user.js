@@ -178,25 +178,30 @@ module.exports = {
     console.log(language, tribe)
 
     const usernameOrCodeQuery = usernameOrCode ? `%${usernameOrCode}%` : '%%'
+
     let whereOnUser = {
       role: roles.USER,
-      [Op.and]: date && date.length > 0 ? [
-        db.Sequelize.where(
-          db.Sequelize.fn('date', db.Sequelize.col('User.createdAt')),
-          '>=',
-          date
-        ),
-        db.Sequelize.where(
-          db.Sequelize.fn('date', db.Sequelize.col('User.createdAt')),
-          '<=',
-          date
-        ),
-      ] : [],
+      ...(date ? {
+        [Op.and]: [
+          // db.Sequelize.where(
+          //   db.Sequelize.fn('date', db.Sequelize.col('User.createdAt')),
+          //   '>=',
+          //   date
+          // ),
+          db.Sequelize.where(
+            db.Sequelize.fn('date', db.Sequelize.col('User.createdAt')),
+            '<=',
+            date
+          ),
+        ]
+      } : {}),
       [Op.or]: {
         username: { [Op.like]: usernameOrCodeQuery },
         code: { [Op.like]: usernameOrCodeQuery },
       },
-    }
+    };
+    
+    console.log('*****************************************', whereOnUser)
 
     // if (date && date.length > 0) {
     //   whereOnUser[] = [
