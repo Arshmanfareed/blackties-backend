@@ -1902,6 +1902,7 @@ module.exports = {
           },
         ],
       },
+      group: ['viewerId'],
     })
   },
   getUsersIRequestedMoreInfoFrom: async (userId) => {
