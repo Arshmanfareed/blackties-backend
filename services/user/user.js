@@ -477,15 +477,15 @@ module.exports = {
           });
           // check for toggles on or off
           const { fcmToken } = await db.User.findOne({
-            where: { id: notificationPayload.userId },
+            where: { id: requesterUserId },
             attributes: ['fcmToken'],
           })
           pushNotification.sendNotificationSingle(
             fcmToken,
             notificationPayload.notificationType,
             notificationPayload.notificationType,
-            requesterUser,
-            requesteeUser
+            requesteeUser,
+            requesterUser
           )
         }
       } else {
@@ -529,10 +529,16 @@ module.exports = {
           })
         )
       )
+      const requesteeUser = await db.User.findOne({
+        where: { id: requesteeUserId },
+        attributes: ['username', 'code'],
+      });
+
       const socketData = {
         contactDetailsRequest,
         contactDetails: findContactDetails,
         match: matchRes,
+        requesteeUser,
       }
       // sending respond of contact details request on socket
       socketFunctions.transmitDataOnRealtime(
@@ -1417,6 +1423,7 @@ module.exports = {
         user: {
           username: user?.dataValues?.username,
           userId: user?.dataValues?.id,
+          code: user?.dataValues?.code,
         },
       }
       socketFunctions.transmitDataOnRealtime(
