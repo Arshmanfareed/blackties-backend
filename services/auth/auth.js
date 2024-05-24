@@ -159,12 +159,29 @@ module.exports = {
       await db.NotificationSetting.create({ userId }, { transaction: t })
       await t.commit()
       // welcome email
-      sendMail(
-        process.env.WELCOME_EMAIL_TEMPLATE_ID,
-        email,
-        'Welcome to Mahaba',
-        { nickname: username }
-      )
+
+      const testUser = await db.User.findOne({
+        where: { id: userId },
+        attributes: ['language'],
+      });
+      if(testUser.dataValues.language == 'en'){
+        sendMail(
+          process.env.WELCOME_EMAIL_TEMPLATE_ID,
+          email,
+          'Welcome to Mahaba',
+          { nickname: username }
+        )
+      }else{
+        const WELCOME_EMAIL_TEMPLATE_ID_AR = 'd-f780332dde164398a8c3da98a7a7cdcb';
+        sendMail(
+          WELCOME_EMAIL_TEMPLATE_ID_AR,
+          email,
+          'Welcome to Mahaba',
+          { nickname: username }
+        )
+      }
+
+      
       // send OTP or verification link
       helpers.sendAccountActivationLink(
         email,
@@ -356,7 +373,19 @@ module.exports = {
     const dynamicParams = {
       link: resetPasswordLink,
     }
-    sendMail(templatedId, email, 'Password Reset Link', dynamicParams)
+
+    const testUser = await db.User.findOne({
+      where: { id: user.id },
+      attributes: ['language'],
+    });
+    if(testUser.dataValues.language == 'en'){
+      sendMail(templatedId, email, 'Password Reset Link', dynamicParams)
+    }else{
+      const PASSWORD_RESET_TEMPLATE_ID_AR = 'd-74fd79e9d86e4e35bd7baef385f54258';
+      sendMail(templatedId, email, 'Password Reset Link', dynamicParams)
+    }
+
+    
     return true
   },
   emailConfirm: async (email) => {
