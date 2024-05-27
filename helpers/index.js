@@ -10,10 +10,22 @@ const helperFunctions = {
   sendAccountActivationLink: async (email, userId, activationCode, lang = 'en') => {
     const activationLink = process.env.BASE_URL_DEV + "/auth/account-activation/" + userId + "/" + activationCode
     const templatedId = process.env.EMAIL_VERIFY_TEMPLATE_ID
+    const templatedIdAR = 'd-6b5f245805b540e8af334e31024c4f2c'
     const dynamicParams = {
       link: activationLink
     }
-    sendMail(templatedId, email, 'Verification Link', dynamicParams)
+
+    const user = await db.User.findOne({
+      where: { id: userId },
+      attributes: ['language'],
+    });
+    
+    if(user.dataValues.language == 'en'){
+      sendMail(templatedId, email, 'Verification Link', dynamicParams)
+    }else{
+      sendMail(templatedIdAR, email, 'Verification Link', dynamicParams)
+    }
+    
   },
   generateUserCode: async (sex) => {
     const lastUser = await db.User.count({

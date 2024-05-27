@@ -305,14 +305,30 @@ module.exports = {
         const username = savedUser.username; 
         const user = C_user.username; 
         const message = `Hello ${username}! ${user} saved your profile`;
+        const testUser = await db.User.findOne({
+          where: { id: user.id },
+          attributes: ['language'],
+        });
+        if(testUser.dataValues.language == 'en'){
+          sendMail(
+            process.env.USER_NOTIFICATION_TEMPLATE_ID,
+            savedUser.email,
+            'Welcome to Mahaba',
+            { message },
+            process.env.MAIL_FROM_NOTIFICATION,
+          );
+        }else{
+          const USER_NOTIFICATION_TEMPLATE_ID_AR = 'd-38c58f359ae644e290a935f09a9268c8';
+          sendMail(
+            USER_NOTIFICATION_TEMPLATE_ID_AR,
+            savedUser.email,
+            'Welcome to Mahaba',
+            { message },
+            process.env.MAIL_FROM_NOTIFICATION,
+          );
+        }
 
-        sendMail(
-          process.env.USER_NOTIFICATION_TEMPLATE_ID,
-          savedUser.email,
-          'Welcome to Mahabazzz',
-          { message },
-          process.env.MAIL_FROM_NOTIFICATION,
-        );
+        
       }
       return true
     }
