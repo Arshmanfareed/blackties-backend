@@ -135,7 +135,7 @@ module.exports = {
         const message = `Hello ${username}! ${user} requested your contact details`;
 
         const testUser = await db.User.findOne({
-          where: { id: user.id },
+          where: { id: requesteeUserId },
           attributes: ['language'],
         });
         if(testUser.dataValues.language == 'en'){
@@ -147,6 +147,7 @@ module.exports = {
             process.env.MAIL_FROM_NOTIFICATION,
           );
         }else{
+          const message = `Hello ${username}! ${user} requested your contact details AR`;
           const USER_NOTIFICATION_TEMPLATE_ID_AR = 'd-38c58f359ae644e290a935f09a9268c8';
           sendMail(
             USER_NOTIFICATION_TEMPLATE_ID_AR,
@@ -1350,7 +1351,7 @@ module.exports = {
           const message = `Hello ${username}! ${user} have asked you questions`;
 
           const testUser = await db.User.findOne({
-            where: { id: user.id },
+            where: { id: requesteeUserId },
             attributes: ['language'],
           });
           if(testUser.dataValues.language == 'en'){
@@ -1362,6 +1363,7 @@ module.exports = {
               process.env.MAIL_FROM_NOTIFICATION,
             );
           }else{
+            const message = `Hello ${username}! ${user} have asked you questions AR`;
             const USER_NOTIFICATION_TEMPLATE_ID_AR = 'd-38c58f359ae644e290a935f09a9268c8';
             sendMail(
               USER_NOTIFICATION_TEMPLATE_ID_AR,
@@ -1872,13 +1874,12 @@ module.exports = {
       return false
     }
     
-    await db.UserSeen.create({ viewerId, viewedId })
+    // await db.UserSeen.create({ viewerId, viewedId })
 
     const seenProfile = await db.User.findOne({
       where: { id: viewedId },
       attributes: ['email', 'username'],
     });
-
     const C_user = await db.User.findOne({
       where: { id: viewerId },
       attributes: ['email', 'username'], 
@@ -1890,7 +1891,7 @@ module.exports = {
       const message = `Hello ${username}! ${user} saw your profile`;
 
       const testUser = await db.User.findOne({
-        where: { id: user.id },
+        where: { id: viewedId },
         attributes: ['language'],
       });
       if(testUser.dataValues.language == 'en'){
@@ -1902,6 +1903,7 @@ module.exports = {
           process.env.MAIL_FROM_NOTIFICATION,
         );
       }else{
+        const message = `Hello ${username}! ${user} saw your profile AR`;
         const USER_NOTIFICATION_TEMPLATE_ID_AR = 'd-38c58f359ae644e290a935f09a9268c8';
         sendMail(
           USER_NOTIFICATION_TEMPLATE_ID_AR,
