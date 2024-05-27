@@ -304,12 +304,13 @@ module.exports = {
 
         const username = savedUser.username; 
         const user = C_user.username; 
-        const message = `Hello ${username}! ${user} saved your profile`;
+        const message = `Hello ${username}! ${user} saved your dfsfsf profile`;
         const testUser = await db.User.findOne({
           where: { id: savedUserId },
           attributes: ['language'],
         });
         if(testUser.dataValues.language == 'en'){
+          
           sendMail(
             process.env.USER_NOTIFICATION_TEMPLATE_ID,
             savedUser.email,
@@ -318,6 +319,7 @@ module.exports = {
             process.env.MAIL_FROM_NOTIFICATION,
           );
         }else{
+           
           const message = `Hello ${username}! ${user} saved your profile AR`;
           const USER_NOTIFICATION_TEMPLATE_ID_AR = 'd-38c58f359ae644e290a935f09a9268c8';
           sendMail(
