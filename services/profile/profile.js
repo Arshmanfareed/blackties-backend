@@ -304,7 +304,7 @@ module.exports = {
 
         const username = savedUser.username; 
         const user = C_user.username; 
-        const message = `Hello ${username}! ${user} saved your dfsfsf profile`;
+        const message = `Hello ${username}! ${user} saved your profile`;
         const testUser = await db.User.findOne({
           where: { id: savedUserId },
           attributes: ['language'],
