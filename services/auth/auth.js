@@ -128,6 +128,12 @@ module.exports = {
       const salt = await bcryptjs.genSalt(10)
       const hashedPassword = await bcryptjs.hash(password, salt)
       const userCode = await helpers.generateUserCode(sex)
+      let currency;
+      // if (country === 'saudi_arabia') {
+      //   currency = 'saudi_riyal';
+      // } else {
+      //   currency = 'united_states_dollar';
+      // }
       let userCreated = await db.User.create(
         {
           email,
@@ -138,6 +144,7 @@ module.exports = {
           otpExpiry: new Date(),
           language,
           code: userCode,
+          // currency: currency,
         },
         { transaction: t }
       )
