@@ -31,6 +31,18 @@ module.exports = {
     })
     return schema.validate(obj, { allowUnknown: true })
   },
+  validateUpdateCurrency: function (obj) {
+    const schema = Joi.object({
+      userId: Joi.number().required().label('userId').messages({
+        'any.required': `{#label} is Required`,
+      }),
+      currency: Joi.string().required().label('currency').messages({
+        'any.required': `{#label} is Required`,
+      }),
+     
+    })
+    return schema.validate(obj, { allowUnknown: true })
+  },
   validatesignUpOrSignInByEmail: function (obj) {
     const schema = Joi.object({
       email: Joi.string().email().required().label('Email').messages({
