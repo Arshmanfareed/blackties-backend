@@ -33,13 +33,11 @@ module.exports = {
   },
 
   updateLanguage: async (req, res) => {
-    // validation
     const { body } = req
 
     if (body.userId) {
       body.userId = parseInt(body.userId);
     }
-    // console.log("userid------------------------------------", body.language)
 
     if (!body || !body.userId || !body.language) {
         return responseFunctions._400(res, "Missing required fields");
@@ -54,6 +52,29 @@ module.exports = {
       return responseFunctions._400(res, err.message)
     }
     return responseFunctions._200(res, data, `Your language has been successfully updated ${body.language}`)
+  },
+
+  updateCurrency: async (req, res) => {
+    const { body } = req
+
+    if (body.userId) {
+      body.userId = parseInt(body.userId);
+    }
+
+    if (!body || !body.userId || !body.currency) {
+        return responseFunctions._400(res, "Missing required fields");
+    }
+  
+    
+    const { error } = authValidations.validateUpdateCurrency(body)
+    if (error) {
+      return responseFunctions._400(res, error.details[0].message)
+    }
+    const [err, data] = await to(authService.UpdateCurrency(body))
+    if (err) {
+      return responseFunctions._400(res, err.message)
+    }
+    return responseFunctions._200(res, data, `Your currency has been successfully updated ${body.currency}`)
   },
 
   login: async (req, res) => {

@@ -72,6 +72,26 @@ module.exports = {
       throw Error('You can only select EN or AR.')
     }
   },
+  UpdateCurrency: async (body) => {
+    const { userId, currency } = body
+    let user = await db.User.findOne({
+      where: { id: userId },
+      attributes: { exclude: ['password'] },
+    })
+    if (!user) {
+      throw new Error('User does not exist.')
+    }
+    if (currency == 'united_states_dollar' || currency == 'saudi_riyal' ) {
+     
+      // remove the old and update the new
+      await db.User.update(
+        { currency: currency },
+        { where: { id: userId } }
+      )
+    } else {
+      throw Error('You can only select united_states_dollar or saudi_riyal.')
+    }
+  },
   logout: async (userId) => {
     return db.User.update({ fcmToken: null }, { where: { id: userId } })
   },

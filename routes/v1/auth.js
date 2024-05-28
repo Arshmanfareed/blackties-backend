@@ -71,6 +71,37 @@ router.post('/update-language',auth,authController.updateLanguage)
 
 /**
  * @swagger
+ * /auth/update-currency:
+ *   post:
+ *     summary: update currency
+ *     consumes:
+ *      - application/json
+ *     produces:
+ *      - application/json
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               userId:
+ *                 type: integer
+ *               currency:
+ *                 type: string
+ *     tags:
+ *     - Auth
+ *     operationId: updateCurrency
+ *     deprecated: false
+ *     responses:
+ *       '200':
+ *         description: ''
+ *         headers: {}
+ */
+router.post('/update-currency',auth,authController.updateCurrency)
+
+/**
+ * @swagger
  * /auth/signup:
  *   post:
  *     summary: Signup and Create profile
