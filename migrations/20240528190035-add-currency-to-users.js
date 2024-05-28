@@ -5,8 +5,8 @@ module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.addColumn('Users', 'currency', {
       type: Sequelize.ENUM,
-      values: ['$', 'SAR'],
-      defaultValue: '$',
+      values: ['united_states_dollar', 'saudi_riyal'],
+      defaultValue: 'united_states_dollar',
       allowNull: false,
     });
   },

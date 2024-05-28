@@ -81,7 +81,7 @@ module.exports = {
     if (!user) {
       throw new Error('User does not exist.')
     }
-    if (currency == '$' || currency == 'SAR' ) {
+    if (currency == 'united_states_dollar' || currency == 'saudi_riyal' ) {
      
       // remove the old and update the new
       await db.User.update(
@@ -89,7 +89,7 @@ module.exports = {
         { where: { id: userId } }
       )
     } else {
-      throw Error('You can only select $ or SAR.')
+      throw Error('You can only select united_states_dollar or saudi_riyal.')
     }
   },
   logout: async (userId) => {

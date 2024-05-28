@@ -133,7 +133,7 @@ module.exports = (sequelize, DataTypes) => {
       },
       currency: {
         type: DataTypes.STRING,
-        defaultValue: '$'
+        defaultValue: 'united_states_dollar'
       },
       tempEmail: DataTypes.STRING,
       isOnline: {
