@@ -1874,7 +1874,7 @@ module.exports = {
       return false
     }
     
-    // await db.UserSeen.create({ viewerId, viewedId })
+    await db.UserSeen.create({ viewerId, viewedId })
 
     const seenProfile = await db.User.findOne({
       where: { id: viewedId },
