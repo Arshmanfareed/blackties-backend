@@ -19,6 +19,15 @@ module.exports = {
     })
     return schema.validate(obj, { allowUnknown: true })
   },
+  validatefindEmail: function (obj) {
+    const schema = Joi.object({
+      email: Joi.string().required().label('email').messages({
+        'any.required': `{#label} is Required`,
+      }),      
+     
+    })
+    return schema.validate(obj, { allowUnknown: true })
+  },
   validateUpdateLanguage: function (obj) {
     const schema = Joi.object({
       userId: Joi.number().required().label('userId').messages({

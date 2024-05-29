@@ -53,6 +53,27 @@ module.exports = {
     }
     return responseFunctions._200(res, data, `Your language has been successfully updated ${body.language}`)
   },
+  findEmail: async (req, res) => {
+    const { body } = req
+    
+    if(body.email) {
+        body.email = body.email.trim();
+    }
+
+    if (!body || !body.email) {
+        return responseFunctions._400(res, "Missing required fields");
+    }
+    
+    const { error } = authValidations.validatefindEmail(body)
+    if (error) {
+      return responseFunctions._400(res, error.details[0].message)
+    }
+    const [err, data] = await to(authService.findEmail(body))
+    if (err) {
+      return responseFunctions._400(res, err.message)
+    }
+    return responseFunctions._200(res, data, `You enter perfect email`)
+  },
 
   updateCurrency: async (req, res) => {
     const { body } = req

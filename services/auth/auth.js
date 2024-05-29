@@ -72,6 +72,15 @@ module.exports = {
       throw Error('You can only select EN or AR.')
     }
   },
+  findEmail: async (body) => {
+    const { email } = body
+    let userExistByEmail = await db.User.findOne({
+      where: { email },
+    })
+    if (userExistByEmail) {
+      throw new Error('An account using this email already exists')
+    }
+  },
   UpdateCurrency: async (body) => {
     const { userId, currency } = body
     let user = await db.User.findOne({
