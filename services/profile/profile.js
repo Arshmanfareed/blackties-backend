@@ -311,6 +311,7 @@ module.exports = {
         });
         const message = `Hello ${username}! ${user} saved your profile ${testUser.dataValues.language} EN ${process.env.USER_NOTIFICATION_TEMPLATE_ID}`;
         if(testUser.dataValues.language == 'en'){
+          
           sendMail(
             process.env.USER_NOTIFICATION_TEMPLATE_ID,
             savedUser.email,
