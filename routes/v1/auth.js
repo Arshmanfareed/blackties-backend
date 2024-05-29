@@ -40,6 +40,37 @@ router.post('/verify-code', authController.verifyCode)
 // verify otp 
 /**
  * @swagger
+ * /auth/find-email:
+ *   post:
+ *     summary: find email
+ *     consumes:
+ *      - application/json
+ *     produces:
+ *      - application/json
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               userId:
+ *                 type: integer
+ *               language:
+ *                 type: string
+ *     tags:
+ *     - Auth
+ *     operationId: findEmail
+ *     deprecated: false
+ *     responses:
+ *       '200':
+ *         description: ''
+ *         headers: {}
+ */
+router.get('/find-email',authController.findEmail)
+
+/**
+ * @swagger
  * /auth/update-language:
  *   post:
  *     summary: update language
