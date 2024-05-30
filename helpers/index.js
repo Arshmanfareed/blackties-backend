@@ -20,10 +20,11 @@ const helperFunctions = {
       attributes: ['language'],
     });
     
-    if(user.dataValues.language == 'en'){
-      sendMail(templatedId, email, 'Verification Link', dynamicParams)
-    }else{
+    if(user.dataValues.language == 'ar'){
       sendMail(templatedIdAR, email, 'Verification Link', dynamicParams)
+    }else{
+      
+      sendMail(templatedId, email, 'Verification Link', dynamicParams)
     }
     
   },
