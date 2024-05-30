@@ -67,7 +67,7 @@ router.post('/verify-code', authController.verifyCode)
  *         description: ''
  *         headers: {}
  */
-router.get('/find-email',authController.findEmail)
+router.post('/find-email',authController.findEmail)
 
 /**
  * @swagger
