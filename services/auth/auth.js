@@ -200,23 +200,23 @@ module.exports = {
         where: { id: userId },
         attributes: ['language'],
       });
-      if(testUser.dataValues.language == 'en'){
-        sendMail(
-          process.env.WELCOME_EMAIL_TEMPLATE_ID,
-          email,
-          'Welcome to Mahaba',
-          { nickname: username }
-        )
-      }else{
+
+      if (country === 'saudi_arabia') {
         const WELCOME_EMAIL_TEMPLATE_ID_AR = 'd-f780332dde164398a8c3da98a7a7cdcb';
         sendMail(
           WELCOME_EMAIL_TEMPLATE_ID_AR,
           email,
           'Welcome to Mahaba',
           { nickname: username }
+        )        
+      } else {
+        sendMail(
+          process.env.WELCOME_EMAIL_TEMPLATE_ID,
+          email,
+          'Welcome to Mahaba',
+          { nickname: username }
         )
       }
-
       
       // send OTP or verification link
       helpers.sendAccountActivationLink(
@@ -418,7 +418,7 @@ module.exports = {
       sendMail(templatedId, email, 'Password Reset Link', dynamicParams)
     }else{
       const PASSWORD_RESET_TEMPLATE_ID_AR = 'd-74fd79e9d86e4e35bd7baef385f54258';
-      sendMail(templatedId, email, 'Password Reset Link', dynamicParams)
+      sendMail(PASSWORD_RESET_TEMPLATE_ID_AR, email, 'Password Reset Linkzz', dynamicParams)
     }
 
     
