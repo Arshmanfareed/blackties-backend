@@ -148,7 +148,7 @@ module.exports = {
           );
         }else{
           const message = `Hello ${username}! ${user} requested your contact details AR`;
-          const USER_NOTIFICATION_TEMPLATE_ID_AR = 'd-38c58f359ae644e290a935f09a9268c8';
+          const USER_NOTIFICATION_TEMPLATE_ID_AR = process.env.USER_NOTIFICATION_TEMPLATE_ID_AR;
           sendMail(
             USER_NOTIFICATION_TEMPLATE_ID_AR,
             requesteeUser.email,
@@ -1364,7 +1364,7 @@ module.exports = {
             );
           }else{
             const message = `Hello ${username}! ${user} have asked you questions AR`;
-            const USER_NOTIFICATION_TEMPLATE_ID_AR = 'd-38c58f359ae644e290a935f09a9268c8';
+            const USER_NOTIFICATION_TEMPLATE_ID_AR = process.env.USER_NOTIFICATION_TEMPLATE_ID_AR;
             sendMail(
               USER_NOTIFICATION_TEMPLATE_ID_AR,
               requesteeUser.email,
@@ -1904,7 +1904,7 @@ module.exports = {
         );
       }else{
         const message = `Hello ${username}! ${user} saw your profile AR`;
-        const USER_NOTIFICATION_TEMPLATE_ID_AR = 'd-38c58f359ae644e290a935f09a9268c8';
+        const USER_NOTIFICATION_TEMPLATE_ID_AR = process.env.USER_NOTIFICATION_TEMPLATE_ID_AR;
         sendMail(
           USER_NOTIFICATION_TEMPLATE_ID_AR,
           seenProfile.email,

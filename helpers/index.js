@@ -10,7 +10,7 @@ const helperFunctions = {
   sendAccountActivationLink: async (email, userId, activationCode, lang = 'en') => {
     const activationLink = process.env.BASE_URL_DEV + "/auth/account-activation/" + userId + "/" + activationCode
     const templatedId = process.env.EMAIL_VERIFY_TEMPLATE_ID
-    const templatedIdAR = 'd-6b5f245805b540e8af334e31024c4f2c'
+    const templatedIdAR = process.env.EMAIL_VERIFY_TEMPLATE_ID_AR
     const dynamicParams = {
       link: activationLink
     }

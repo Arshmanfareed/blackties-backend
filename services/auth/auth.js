@@ -138,11 +138,11 @@ module.exports = {
       const hashedPassword = await bcryptjs.hash(password, salt)
       const userCode = await helpers.generateUserCode(sex)
       let currency;
-      // if (country === 'saudi_arabia') {
-      //   currency = 'saudi_riyal';
-      // } else {
-      //   currency = 'united_states_dollar';
-      // }
+      if (country === 'saudi_arabia') {
+        currency = 'saudi_riyal';
+      } else {
+        currency = 'united_states_dollar';
+      }
       let userCreated = await db.User.create(
         {
           email,
@@ -153,7 +153,7 @@ module.exports = {
           otpExpiry: new Date(),
           language,
           code: userCode,
-          // currency: currency,
+          currency: currency,
         },
         { transaction: t }
       )
@@ -202,9 +202,8 @@ module.exports = {
       });
 
       if (country === 'saudi_arabia') {
-        const WELCOME_EMAIL_TEMPLATE_ID_AR = 'd-f780332dde164398a8c3da98a7a7cdcb';
         sendMail(
-          WELCOME_EMAIL_TEMPLATE_ID_AR,
+          process.env.WELCOME_EMAIL_TEMPLATE_ID_AR,
           email,
           'Welcome to Mahaba',
           { nickname: username }
@@ -417,8 +416,7 @@ module.exports = {
     if(testUser.dataValues.language == 'en'){
       sendMail(templatedId, email, 'Password Reset Link', dynamicParams)
     }else{
-      const PASSWORD_RESET_TEMPLATE_ID_AR = 'd-74fd79e9d86e4e35bd7baef385f54258';
-      sendMail(PASSWORD_RESET_TEMPLATE_ID_AR, email, 'Password Reset Linkzz', dynamicParams)
+      sendMail(process.env.PASSWORD_RESET_TEMPLATE_ID_AR, email, 'Password Reset Linkzz', dynamicParams)
     }
 
     

@@ -101,7 +101,7 @@ module.exports = {
         const stats = await common.fetchUserProfileStats(user.id, startDate, endDate)
         // send email
         const message = generateMessage(stats, monthName);
-        console.log('sending email => ', message)
+        // console.log('sending email => ', message)
 
         const testUser = await db.User.findOne({
           where: { id: user.id },
@@ -109,16 +109,15 @@ module.exports = {
         });
         if(testUser.dataValues.language == 'en'){
           sendMail(
-            process.env.USER_NOTIFICATION_TEMPLATE_ID,
+            process.env.MONTHLY_ACTIVITY_TEMPLATE_ID_EN,
             user.email,
             'Welcome to Mahaba',
             { message },
             process.env.MAIL_FROM_NOTIFICATION,
           );
         }else{
-          const USER_NOTIFICATION_TEMPLATE_ID_AR = 'd-38c58f359ae644e290a935f09a9268c8';
           sendMail(
-            USER_NOTIFICATION_TEMPLATE_ID_AR,
+            process.env.MONTHLY_ACTIVITY_TEMPLATE_ID_AR,
             user.email,
             'Welcome to Mahaba',
             { message },
