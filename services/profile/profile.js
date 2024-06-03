@@ -309,7 +309,7 @@ module.exports = {
           where: { id: savedUserId },
           attributes: ['language'],
         });
-        const message = `Hello ${username}! ${user} saved your profile ${testUser.dataValues.language} EN ${process.env.USER_NOTIFICATION_TEMPLATE_ID}`;
+        const message = `Hello ${username}! ${user} saved your profile`;
         if(testUser.dataValues.language == 'en'){
           
           sendMail(
@@ -321,8 +321,8 @@ module.exports = {
           );
         }else{
 
-          const USER_NOTIFICATION_TEMPLATE_ID_AR = 'd-38c58f359ae644e290a935f09a9268c8';
-          const message = `Hello ${username}! ${user} saved your profile ${testUser.dataValues.language} AR ${USER_NOTIFICATION_TEMPLATE_ID_AR}`;
+          const USER_NOTIFICATION_TEMPLATE_ID_AR = process.env.USER_NOTIFICATION_TEMPLATE_ID_AR;
+          const message = `Hello ${username}! ${user} saved your profile (AR)`;
           sendMail(
             USER_NOTIFICATION_TEMPLATE_ID_AR,
             savedUser.email,
