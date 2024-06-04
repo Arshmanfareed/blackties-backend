@@ -309,7 +309,7 @@ module.exports = {
           where: { id: savedUserId },
           attributes: ['language'],
         });
-        const message = `Hello ${username}! ${user} saved your profile`;
+        const message = `Hello ${username}! ${user} saved your profile (EN)`;
         if(testUser.dataValues.language == 'en'){
           
           sendMail(
