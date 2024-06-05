@@ -1345,37 +1345,37 @@ module.exports = {
           attributes: ['email', 'username'], 
         });
 
-        if (requesteeUser) {          
-          const username = requesteeUser.username; 
-          const user = C_user.username; 
-          // const message = `Hello ${username}! ${user} have asked you questions`;
+        // if (requesteeUser) {          
+        //   const username = requesteeUser.username; 
+        //   const user = C_user.username; 
+        //   const message = `Hello ${username}! ${user} have asked you questions`;
 
-          // const testUser = await db.User.findOne({
-          //   where: { id: requesteeUserId },
-          //   attributes: ['language'],
-          // });
-          // if(testUser.dataValues.language == 'en'){
-          //   sendMail(
-          //     process.env.USER_NOTIFICATION_TEMPLATE_ID,
-          //     requesteeUser.email,
-          //     'Welcome to Mahaba',
-          //     { message } ,
-          //     process.env.MAIL_FROM_NOTIFICATION,
-          //   );
-          // }else{
-          //   const message = `Hello ${username}! ${user} have asked you questions AR`;
-          //   const USER_NOTIFICATION_TEMPLATE_ID_AR = process.env.USER_NOTIFICATION_TEMPLATE_ID_AR;
-          //   sendMail(
-          //     USER_NOTIFICATION_TEMPLATE_ID_AR,
-          //     requesteeUser.email,
-          //     'Welcome to Mahaba',
-          //     { message } ,
-          //     process.env.MAIL_FROM_NOTIFICATION,
-          //   );
-          // }
+        //   const testUser = await db.User.findOne({
+        //     where: { id: requesteeUserId },
+        //     attributes: ['language'],
+        //   });
+        //   if(testUser.dataValues.language == 'en'){
+        //     sendMail(
+        //       process.env.USER_NOTIFICATION_TEMPLATE_ID,
+        //       requesteeUser.email,
+        //       'Welcome to Mahaba',
+        //       { message } ,
+        //       process.env.MAIL_FROM_NOTIFICATION,
+        //     );
+        //   }else{
+        //     const message = `Hello ${username}! ${user} have asked you questions AR`;
+        //     const USER_NOTIFICATION_TEMPLATE_ID_AR = process.env.USER_NOTIFICATION_TEMPLATE_ID_AR;
+        //     sendMail(
+        //       USER_NOTIFICATION_TEMPLATE_ID_AR,
+        //       requesteeUser.email,
+        //       'Welcome to Mahaba',
+        //       { message } ,
+        //       process.env.MAIL_FROM_NOTIFICATION,
+        //     );
+        //   }
 
          
-        }
+        // }
       }
       // create notification
       let notification = await db.Notification.create(
@@ -1885,37 +1885,37 @@ module.exports = {
       attributes: ['email', 'username'], 
     });
 
-    if (seenProfile) {
-      const username = seenProfile.username; 
-      const user = C_user.username; 
-      const message = `Hello ${username}! ${user} saw your profile`;
+    // if (seenProfile) {
+    //   const username = seenProfile.username; 
+    //   const user = C_user.username; 
+    //   const message = `Hello ${username}! ${user} saw your profile`;
 
-      // const testUser = await db.User.findOne({
-      //   where: { id: viewedId },
-      //   attributes: ['language'],
-      // });
-      // if(testUser.dataValues.language == 'en'){
-      //   sendMail(
-      //     process.env.USER_NOTIFICATION_TEMPLATE_ID,
-      //     seenProfile.email,
-      //     'Welcome to Mahaba',
-      //     { message },
-      //     process.env.MAIL_FROM_NOTIFICATION,
-      //   );
-      // }else{
-      //   const message = `Hello ${username}! ${user} saw your profile AR`;
-      //   const USER_NOTIFICATION_TEMPLATE_ID_AR = process.env.USER_NOTIFICATION_TEMPLATE_ID_AR;
-      //   sendMail(
-      //     USER_NOTIFICATION_TEMPLATE_ID_AR,
-      //     seenProfile.email,
-      //     'Welcome to Mahaba',
-      //     { message },
-      //     process.env.MAIL_FROM_NOTIFICATION,
-      //   );
-      // }
+    //   const testUser = await db.User.findOne({
+    //     where: { id: viewedId },
+    //     attributes: ['language'],
+    //   });
+    //   if(testUser.dataValues.language == 'en'){
+    //     sendMail(
+    //       process.env.USER_NOTIFICATION_TEMPLATE_ID,
+    //       seenProfile.email,
+    //       'Welcome to Mahaba',
+    //       { message },
+    //       process.env.MAIL_FROM_NOTIFICATION,
+    //     );
+    //   }else{
+    //     const message = `Hello ${username}! ${user} saw your profile AR`;
+    //     const USER_NOTIFICATION_TEMPLATE_ID_AR = process.env.USER_NOTIFICATION_TEMPLATE_ID_AR;
+    //     sendMail(
+    //       USER_NOTIFICATION_TEMPLATE_ID_AR,
+    //       seenProfile.email,
+    //       'Welcome to Mahaba',
+    //       { message },
+    //       process.env.MAIL_FROM_NOTIFICATION,
+    //     );
+    //   }
 
       
-    }
+    // }
     return true
   },
   getUsersWhoSeenMyProfile: async (userId, limit, offset) => {
@@ -2089,13 +2089,31 @@ module.exports = {
         userId +
         '/' +
         verificationCode
+
+
+      const CHANGE_EMAIL_TEMPLATE_ID_EN = process.env.CHANGE_EMAIL_TEMPLATE_ID_EN
+      const CHANGE_EMAIL_TEMPLATE_ID_AR = process.env.CHANGE_EMAIL_TEMPLATE_ID_AR
+      const dynamicParams = {
+        link: activationLink
+      }
+
+      const user = await db.User.findOne({
+        where: { id: userId },
+        attributes: ['language'],
+      });
+      
+      if(user.dataValues.language == 'ar'){
+        sendMail(CHANGE_EMAIL_TEMPLATE_ID_AR, email, 'Verification Link', dynamicParams)
+      }else{      
+        sendMail(CHANGE_EMAIL_TEMPLATE_ID_EN, email, 'Verification Link', dynamicParams)
+      }
       // send activation link on email of user
-      helperFunctions.sendAccountActivationLink(
-        email,
-        user.id,
-        verificationCode,
-        user.language
-      )
+      // helperFunctions.sendAccountActivationLink(
+      //   email,
+      //   user.id,
+      //   verificationCode,
+      //   user.language
+      // )
       return { activationLink }
     }
     if (phoneNo) {
