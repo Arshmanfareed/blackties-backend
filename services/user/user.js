@@ -1348,31 +1348,31 @@ module.exports = {
         if (requesteeUser) {          
           const username = requesteeUser.username; 
           const user = C_user.username; 
-          const message = `Hello ${username}! ${user} have asked you questions`;
+          // const message = `Hello ${username}! ${user} have asked you questions`;
 
-          const testUser = await db.User.findOne({
-            where: { id: requesteeUserId },
-            attributes: ['language'],
-          });
-          if(testUser.dataValues.language == 'en'){
-            sendMail(
-              process.env.USER_NOTIFICATION_TEMPLATE_ID,
-              requesteeUser.email,
-              'Welcome to Mahaba',
-              { message } ,
-              process.env.MAIL_FROM_NOTIFICATION,
-            );
-          }else{
-            const message = `Hello ${username}! ${user} have asked you questions AR`;
-            const USER_NOTIFICATION_TEMPLATE_ID_AR = process.env.USER_NOTIFICATION_TEMPLATE_ID_AR;
-            sendMail(
-              USER_NOTIFICATION_TEMPLATE_ID_AR,
-              requesteeUser.email,
-              'Welcome to Mahaba',
-              { message } ,
-              process.env.MAIL_FROM_NOTIFICATION,
-            );
-          }
+          // const testUser = await db.User.findOne({
+          //   where: { id: requesteeUserId },
+          //   attributes: ['language'],
+          // });
+          // if(testUser.dataValues.language == 'en'){
+          //   sendMail(
+          //     process.env.USER_NOTIFICATION_TEMPLATE_ID,
+          //     requesteeUser.email,
+          //     'Welcome to Mahaba',
+          //     { message } ,
+          //     process.env.MAIL_FROM_NOTIFICATION,
+          //   );
+          // }else{
+          //   const message = `Hello ${username}! ${user} have asked you questions AR`;
+          //   const USER_NOTIFICATION_TEMPLATE_ID_AR = process.env.USER_NOTIFICATION_TEMPLATE_ID_AR;
+          //   sendMail(
+          //     USER_NOTIFICATION_TEMPLATE_ID_AR,
+          //     requesteeUser.email,
+          //     'Welcome to Mahaba',
+          //     { message } ,
+          //     process.env.MAIL_FROM_NOTIFICATION,
+          //   );
+          // }
 
          
         }
@@ -1890,29 +1890,29 @@ module.exports = {
       const user = C_user.username; 
       const message = `Hello ${username}! ${user} saw your profile`;
 
-      const testUser = await db.User.findOne({
-        where: { id: viewedId },
-        attributes: ['language'],
-      });
-      if(testUser.dataValues.language == 'en'){
-        sendMail(
-          process.env.USER_NOTIFICATION_TEMPLATE_ID,
-          seenProfile.email,
-          'Welcome to Mahaba',
-          { message },
-          process.env.MAIL_FROM_NOTIFICATION,
-        );
-      }else{
-        const message = `Hello ${username}! ${user} saw your profile AR`;
-        const USER_NOTIFICATION_TEMPLATE_ID_AR = process.env.USER_NOTIFICATION_TEMPLATE_ID_AR;
-        sendMail(
-          USER_NOTIFICATION_TEMPLATE_ID_AR,
-          seenProfile.email,
-          'Welcome to Mahaba',
-          { message },
-          process.env.MAIL_FROM_NOTIFICATION,
-        );
-      }
+      // const testUser = await db.User.findOne({
+      //   where: { id: viewedId },
+      //   attributes: ['language'],
+      // });
+      // if(testUser.dataValues.language == 'en'){
+      //   sendMail(
+      //     process.env.USER_NOTIFICATION_TEMPLATE_ID,
+      //     seenProfile.email,
+      //     'Welcome to Mahaba',
+      //     { message },
+      //     process.env.MAIL_FROM_NOTIFICATION,
+      //   );
+      // }else{
+      //   const message = `Hello ${username}! ${user} saw your profile AR`;
+      //   const USER_NOTIFICATION_TEMPLATE_ID_AR = process.env.USER_NOTIFICATION_TEMPLATE_ID_AR;
+      //   sendMail(
+      //     USER_NOTIFICATION_TEMPLATE_ID_AR,
+      //     seenProfile.email,
+      //     'Welcome to Mahaba',
+      //     { message },
+      //     process.env.MAIL_FROM_NOTIFICATION,
+      //   );
+      // }
 
       
     }
