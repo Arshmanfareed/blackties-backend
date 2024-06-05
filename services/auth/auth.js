@@ -200,30 +200,38 @@ module.exports = {
         where: { id: userId },
         attributes: ['language'],
       });
-
+      const activationLink = process.env.BASE_URL_DEV + "/auth/account-activation/" + userCreated.id + "/" + verificationCode
+      const dynamicParams = {
+        link: activationLink
+      }
       if (country === 'saudi_arabia') {
         sendMail(
           process.env.WELCOME_EMAIL_TEMPLATE_ID_AR,
           email,
           'Welcome to Mahaba',
-          { nickname: username }
+          { 
+            nickname: username, 
+            link: activationLink
+          }
         )        
       } else {
         sendMail(
           process.env.WELCOME_EMAIL_TEMPLATE_ID,
           email,
           'Welcome to Mahaba',
-          { nickname: username }
+          { 
+            nickname: username, 
+            link: activationLink
+          }
         )
       }
-      
       // send OTP or verification link
-      helpers.sendAccountActivationLink(
-        email,
-        userCreated.id,
-        verificationCode,
-        language
-      )
+      // helpers.sendAccountActivationLink(
+      //   email,
+      //   userCreated.id,
+      //   verificationCode,
+      //   language
+      // )
       // auth token
       userCreated = JSON.parse(JSON.stringify(userCreated))
       delete userCreated.password

@@ -22,8 +22,7 @@ const helperFunctions = {
     
     if(user.dataValues.language == 'ar'){
       sendMail(templatedIdAR, email, 'Verification Link', dynamicParams)
-    }else{
-      
+    }else{      
       sendMail(templatedId, email, 'Verification Link', dynamicParams)
     }
     
