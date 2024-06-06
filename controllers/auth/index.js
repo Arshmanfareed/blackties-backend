@@ -145,6 +145,16 @@ module.exports = {
     }
     return responseFunctions._200(res, data, 'Data fetched successfully.')
   },
+
+  autoVerificationLogin: async (req, res) => {
+    const { id } = req.user
+    const authToken = req.header('x-auth-token')
+    const [err, data] = await to(authService.autoVerificationLogin(id, authToken))
+    if (err) {
+      return responseFunctions._400(res, err.message)
+    }
+    return responseFunctions._200(res, data, 'Data fetched successfully.')
+  },
   changePassword: async (req, res) => {
     const { id } = req.user
     const { body } = req
@@ -172,7 +182,8 @@ module.exports = {
     if (err) {
       return responseFunctions._400(res, err.message)
     }
-    const pageUrl = data.success ? `${process.env.ACCOUNT_ACTIVATION_SUCCESS}?email=${data?.user?.email}` : process.env.ACCOUNT_ACTIVATION_FAILURE;
+    const pageUrl = data.success ? `${process.env.ACCOUNT_ACTIVATION_SUCCESS}?email=${data?.user?.email}&authToken=${data?.user?.authToken}` : process.env.ACCOUNT_ACTIVATION_FAILURE;
+    // return responseFunctions._200(res, pageUrl, 'pageUrl')
     return res.redirect(pageUrl)
   },
   deactivateAccount: async (req, res) => {

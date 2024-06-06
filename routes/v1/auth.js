@@ -311,6 +311,35 @@ router.get('/validate-reset-password-link', auth, authController.verifyPasswordR
 
 /**
  * @swagger
+ * /auth/auto-verification-login:
+ *   get:
+ *     summary: auto-verification-login
+ *     consumes:
+ *      - application/json
+ *     produces:
+ *      - application/json
+ *     tags:
+ *     - Auth
+ *     parameters:
+ *     - name: x-auth-token
+ *       in: header
+ *       required: true
+ *       type: string
+ *       description: an authorization header
+ *     operationId: validateAutoVerificationLogin
+ *     deprecated: false
+ *     responses:
+ *       '200':
+ *         description: ''
+ *         headers: {}
+ */
+router.get('/auto-verification-login', auth, authController.autoVerificationLogin)
+
+
+
+
+/**
+ * @swagger
  * /auth/change-password:
  *   post:
  *     summary: Changing password after clicking on password reset link and enter new password in textbox
