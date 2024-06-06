@@ -300,40 +300,42 @@ module.exports = {
       });
 
       
-      if (savedUser) {
+      // if (savedUser) {
 
-        const username = savedUser.username; 
-        const user = C_user.username; 
+      //   const username = savedUser.username; 
+      //   const user = C_user.username; 
         
-        const testUser = await db.User.findOne({
-          where: { id: savedUserId },
-          attributes: ['language'],
-        });
-        const message = `Hello ${username}! ${user} saved your profile (EN)`;
-        if(testUser.dataValues.language == 'en'){
+
+      //   const testUser = await db.User.findOne({
+      //     where: { id: savedUserId },
+      //     attributes: ['language'],
+      //   });
+      //   const message = `Hello ${username}! ${user} saved your profile`;
+      //   if(testUser.dataValues.language == 'en'){
+
           
-          sendMail(
-            process.env.USER_NOTIFICATION_TEMPLATE_ID,
-            savedUser.email,
-            'Welcome to Mahaba',
-            { message },
-            process.env.MAIL_FROM_NOTIFICATION,
-          );
-        }else{
+      //     sendMail(
+      //       process.env.USER_NOTIFICATION_TEMPLATE_ID,
+      //       savedUser.email,
+      //       'Welcome to Mahaba',
+      //       { message },
+      //       process.env.MAIL_FROM_NOTIFICATION,
+      //     );
+      //   }else{
 
-          const USER_NOTIFICATION_TEMPLATE_ID_AR = process.env.USER_NOTIFICATION_TEMPLATE_ID_AR;
-          const message = `Hello ${username}! ${user} saved your profile (AR)`;
-          sendMail(
-            USER_NOTIFICATION_TEMPLATE_ID_AR,
-            savedUser.email,
-            'Welcome to Mahaba',
-            { message },
-            process.env.MAIL_FROM_NOTIFICATION,
-          );
-        }
+      //     const USER_NOTIFICATION_TEMPLATE_ID_AR = process.env.USER_NOTIFICATION_TEMPLATE_ID_AR;
+      //     const message = `Hello ${username}! ${user} saved your profile (AR)`;
+      //     sendMail(
+      //       USER_NOTIFICATION_TEMPLATE_ID_AR,
+      //       savedUser.email,
+      //       'Welcome to Mahaba',
+      //       { message },
+      //       process.env.MAIL_FROM_NOTIFICATION,
+      //     );
+      //   }
 
         
-      }
+      // }
       return true
     }
     await db.SavedProfile.destroy({ where: { userId, savedUserId } })

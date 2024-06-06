@@ -320,7 +320,7 @@ module.exports = {
         const response = {
           resCheck: {
               key: "user_deactivated_by_own",
-              userId: 6,
+              userId: user.id,
               is_login: false
           }
         };
@@ -371,10 +371,33 @@ module.exports = {
     return user
   },
   activateAccount: async (userId, code) => {
+    
     if (!userId || !code) return { success: false }
-    const user = await db.User.findOne({ where: { id: userId } })
+    var user = await db.User.findOne({ where: { id: userId },     
+      include: [
+      {
+        model: db.Wallet,
+        attributes: ['amount'],
+      },
+      {
+        model: db.UserSetting,
+      },
+      {
+        model: db.Profile,
+      },
+      {
+        model: db.DeactivatedUser,
+      },
+      {
+        model: db.SuspendedUser,
+      },
+    ], })
+    
     if (user && user.otp == Number(code)) {
+      
       if (user.tempEmail) {
+
+        
         // update email case
         await db.User.update(
           {
@@ -397,9 +420,14 @@ module.exports = {
       )
       helpers.giveEmailVerifyReward(userId)
       const updatedUser = await db.User.findOne({ where: { id: userId } })
-      return { success: true, user: updatedUser }
+    
+      user = JSON.parse(JSON.stringify(user))
+      const jwtPayload = { ...user }
+      const authToken = generateJWT(jwtPayload)
+      user['authToken'] = authToken
+      user['updatedUser'] = updatedUser
     }
-    return { success: false, user }
+    return { success: true, user }
   },
   resetPassword: async (email) => {
     const user = await db.User.findOne({
@@ -471,6 +499,70 @@ module.exports = {
       }
     }
     return isValidLink
+  },
+  autoVerificationLogin: async (userId, authToken) => {
+    // const { email, password, fcmToken } = body
+    let user = await db.User.findOne({
+      where: { id: userId },
+      include: [
+        {
+          model: db.Wallet,
+          attributes: ['amount'],
+        },
+        {
+          model: db.UserSetting,
+        },
+        {
+          model: db.Profile,
+        },
+        {
+          model: db.DeactivatedUser,
+        },
+        {
+          model: db.SuspendedUser,
+        },
+      ],
+    })
+
+  
+    if (user.status === status.DEACTIVATED) {
+      // deactivated user
+      throw new Error('Your account has been suspended')
+    } else if (user.status === status.SUSPENDED) {
+      let errorMessage = 'Your account has been suspended'
+      if (user.SuspendedUser.duration == 1) {
+        errorMessage += ` for 1 month.`
+      }else if(user.SuspendedUser.duration == 2) {
+        errorMessage += ` for 3 months.`
+      }else{
+        errorMessage += ` for 6 months.`
+      }
+      throw new Error(errorMessage)
+    }
+    const userMatch = await db.Match.findOne({
+      where: {
+        [Op.or]: [
+          { otherUserId: user.id }, // either match b/w user1 or user2
+          { userId: user.id }, // either match b/w user1 or user2
+        ],
+        isCancelled: 0,
+      },
+    })
+    // update fcmToken in db
+    // await db.User.update(
+    //   { fcmToken: fcmToken || null, lastLogin: new Date() },
+    //   { where: { id: user.id } }
+    // )
+    user = JSON.parse(JSON.stringify(user))
+    // delete user['password']
+    // const jwtPayload = { ...user }
+    // delete jwtPayload['Profile']
+    // delete jwtPayload['Wallet']
+    // const authToken = generateJWT(jwtPayload)
+    user['authToken'] = authToken
+    user['userMatch'] = userMatch
+    return user
+    
   },
   changePassword: async (body, userId) => {
     const { oldPassword, password } = body
