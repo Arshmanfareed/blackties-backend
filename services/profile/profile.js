@@ -305,12 +305,14 @@ module.exports = {
       //   const username = savedUser.username; 
       //   const user = C_user.username; 
         
+
       //   const testUser = await db.User.findOne({
       //     where: { id: savedUserId },
       //     attributes: ['language'],
       //   });
       //   const message = `Hello ${username}! ${user} saved your profile`;
       //   if(testUser.dataValues.language == 'en'){
+
           
       //     sendMail(
       //       process.env.USER_NOTIFICATION_TEMPLATE_ID,
