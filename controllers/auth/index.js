@@ -185,6 +185,7 @@ module.exports = {
     const pageUrl = data.success ? `${process.env.ACCOUNT_ACTIVATION_SUCCESS}?email=${data?.user?.email}&authToken=${data?.user?.authToken}` : process.env.ACCOUNT_ACTIVATION_FAILURE;
     // return responseFunctions._200(res, pageUrl, 'pageUrl')
     return res.redirect(pageUrl)
+    
   },
   deactivateAccount: async (req, res) => {
     const { id } = req.user
