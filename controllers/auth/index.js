@@ -184,10 +184,12 @@ module.exports = {
     }
     if(data.success){
       const pageUrl = `${process.env.ACCOUNT_ACTIVATION_SUCCESS}?email=${data?.user?.email}&authToken=${data?.user?.authToken}`;
-      return responseFunctions._200(res, pageUrl, 'ACCOUNT_ACTIVATION_SUCCESS')
+      // return responseFunctions._200(res, pageUrl, 'ACCOUNT_ACTIVATION_SUCCESS')
+      return res.redirect(pageUrl)
     }else{
       const pageUrl = process.env.ACCOUNT_ACTIVATION_FAILURE;
-      return responseFunctions._200(res, pageUrl, 'ACCOUNT_ACTIVATION_FAILURE')
+      return res.redirect(pageUrl)
+      // return responseFunctions._200(res, pageUrl, 'ACCOUNT_ACTIVATION_FAILURE')
     }
     
     // return res.redirect(pageUrl)
