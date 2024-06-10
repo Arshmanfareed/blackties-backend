@@ -190,7 +190,6 @@ module.exports = {
       const pageUrl = process.env.ACCOUNT_ACTIVATION_FAILURE;
       return responseFunctions._200(res, pageUrl, 'ACCOUNT_ACTIVATION_FAILURE')
     }
-    
     // return res.redirect(pageUrl)
 
   },
