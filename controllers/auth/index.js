@@ -192,8 +192,6 @@ module.exports = {
       return res.redirect(pageUrl)
       // return responseFunctions._200(res, pageUrl, 'ACCOUNT_ACTIVATION_FAILURE')
     }
-    // return res.redirect(pageUrl)
-
   },
   deactivateAccount: async (req, res) => {
     const { id } = req.user
