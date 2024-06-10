@@ -182,9 +182,17 @@ module.exports = {
     if (err) {
       return responseFunctions._400(res, err.message)
     }
-    const pageUrl = data.success ? `${process.env.ACCOUNT_ACTIVATION_SUCCESS}?email=${data?.user?.email}&authToken=${data?.user?.authToken}` : process.env.ACCOUNT_ACTIVATION_FAILURE;
-    // return responseFunctions._200(res, pageUrl, 'pageUrl')
-    return res.redirect(pageUrl)
+
+    if(data.success){
+      const pageUrl = `${process.env.ACCOUNT_ACTIVATION_SUCCESS}?email=${data?.user?.email}&authToken=${data?.user?.authToken}`;
+      return responseFunctions._200(res, pageUrl, 'ACCOUNT_ACTIVATION_SUCCESS')
+    }else{
+      const pageUrl = process.env.ACCOUNT_ACTIVATION_FAILURE;
+      return responseFunctions._200(res, pageUrl, 'ACCOUNT_ACTIVATION_FAILURE')
+    }
+    
+    // return res.redirect(pageUrl)
+
   },
   deactivateAccount: async (req, res) => {
     const { id } = req.user

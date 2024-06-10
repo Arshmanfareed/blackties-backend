@@ -425,9 +425,11 @@ module.exports = {
       const jwtPayload = { ...user }
       const authToken = generateJWT(jwtPayload)
       user['authToken'] = authToken
+
       user['updatedUser'] = updatedUser
+      return { success: true, user }
     }
-    return { success: true, user }
+    return { success: false, user }
   },
   resetPassword: async (email) => {
     const user = await db.User.findOne({
