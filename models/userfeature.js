@@ -11,6 +11,9 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
+      UserFeature.belongsTo(models.Feature, {
+        foreignKey: 'featureId',
+      })
     }
   }
   UserFeature.init({

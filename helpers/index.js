@@ -61,8 +61,35 @@ const helperFunctions = {
       where: {
         userId,
         status: 1
-      }
+      },
+      include: [        
+        {
+          model: db.Feature,
+          attributes: [
+            'price',        
+          ],
+        }        
+      ],
     })
+
+    const totalSum = await db.UserFeature.findOne({
+      where: {
+        userId,
+        status: 1
+      },
+      attributes: [
+        [Sequelize.fn('SUM', Sequelize.col('Feature.price')), 'totalPrice']
+      ],
+      include: [
+        {
+          model: db.Feature,
+          attributes: []
+        }
+      ],
+      raw: true
+    });
+    
+    console.log(`Total Price-----------------------------------------------------------------**: ${totalSum.totalPrice}`);
     const userMatch = await db.Match.findOne({
       where: {
         [Op.or]: [
@@ -110,6 +137,7 @@ const helperFunctions = {
     user['userFeatures'] = userFeatures
     user['userMatch'] = userMatch
     user['strugglingUsers'] = userStruggling
+    user['TotalPurchasedFeaturesAmount'] = totalSum.totalPrice
     return user
   },
   createUserFeature: async (userId, featureId, featureType, validityType, expiryDate, remaining, t) => {
