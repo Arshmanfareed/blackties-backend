@@ -61,15 +61,7 @@ const helperFunctions = {
       where: {
         userId,
         status: 1
-      },
-      include: [        
-        {
-          model: db.Feature,
-          attributes: [
-            'price',        
-          ],
-        }        
-      ],
+      },     
     })
 
     const totalSum = await db.UserFeature.findOne({
@@ -89,7 +81,6 @@ const helperFunctions = {
       raw: true
     });
     
-    console.log(`Total Price-----------------------------------------------------------------**: ${totalSum.totalPrice}`);
     const userMatch = await db.Match.findOne({
       where: {
         [Op.or]: [
