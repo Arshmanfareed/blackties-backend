@@ -182,7 +182,7 @@ module.exports = {
     if (err) {
       return responseFunctions._400(res, err.message)
     }
-
+    // check data if success or not
     if(data.success){
       const pageUrl = `${process.env.ACCOUNT_ACTIVATION_SUCCESS}?email=${data?.user?.email}&authToken=${data?.user?.authToken}`;
       // return responseFunctions._200(res, pageUrl, 'ACCOUNT_ACTIVATION_SUCCESS')
