@@ -251,21 +251,12 @@ module.exports = {
     return listOfFeatures
   },
   getUserFeatures: async (userId) => {
-    const UserFeature = await db.UserFeature.findAll({
+    return db.UserFeature.findAll({
       where: {
         userId,
         status: 1,
       },
-      include: [        
-        {
-          model: db.Feature,
-          attributes: [
-            'price',        
-          ],
-        }        
-      ],
     })
-    return UserFeature;
   },
   getSubscriptionPlans: async (gender) => {
     return db.SubscriptionPlan.findAndCountAll({
