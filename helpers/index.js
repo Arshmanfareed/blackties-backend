@@ -64,22 +64,17 @@ const helperFunctions = {
       },     
     })
 
-    const totalSum = await db.UserFeature.findOne({
+    const totalSum = await db.Transaction.findOne({
       where: {
         userId,
         status: 1
       },
       attributes: [
-        [Sequelize.fn('SUM', Sequelize.col('Feature.price')), 'totalPrice']
-      ],
-      include: [
-        {
-          model: db.Feature,
-          attributes: []
-        }
+        [Sequelize.fn('SUM', Sequelize.col('amount')), 'totalPrice']
       ],
       raw: true
     });
+
     
     const userMatch = await db.Match.findOne({
       where: {
