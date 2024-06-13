@@ -245,7 +245,7 @@ module.exports = {
         featureType: constants.featureTypes.ANSWER_QUESTION,
         status: 1,
       }
-
+      let userFeatureCreated = []
       if (sex == constants.gender.MALE) {
         let date = new Date()
         date.setDate(date.getDate() + 2)
@@ -255,14 +255,15 @@ module.exports = {
         userFeature['validityType'] = constants.featureValidity.LIFETIME
         let userFeatureExtraInformation = await db.UserFeature.create({
           userId: userCreated.id,
-          featureId: 13,
+          featureId: 12,
           featureType: constants.featureTypes.EXTRA_INFORMATION_REQUEST,
           status: 1,
           validityType: constants.featureValidity.LIFETIME,
         })
+        
+       userFeatureCreated = await db.UserFeature.create({ ...userFeature })
       }
 
-      let userFeatureCreated = await db.UserFeature.create({ ...userFeature })
 
       return {
         userCreated,

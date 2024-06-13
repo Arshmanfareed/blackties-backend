@@ -2114,7 +2114,7 @@ module.exports = {
       //   verificationCode,
       //   user.language
       // )
-      return { CHANGE_EMAIL_TEMPLATE_ID_EN }
+      return { activationLink }
     }
     if (phoneNo) {
       // check for phone number already exist or not
