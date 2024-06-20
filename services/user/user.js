@@ -874,6 +874,7 @@ module.exports = {
       )
       return true
     }
+    
     // create notification and notifiy user about request accept or reject status
     let notification = await db.Notification.create(notificationPayload)
     socketFunctions.transmitDataOnRealtime(
