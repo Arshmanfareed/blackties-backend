@@ -1919,6 +1919,65 @@ module.exports = {
     // }
     return true
   },
+  userDataEmpty: async (userId) => {
+      const t = await db.sequelize.transaction()
+      try{
+
+        await db.UserSetting.update({ isEmailVerified: 0, isPremium: 0, isPhoneVerified: 0, isFilledAllInfo: 0, membership: 'Regular' }, { where: { userId: userId }, transaction: t })
+        
+          // await db.Match.destroy({ where: { userId: 5 }, transaction: t });
+          await db.Match.destroy({ 
+              where: { 
+                  [db.Sequelize.Op.or]: [
+                      { userId: userId },
+                      { otherUserId: userId }
+                  ]
+              }, 
+              transaction: t 
+          });
+          await db.ContactDetailsRequest.destroy({ 
+              where: { 
+                  [db.Sequelize.Op.or]: [
+                      { requesterUserId: userId },
+                      { requesteeUserId: userId }
+                  ]
+              }, 
+              transaction: t 
+          });
+          await db.PictureRequest.destroy({ 
+              where: { 
+                  [db.Sequelize.Op.or]: [
+                      { requesterUserId: userId },
+                      { requesteeUserId: userId }
+                  ]
+              }, 
+              transaction: t 
+          });
+          await db.ExtraInfoRequest.destroy({ 
+              where: { 
+                  [db.Sequelize.Op.or]: [
+                      { requesterUserId: userId },
+                      { requesteeUserId: userId }
+                  ]
+              }, 
+              transaction: t 
+          });
+
+          await db.UserFeature.destroy({ 
+            where: { userId: userId }, 
+            transaction: t 
+        });
+
+          await t.commit()  
+          const message1 = `user_ID ${userId} data deleted successfully`;
+          return message1
+      }
+      catch(error){
+        console.log(error)
+        await t.rollback()
+        throw new Error(error.message)
+      }
+  },
   getUsersWhoSeenMyProfile: async (userId, limit, offset) => {
     return db.UserSeen.findAndCountAll({
       limit,

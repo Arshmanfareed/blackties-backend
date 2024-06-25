@@ -244,6 +244,15 @@ module.exports = {
     }
     return responseFunctions._200(res, data, 'Request responded successfully')
   },
+  userDataEmpty: async (req, res) => {
+    const { params } = req
+    const { id: userId } = params
+    const [err, data] = await to(userService.userDataEmpty(userId))
+    if (err) {
+      return responseFunctions._400(res, err.message)
+    }
+    return responseFunctions._200(res, data, 'User Empty successfully')
+  },
   answerToQuestion: async (req, res) => {
     const { body, params } = req
     const { id: questionId } = params
