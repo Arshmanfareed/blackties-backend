@@ -1963,6 +1963,7 @@ module.exports = {
               transaction: t 
           });
 
+          
           await db.UserFeature.destroy({ 
             where: { userId: userId }, 
             transaction: t 
