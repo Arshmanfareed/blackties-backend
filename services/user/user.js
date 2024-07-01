@@ -374,10 +374,16 @@ module.exports = {
           })
         )
       )
+
+      const requesteeUser = await db.User.findOne({
+        where: { id: requesteeUserId },
+        attributes: ['email', 'username', 'code', 'language'],
+      });
       const socketData = {
         contactDetailsRequest,
         contactDetails: findContactDetails,
         match: matchRes,
+        requesteeUser: requesteeUser,
       }
       // sending respond of contact details request on socket
       socketFunctions.transmitDataOnRealtime(
@@ -1963,7 +1969,7 @@ module.exports = {
               transaction: t 
           });
 
-          
+
           await db.UserFeature.destroy({ 
             where: { userId: userId }, 
             transaction: t 
