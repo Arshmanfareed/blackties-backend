@@ -33,13 +33,11 @@ module.exports = {
   },
 
   updateLanguage: async (req, res) => {
-    // validation
     const { body } = req
 
     if (body.userId) {
       body.userId = parseInt(body.userId);
     }
-    // console.log("userid------------------------------------", body.language)
 
     if (!body || !body.userId || !body.language) {
         return responseFunctions._400(res, "Missing required fields");
@@ -54,6 +52,50 @@ module.exports = {
       return responseFunctions._400(res, err.message)
     }
     return responseFunctions._200(res, data, `Your language has been successfully updated ${body.language}`)
+  },
+  findEmail: async (req, res) => {
+    const { body } = req
+    
+    if(body.email) {
+        body.email = body.email.trim();
+    }
+
+    if (!body || !body.email) {
+        return responseFunctions._400(res, "Missing required fields");
+    }
+    
+    const { error } = authValidations.validatefindEmail(body)
+    if (error) {
+      return responseFunctions._400(res, error.details[0].message)
+    }
+    const [err, data] = await to(authService.findEmail(body))
+    if (err) {
+      return responseFunctions._400(res, err.message)
+    }
+    return responseFunctions._200(res, data, `You enter perfect email`)
+  },
+
+  updateCurrency: async (req, res) => {
+    const { body } = req
+
+    if (body.userId) {
+      body.userId = parseInt(body.userId);
+    }
+
+    if (!body || !body.userId || !body.currency) {
+        return responseFunctions._400(res, "Missing required fields");
+    }
+  
+    
+    const { error } = authValidations.validateUpdateCurrency(body)
+    if (error) {
+      return responseFunctions._400(res, error.details[0].message)
+    }
+    const [err, data] = await to(authService.UpdateCurrency(body))
+    if (err) {
+      return responseFunctions._400(res, err.message)
+    }
+    return responseFunctions._200(res, data, `Your currency has been successfully updated ${body.currency}`)
   },
 
   login: async (req, res) => {
@@ -103,6 +145,16 @@ module.exports = {
     }
     return responseFunctions._200(res, data, 'Data fetched successfully.')
   },
+
+  autoVerificationLogin: async (req, res) => {
+    const { id } = req.user
+    const authToken = req.header('x-auth-token')
+    const [err, data] = await to(authService.autoVerificationLogin(id, authToken))
+    if (err) {
+      return responseFunctions._400(res, err.message)
+    }
+    return responseFunctions._200(res, data, 'Data fetched successfully.')
+  },
   changePassword: async (req, res) => {
     const { id } = req.user
     const { body } = req
@@ -130,8 +182,15 @@ module.exports = {
     if (err) {
       return responseFunctions._400(res, err.message)
     }
-    const pageUrl = data.success ? `${process.env.ACCOUNT_ACTIVATION_SUCCESS}?email=${data?.user?.email}` : process.env.ACCOUNT_ACTIVATION_FAILURE;
-    return res.redirect(pageUrl)
+    if(data.success){
+      const pageUrl = `${process.env.ACCOUNT_ACTIVATION_SUCCESS}?email=${data?.user?.email}&authToken=${data?.user?.authToken}`;
+      // return responseFunctions._200(res, pageUrl, 'ACCOUNT_ACTIVATION_SUCCESS')
+      return res.redirect(pageUrl)
+    }else{
+      const pageUrl = process.env.ACCOUNT_ACTIVATION_FAILURE;
+      return res.redirect(pageUrl)
+      // return responseFunctions._200(res, pageUrl, 'ACCOUNT_ACTIVATION_FAILURE')
+    }
   },
   deactivateAccount: async (req, res) => {
     const { id } = req.user

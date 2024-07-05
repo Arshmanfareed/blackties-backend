@@ -3,6 +3,8 @@ const { status, roles } = require('../config/constants')
 const db = require('../models')
 const common = require('./common')
 const moment = require('moment')
+const sendMail = require('../utils/sendgrid-mail')
+
 
 module.exports = {
   unsuspendUsers: async () => {
@@ -22,6 +24,7 @@ module.exports = {
         await db.User.update({ status: status.ACTIVE }, { where: { id: userIds }, transaction: t });
         // Delete all suspended users in bulk
         await db.SuspendedUser.destroy({ where: { userId: userIds }, transaction: t });
+        console.log("get deleted those users whose suspend end date is today*************************")
       }
       await t.commit();
     } catch (error) {
@@ -33,7 +36,7 @@ module.exports = {
     const t = await db.sequelize.transaction()
     try {
       // get those users whose suspend end date is today
-      console.log("check if cron run**************************")
+      
       // Calculate the date one month ago
       const oneMonthAgo = new Date();
       oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
@@ -83,17 +86,50 @@ module.exports = {
         status: status.ACTIVE,
         role: roles.USER,
       })
+      const generateMessage = (stats, monthName) => {
+        return `In ${monthName}, ${stats.profileViews} users saw your profile, ${stats.profilesSavedCount} users saved your profile, ${stats.extraInfoRequestCount} users requested more information about you, ${stats.contactDetailsRequestCount} users requested your contact details. To find out who, or to make your profile more attractive, log in to Mahaba.`;
+      };
       const inputDate = moment();
+
+      const previousMonth = inputDate.clone().subtract(1, 'month');
+      const monthName = previousMonth.format('MMMM');
+
       // Calculate the start and end dates of the previous month
       const startDate = inputDate.clone().subtract(1, 'month').startOf('month');
       const endDate = inputDate.clone().subtract(1, 'month').endOf('month');
       for (let user of users) {
         const stats = await common.fetchUserProfileStats(user.id, startDate, endDate)
         // send email
-        console.log('sending email => ', stats)
+        const message = generateMessage(stats, monthName);
+        // console.log('sending email => ', message)
+
+        const testUser = await db.User.findOne({
+          where: { id: user.id },
+          attributes: ['language'],
+        });
+        if(testUser.dataValues.language == 'en'){
+          sendMail(
+            process.env.MONTHLY_ACTIVITY_TEMPLATE_ID_EN,
+            user.email,
+            'Welcome to Mahaba',
+            { message },
+            process.env.MAIL_FROM_NOTIFICATION,
+          );
+        }else{
+          sendMail(
+            process.env.MONTHLY_ACTIVITY_TEMPLATE_ID_AR,
+            user.email,
+            'Welcome to Mahaba',
+            { message },
+            process.env.MAIL_FROM_NOTIFICATION,
+          );
+        }
+
       }
+      
     } catch (error) {
       console.log("Error in sendProfileStatsToUser cron: ", error)
     }
   },
+  
 }

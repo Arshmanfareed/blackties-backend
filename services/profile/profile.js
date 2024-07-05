@@ -111,6 +111,7 @@ module.exports = {
         required: false,
       })
     }
+    const order = sortBy === '' ? [['isOnline', 'DESC']] : sortBy === 'lastSeen' ? [['isOnline', 'DESC'], sortOrderQuery] : [sortOrderQuery] ;
     const users = await db.User.findAll({
       where: {
         role: constants.roles.USER,
@@ -120,7 +121,6 @@ module.exports = {
           code: { [Op.like]: usernameOrCodeQuery },
         },
       },
-
       attributes: userAttributesToSelect,
       include: includeTables,
       having: {
@@ -129,8 +129,8 @@ module.exports = {
           [Op.lte]: age[1],
         },
       },
-      order: [['isOnline', 'DESC'], sortOrderQuery],
-    })
+      order,
+    });
     const paginatedRecords = getPaginatedResult(users, limit, offset)
     return { count: users.length, rows: paginatedRecords }
   },
@@ -300,20 +300,42 @@ module.exports = {
       });
 
       
-      if (savedUser) {
+      // if (savedUser) {
 
-        const username = savedUser.username; 
-        const user = C_user.username; 
-        const message = `Hello ${username}! ${user} saved your profile`;
+      //   const username = savedUser.username; 
+      //   const user = C_user.username; 
+        
 
-        sendMail(
-          process.env.USER_NOTIFICATION_TEMPLATE_ID,
-          savedUser.email,
-          'Welcome to Mahabazzz',
-          { message },
-          process.env.MAIL_FROM_NOTIFICATION,
-        );
-      }
+      //   const testUser = await db.User.findOne({
+      //     where: { id: savedUserId },
+      //     attributes: ['language'],
+      //   });
+      //   const message = `Hello ${username}! ${user} saved your profile`;
+      //   if(testUser.dataValues.language == 'en'){
+
+          
+      //     sendMail(
+      //       process.env.USER_NOTIFICATION_TEMPLATE_ID,
+      //       savedUser.email,
+      //       'Welcome to Mahaba',
+      //       { message },
+      //       process.env.MAIL_FROM_NOTIFICATION,
+      //     );
+      //   }else{
+
+      //     const USER_NOTIFICATION_TEMPLATE_ID_AR = process.env.USER_NOTIFICATION_TEMPLATE_ID_AR;
+      //     const message = `Hello ${username}! ${user} saved your profile (AR)`;
+      //     sendMail(
+      //       USER_NOTIFICATION_TEMPLATE_ID_AR,
+      //       savedUser.email,
+      //       'Welcome to Mahaba',
+      //       { message },
+      //       process.env.MAIL_FROM_NOTIFICATION,
+      //     );
+      //   }
+
+        
+      // }
       return true
     }
     await db.SavedProfile.destroy({ where: { userId, savedUserId } })

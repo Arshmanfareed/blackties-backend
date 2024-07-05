@@ -134,13 +134,31 @@ module.exports = {
         const user = C_user.username; 
         const message = `Hello ${username}! ${user} requested your contact details`;
 
-        sendMail(
-          process.env.USER_NOTIFICATION_TEMPLATE_ID,
-          requesteeUser.email,
-          'Welcome to Mahabazzz',
-          { message },
-          process.env.MAIL_FROM_NOTIFICATION,
-        );
+        const testUser = await db.User.findOne({
+          where: { id: requesteeUserId },
+          attributes: ['language'],
+        });
+        if(testUser.dataValues.language == 'en'){
+          sendMail(
+            process.env.USER_NOTIFICATION_TEMPLATE_ID,
+            requesteeUser.email,
+            'Welcome to Mahabazzz',
+            { message },
+            process.env.MAIL_FROM_NOTIFICATION,
+          );
+        }else{
+          const message = `Hello ${username}! ${user} requested your contact details AR`;
+          const USER_NOTIFICATION_TEMPLATE_ID_AR = process.env.USER_NOTIFICATION_TEMPLATE_ID_AR;
+          sendMail(
+            USER_NOTIFICATION_TEMPLATE_ID_AR,
+            requesteeUser.email,
+            'Welcome to Mahabazzz',
+            { message },
+            process.env.MAIL_FROM_NOTIFICATION,
+          );
+        }
+
+        
       }
 
       // generate notification
@@ -356,10 +374,16 @@ module.exports = {
           })
         )
       )
+
+      const requesteeUser = await db.User.findOne({
+        where: { id: requesteeUserId },
+        attributes: ['email', 'username', 'code', 'language'],
+      });
       const socketData = {
         contactDetailsRequest,
         contactDetails: findContactDetails,
         match: matchRes,
+        requesteeUser: requesteeUser,
       }
       // sending respond of contact details request on socket
       socketFunctions.transmitDataOnRealtime(
@@ -477,15 +501,15 @@ module.exports = {
           });
           // check for toggles on or off
           const { fcmToken } = await db.User.findOne({
-            where: { id: notificationPayload.userId },
+            where: { id: requesterUserId },
             attributes: ['fcmToken'],
           })
           pushNotification.sendNotificationSingle(
             fcmToken,
             notificationPayload.notificationType,
             notificationPayload.notificationType,
-            requesterUser,
-            requesteeUser
+            requesteeUser,
+            requesterUser
           )
         }
       } else {
@@ -529,10 +553,16 @@ module.exports = {
           })
         )
       )
+      const requesteeUser = await db.User.findOne({
+        where: { id: requesteeUserId },
+        attributes: ['username', 'code'],
+      });
+
       const socketData = {
         contactDetailsRequest,
         contactDetails: findContactDetails,
         match: matchRes,
+        requesteeUser,
       }
       // sending respond of contact details request on socket
       socketFunctions.transmitDataOnRealtime(
@@ -735,6 +765,65 @@ module.exports = {
       throw new Error(error.message)
     }
   },
+  viewPicture: async (
+    requesterUserId,
+    requesteeUserId,
+    
+  ) => {
+    const t = await db.sequelize.transaction()
+    try {
+      await db.PictureRequest.update(
+        { isViewed: 1 },
+        { 
+          where: { 
+            requesterUserId: requesterUserId, 
+            requesteeUserId: requesteeUserId 
+          } 
+        }
+      );
+     
+     
+      await t.commit()
+      
+      return 'picture_viewed';
+    } catch (error) {
+      await t.rollback()
+      throw new Error(error.message)
+    }
+  },
+
+  updateSubscription: async (
+    name,
+    gender,
+    duration,
+    currency,
+    price,
+    productId,
+    
+  ) => {
+    const t = await db.sequelize.transaction()
+    try {
+      await db.SubscriptionPlan.update(
+        { productId: productId },
+        { 
+          where: { 
+            name: name, 
+            gender: gender,
+            duration: duration,
+            currency: currency
+          } 
+        }
+      );
+
+      await t.commit()
+      
+      return 'price_updated';
+    } catch (error) {
+      await t.rollback()
+      throw new Error(error.message)
+    }
+  },
+
   updatePictureRequest: async (requestId, dataToUpdate) => {
     // update picture request
     await db.PictureRequest.update(dataToUpdate, { where: { id: requestId } })
@@ -791,6 +880,7 @@ module.exports = {
       )
       return true
     }
+    
     // create notification and notifiy user about request accept or reject status
     let notification = await db.Notification.create(notificationPayload)
     socketFunctions.transmitDataOnRealtime(
@@ -857,6 +947,7 @@ module.exports = {
           'username',
           'code',
           'status',
+          'isOnline',
           [
             Sequelize.literal(
               `EXISTS(SELECT 1 FROM SavedProfiles WHERE userId = ${userId} AND savedUserId = requesteeUser.id)`
@@ -915,6 +1006,7 @@ module.exports = {
           'email',
           'username',
           'code',
+          'isOnline',
           [
             Sequelize.literal(
               `EXISTS(SELECT 1 FROM SavedProfiles WHERE userId = ${userId} AND savedUserId = requesterUser.id)`
@@ -963,6 +1055,7 @@ module.exports = {
           'id',
           'username',
           'code',
+          'isOnline',
           [
             Sequelize.literal(
               `EXISTS(SELECT 1 FROM SavedProfiles WHERE userId = ${userId} AND savedUserId = pictureRequesterUser.id)`
@@ -992,6 +1085,7 @@ module.exports = {
           },
         ],
       },
+      group: ['requesteeUserId', 'requesterUserId'],
     })
   },
   getUsersWhoRejectedMyProfile: async (userId) => {
@@ -1010,6 +1104,7 @@ module.exports = {
           'username',
           'code',
           'status',
+          'isOnline',
           [
             Sequelize.literal(
               `EXISTS(SELECT 1 FROM SavedProfiles WHERE userId = ${userId} AND savedUserId = requesteeUser.id)`
@@ -1057,6 +1152,7 @@ module.exports = {
           'email',
           'username',
           'code',
+          'isOnline',
           [
             Sequelize.literal(
               `EXISTS(SELECT 1 FROM SavedProfiles WHERE userId = ${userId} AND savedUserId = requesterUser.id)`
@@ -1256,19 +1352,37 @@ module.exports = {
           attributes: ['email', 'username'], 
         });
 
-        if (requesteeUser) {          
-          const username = requesteeUser.username; 
-          const user = C_user.username; 
-          const message = `Hello ${username}! ${user} have asked you questions`;
+        // if (requesteeUser) {          
+        //   const username = requesteeUser.username; 
+        //   const user = C_user.username; 
+        //   const message = `Hello ${username}! ${user} have asked you questions`;
 
-          sendMail(
-            process.env.USER_NOTIFICATION_TEMPLATE_ID,
-            requesteeUser.email,
-            'Welcome to Mahabazzz',
-            { message } ,
-            process.env.MAIL_FROM_NOTIFICATION,
-          );
-        }
+        //   const testUser = await db.User.findOne({
+        //     where: { id: requesteeUserId },
+        //     attributes: ['language'],
+        //   });
+        //   if(testUser.dataValues.language == 'en'){
+        //     sendMail(
+        //       process.env.USER_NOTIFICATION_TEMPLATE_ID,
+        //       requesteeUser.email,
+        //       'Welcome to Mahaba',
+        //       { message } ,
+        //       process.env.MAIL_FROM_NOTIFICATION,
+        //     );
+        //   }else{
+        //     const message = `Hello ${username}! ${user} have asked you questions AR`;
+        //     const USER_NOTIFICATION_TEMPLATE_ID_AR = process.env.USER_NOTIFICATION_TEMPLATE_ID_AR;
+        //     sendMail(
+        //       USER_NOTIFICATION_TEMPLATE_ID_AR,
+        //       requesteeUser.email,
+        //       'Welcome to Mahaba',
+        //       { message } ,
+        //       process.env.MAIL_FROM_NOTIFICATION,
+        //     );
+        //   }
+
+         
+        // }
       }
       // create notification
       let notification = await db.Notification.create(
@@ -1352,6 +1466,7 @@ module.exports = {
         user: {
           username: user?.dataValues?.username,
           userId: user?.dataValues?.id,
+          code: user?.dataValues?.code,
         },
       }
       socketFunctions.transmitDataOnRealtime(
@@ -1772,26 +1887,103 @@ module.exports = {
       where: { id: viewedId },
       attributes: ['email', 'username'],
     });
-
     const C_user = await db.User.findOne({
       where: { id: viewerId },
       attributes: ['email', 'username'], 
     });
 
-    if (seenProfile) {
-      const username = seenProfile.username; 
-      const user = C_user.username; 
-      const message = `Hello ${username}! ${user} saw your profile`;
+    // if (seenProfile) {
+    //   const username = seenProfile.username; 
+    //   const user = C_user.username; 
+    //   const message = `Hello ${username}! ${user} saw your profile`;
 
-      sendMail(
-        process.env.USER_NOTIFICATION_TEMPLATE_ID,
-        seenProfile.email,
-        'Welcome to Mahabazzz',
-        { message },
-        process.env.MAIL_FROM_NOTIFICATION,
-      );
-    }
+    //   const testUser = await db.User.findOne({
+    //     where: { id: viewedId },
+    //     attributes: ['language'],
+    //   });
+    //   if(testUser.dataValues.language == 'en'){
+    //     sendMail(
+    //       process.env.USER_NOTIFICATION_TEMPLATE_ID,
+    //       seenProfile.email,
+    //       'Welcome to Mahaba',
+    //       { message },
+    //       process.env.MAIL_FROM_NOTIFICATION,
+    //     );
+    //   }else{
+    //     const message = `Hello ${username}! ${user} saw your profile AR`;
+    //     const USER_NOTIFICATION_TEMPLATE_ID_AR = process.env.USER_NOTIFICATION_TEMPLATE_ID_AR;
+    //     sendMail(
+    //       USER_NOTIFICATION_TEMPLATE_ID_AR,
+    //       seenProfile.email,
+    //       'Welcome to Mahaba',
+    //       { message },
+    //       process.env.MAIL_FROM_NOTIFICATION,
+    //     );
+    //   }
+
+      
+    // }
     return true
+  },
+  userDataEmpty: async (userId) => {
+      const t = await db.sequelize.transaction()
+      try{
+
+        await db.UserSetting.update({ isEmailVerified: 0, isPremium: 0, isPhoneVerified: 0, isFilledAllInfo: 0, membership: 'Regular' }, { where: { userId: userId }, transaction: t })
+        
+          // await db.Match.destroy({ where: { userId: 5 }, transaction: t });
+          await db.Match.destroy({ 
+              where: { 
+                  [db.Sequelize.Op.or]: [
+                      { userId: userId },
+                      { otherUserId: userId }
+                  ]
+              }, 
+              transaction: t 
+          });
+          await db.ContactDetailsRequest.destroy({ 
+              where: { 
+                  [db.Sequelize.Op.or]: [
+                      { requesterUserId: userId },
+                      { requesteeUserId: userId }
+                  ]
+              }, 
+              transaction: t 
+          });
+          await db.PictureRequest.destroy({ 
+              where: { 
+                  [db.Sequelize.Op.or]: [
+                      { requesterUserId: userId },
+                      { requesteeUserId: userId }
+                  ]
+              }, 
+              transaction: t 
+          });
+          await db.ExtraInfoRequest.destroy({ 
+              where: { 
+                  [db.Sequelize.Op.or]: [
+                      { requesterUserId: userId },
+                      { requesteeUserId: userId }
+                  ]
+              }, 
+              transaction: t 
+          });
+
+
+          await db.UserFeature.destroy({ 
+            where: { userId: userId }, 
+            transaction: t 
+        });
+
+          await t.commit()  
+          const message1 = `user_ID ${userId} data deleted successfully`;
+          return message1
+      }
+      catch(error){
+        console.log(error)
+        await t.rollback()
+        throw new Error(error.message)
+      }
   },
   getUsersWhoSeenMyProfile: async (userId, limit, offset) => {
     return db.UserSeen.findAndCountAll({
@@ -1807,6 +1999,7 @@ module.exports = {
           'email',
           'username',
           'code',
+          'isOnline',
           [
             Sequelize.literal(
               `EXISTS(SELECT 1 FROM SavedProfiles WHERE userId = ${userId} AND savedUserId = viewerUser.id)`
@@ -1836,6 +2029,7 @@ module.exports = {
           },
         ],
       },
+      group: ['viewerId'],
     })
   },
   getUsersIRequestedMoreInfoFrom: async (userId) => {
@@ -1855,6 +2049,7 @@ module.exports = {
           'username',
           'code',
           'status',
+          'isOnline',
           [
             Sequelize.literal(
               `EXISTS(SELECT 1 FROM SavedProfiles WHERE userId = ${userId} AND savedUserId = requesteeUser.id)`
@@ -1902,6 +2097,7 @@ module.exports = {
           'email',
           'username',
           'code',
+          'isOnline',
           [
             Sequelize.literal(
               `EXISTS(SELECT 1 FROM SavedProfiles WHERE userId = ${userId} AND savedUserId = requesterUser.id)`
@@ -1960,13 +2156,31 @@ module.exports = {
         userId +
         '/' +
         verificationCode
+
+
+      const CHANGE_EMAIL_TEMPLATE_ID_EN = process.env.CHANGE_EMAIL_TEMPLATE_ID_EN
+      const CHANGE_EMAIL_TEMPLATE_ID_AR = process.env.CHANGE_EMAIL_TEMPLATE_ID_AR
+      const dynamicParams = {
+        link: activationLink
+      }
+
+      const user = await db.User.findOne({
+        where: { id: userId },
+        attributes: ['language'],
+      });
+      
+      if(user.dataValues.language == 'ar'){
+        sendMail(CHANGE_EMAIL_TEMPLATE_ID_AR, email, 'Verification Link', dynamicParams)
+      }else{      
+        sendMail(CHANGE_EMAIL_TEMPLATE_ID_EN, email, 'Verification Link', dynamicParams)
+      }
       // send activation link on email of user
-      helperFunctions.sendAccountActivationLink(
-        email,
-        user.id,
-        verificationCode,
-        user.language
-      )
+      // helperFunctions.sendAccountActivationLink(
+      //   email,
+      //   user.id,
+      //   verificationCode,
+      //   user.language
+      // )
       return { activationLink }
     }
     if (phoneNo) {
@@ -2050,19 +2264,46 @@ module.exports = {
       return false
     }
     // checking if "STRUGGLING_TO_CONNECT"
-    // if (type === notificationType.STRUGGLING_TO_CONNECT) {
-    //   const notificationExist = await db.Notification.findOne({
-    //     where: {
-    //       userId: otherUserId,
-    //       resourceId: userId,
-    //       notificationType: type,
-    //     },
-    //   })
-    //   if (notificationExist) {
-    //     return false
-    //   }
-    // }
-    // await pushNotification.sendNotificationSingle(user.fcmToken, type, type)
+    if (type === notificationType.STRUGGLING_TO_CONNECT) {
+      const notificationExist = await db.Notification.findOne({
+        where: {
+          userId: otherUserId,
+          resourceId: userId,
+          notificationType: type,
+        },
+      })
+      if (notificationExist) {
+        return false
+      }
+
+      // const isToggleOn = await helperFunctions.checkForPushNotificationToggle(
+      //   otherUserId,
+      //   userId,
+      //   'STRUGGLING'
+      // )
+        const requesteeUser = await db.User.findOne({
+          where: { id: otherUserId },
+          attributes: ['email', 'username', 'code', 'language'],
+        });
+  
+        const C_user = await db.User.findOne({
+          where: { id: userId },
+          attributes: ['email', 'username', 'code', 'language'], 
+        });
+
+        const { fcmToken } = await db.User.findOne({
+          where: { id: otherUserId },
+          attributes: ['fcmToken'],
+        })
+        pushNotification.sendNotificationSingle(
+          fcmToken,
+          type,
+          type,
+          C_user,
+          requesteeUser
+        )
+      
+    }
     // generating notification for the first time.
     await db.Notification.create({
       userId: otherUserId,
@@ -2154,6 +2395,7 @@ module.exports = {
           'username',
           'code',
           'status',
+          'isOnline',
           [
             Sequelize.literal(
               `EXISTS(SELECT 1 FROM SavedProfiles WHERE userId = ${userId} AND savedUserId = pictureRequesteeUser.id)`
@@ -2183,6 +2425,7 @@ module.exports = {
           },
         ],
       },
+      group: ['requesteeUserId', 'requesterUserId'],
     })
   },
 }

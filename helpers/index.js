@@ -8,12 +8,24 @@ const common = require('./common')
 
 const helperFunctions = {
   sendAccountActivationLink: async (email, userId, activationCode, lang = 'en') => {
-    const activationLink = process.env.BASE_URL_LOCAL + "/auth/account-activation/" + userId + "/" + activationCode
+    const activationLink = process.env.BASE_URL_DEV + "/auth/account-activation/" + userId + "/" + activationCode
     const templatedId = process.env.EMAIL_VERIFY_TEMPLATE_ID
+    const templatedIdAR = process.env.EMAIL_VERIFY_TEMPLATE_ID_AR
     const dynamicParams = {
       link: activationLink
     }
-    sendMail(templatedId, email, 'Verification Link', dynamicParams)
+
+    const user = await db.User.findOne({
+      where: { id: userId },
+      attributes: ['language'],
+    });
+    
+    if(user.dataValues.language == 'ar'){
+      sendMail(templatedIdAR, email, 'Verification Link', dynamicParams)
+    }else{      
+      sendMail(templatedId, email, 'Verification Link', dynamicParams)
+    }
+    
   },
   generateUserCode: async (sex) => {
     const lastUser = await db.User.count({
@@ -49,8 +61,21 @@ const helperFunctions = {
       where: {
         userId,
         status: 1
-      }
+      },     
     })
+
+    const totalSum = await db.Transaction.findOne({
+      where: {
+        userId,
+        status: 1
+      },
+      attributes: [
+        [Sequelize.fn('SUM', Sequelize.col('amount')), 'totalPrice']
+      ],
+      raw: true
+    });
+
+    
     const userMatch = await db.Match.findOne({
       where: {
         [Op.or]: [
@@ -98,6 +123,7 @@ const helperFunctions = {
     user['userFeatures'] = userFeatures
     user['userMatch'] = userMatch
     user['strugglingUsers'] = userStruggling
+    user['TotalPurchasedFeaturesAmount'] = totalSum.totalPrice
     return user
   },
   createUserFeature: async (userId, featureId, featureType, validityType, expiryDate, remaining, t) => {
@@ -285,7 +311,7 @@ const helperFunctions = {
             }
           ],
           where: {
-            blockedUserId: 5,
+            blockedUserId: blockedUserId,
             createdAt: {
               [Op.between]: [moment().subtract(30, 'days').utc(), moment().utc()]
             }
@@ -403,8 +429,46 @@ const helperFunctions = {
           await db.UserSetting.increment('suspendCount', { by: 1, where: { userId: blockedUserId }, transaction: t })
         }else{
           console.log('deactivated');
-          await db.User.update({ status: status.DEACTIVATED }, { where: { id: blockedUserId }, transaction: t })
+          await db.User.update({ status: status.DEACTIVATED, email: 'email_deleted', phoneNo: '' }, { where: { id: blockedUserId }, transaction: t })
           await db.UserSetting.update({ isEmailVerified: 0, membership: 'Regular' }, { where: { userId: blockedUserId }, transaction: t })
+          // await db.Match.destroy({ where: { userId: 5 }, transaction: t });
+          await db.Match.destroy({ 
+              where: { 
+                  [db.Sequelize.Op.or]: [
+                      { userId: blockedUserId },
+                      { otherUserId: blockedUserId }
+                  ]
+              }, 
+              transaction: t 
+          });
+          await db.ContactDetailsRequest.destroy({ 
+              where: { 
+                  [db.Sequelize.Op.or]: [
+                      { requesterUserId: blockedUserId },
+                      { requesteeUserId: blockedUserId }
+                  ]
+              }, 
+              transaction: t 
+          });
+          await db.PictureRequest.destroy({ 
+              where: { 
+                  [db.Sequelize.Op.or]: [
+                      { requesterUserId: blockedUserId },
+                      { requesteeUserId: blockedUserId }
+                  ]
+              }, 
+              transaction: t 
+          });
+          await db.ExtraInfoRequest.destroy({ 
+              where: { 
+                  [db.Sequelize.Op.or]: [
+                      { requesterUserId: blockedUserId },
+                      { requesteeUserId: blockedUserId }
+                  ]
+              }, 
+              transaction: t 
+          });
+
         }
         
       }

@@ -40,6 +40,37 @@ router.post('/verify-code', authController.verifyCode)
 // verify otp 
 /**
  * @swagger
+ * /auth/find-email:
+ *   post:
+ *     summary: find email
+ *     consumes:
+ *      - application/json
+ *     produces:
+ *      - application/json
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               userId:
+ *                 type: integer
+ *               language:
+ *                 type: string
+ *     tags:
+ *     - Auth
+ *     operationId: findEmail
+ *     deprecated: false
+ *     responses:
+ *       '200':
+ *         description: ''
+ *         headers: {}
+ */
+router.post('/find-email',authController.findEmail)
+
+/**
+ * @swagger
  * /auth/update-language:
  *   post:
  *     summary: update language
@@ -68,6 +99,37 @@ router.post('/verify-code', authController.verifyCode)
  *         headers: {}
  */
 router.post('/update-language',auth,authController.updateLanguage)
+
+/**
+ * @swagger
+ * /auth/update-currency:
+ *   post:
+ *     summary: update currency
+ *     consumes:
+ *      - application/json
+ *     produces:
+ *      - application/json
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               userId:
+ *                 type: integer
+ *               currency:
+ *                 type: string
+ *     tags:
+ *     - Auth
+ *     operationId: updateCurrency
+ *     deprecated: false
+ *     responses:
+ *       '200':
+ *         description: ''
+ *         headers: {}
+ */
+router.post('/update-currency',auth,authController.updateCurrency)
 
 /**
  * @swagger
@@ -246,6 +308,35 @@ router.post('/reset-password', authController.resetPassword)
  *         headers: {}
  */
 router.get('/validate-reset-password-link', auth, authController.verifyPasswordResetLink)
+
+/**
+ * @swagger
+ * /auth/auto-verification-login:
+ *   get:
+ *     summary: auto-verification-login
+ *     consumes:
+ *      - application/json
+ *     produces:
+ *      - application/json
+ *     tags:
+ *     - Auth
+ *     parameters:
+ *     - name: x-auth-token
+ *       in: header
+ *       required: true
+ *       type: string
+ *       description: an authorization header
+ *     operationId: validateAutoVerificationLogin
+ *     deprecated: false
+ *     responses:
+ *       '200':
+ *         description: ''
+ *         headers: {}
+ */
+router.get('/auto-verification-login', auth, authController.autoVerificationLogin)
+
+
+
 
 /**
  * @swagger

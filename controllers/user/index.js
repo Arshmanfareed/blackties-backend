@@ -99,7 +99,26 @@ module.exports = {
     }
     return responseFunctions._200(res, data, 'Request sent successfully')
   },
+  viewPicture: async (req, res) => {
+    const { id: requesterUserId } = req.user
+    const { id: requesteeUserId } = req.params
+    const [err, data] = await to(userService.viewPicture(requesterUserId, requesteeUserId))
+    if (err) {
+      return responseFunctions._400(res, err.message)
+    }
+    return responseFunctions._200(res, data, 'Picture viewed successfully')
+  },
+  updateSubscription: async (req, res) => {
+    const { name, gender, duration, currency, price, productId } = req.query;
+    console.log(name, gender, duration, currency, price);
+    const [err, data] = await to(userService.updateSubscription(name, gender, duration, currency, price, productId))
+    if (err) {
+      return responseFunctions._400(res, err.message)
+    }
+    return responseFunctions._200(res, data, 'Plan update successfully')
+  },
   updatePictureRequest: async (req, res) => {
+    const { id: requesterUserId } = req.user
     const { file, body } = req
     const { id: requestId } = req.params
     const { error } = userValidations.validateUpdatePictureRequest(body)
@@ -115,6 +134,7 @@ module.exports = {
     if (file) {
       dataToUpdate['imageUrl'] = file.location
       dataToUpdate['isViewed'] = false
+      dataToUpdate['pictureSentUserId'] = requesterUserId
     }
     const [err, data] = await to(userService.updatePictureRequest(requestId, dataToUpdate))
     if (err) {
@@ -225,6 +245,15 @@ module.exports = {
       return responseFunctions._400(res, err.message)
     }
     return responseFunctions._200(res, data, 'Request responded successfully')
+  },
+  userDataEmpty: async (req, res) => {
+    const { params } = req
+    const { id: userId } = params
+    const [err, data] = await to(userService.userDataEmpty(userId))
+    if (err) {
+      return responseFunctions._400(res, err.message)
+    }
+    return responseFunctions._200(res, data, 'User Empty successfully')
   },
   answerToQuestion: async (req, res) => {
     const { body, params } = req

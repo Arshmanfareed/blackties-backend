@@ -175,28 +175,31 @@ module.exports = {
 
     const { limit, offset, date } = query
 
-    console.log(language, tribe)
 
     const usernameOrCodeQuery = usernameOrCode ? `%${usernameOrCode}%` : '%%'
+
     let whereOnUser = {
       role: roles.USER,
-      [Op.and]: date && date.length > 0 ? [
-        db.Sequelize.where(
-          db.Sequelize.fn('date', db.Sequelize.col('User.createdAt')),
-          '>=',
-          date
-        ),
-        db.Sequelize.where(
-          db.Sequelize.fn('date', db.Sequelize.col('User.createdAt')),
-          '<=',
-          date
-        ),
-      ] : [],
+      ...(date ? {
+        [Op.and]: [
+          // db.Sequelize.where(
+          //   db.Sequelize.fn('date', db.Sequelize.col('User.createdAt')),
+          //   '>=',
+          //   date
+          // ),
+          db.Sequelize.where(
+            db.Sequelize.fn('date', db.Sequelize.col('User.createdAt')),
+            '<=',
+            date
+          ),
+        ]
+      } : {}),
       [Op.or]: {
         username: { [Op.like]: usernameOrCodeQuery },
         code: { [Op.like]: usernameOrCodeQuery },
       },
-    }
+    };
+    
 
     // if (date && date.length > 0) {
     //   whereOnUser[] = [
@@ -367,9 +370,9 @@ module.exports = {
     const t = await db.sequelize.transaction()
     try {
       const user = await db.User.findOne({ where: { id: userId } })
-      if (user.status === status.SUSPENDED) {
-        throw new Error('User already suspended.')
-      }
+      // if (user.status === status.SUSPENDED) {
+      //   throw new Error('User already suspended.')
+      // }
       const { duration, reason } = body
       await db.User.update(
         { status: status.SUSPENDED },

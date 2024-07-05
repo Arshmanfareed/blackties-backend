@@ -72,6 +72,35 @@ module.exports = {
       throw Error('You can only select EN or AR.')
     }
   },
+  findEmail: async (body) => {
+    const { email } = body
+    let userExistByEmail = await db.User.findOne({
+      where: { email },
+    })
+    if (userExistByEmail) {
+      throw new Error('An account using this email already exists')
+    }
+  },
+  UpdateCurrency: async (body) => {
+    const { userId, currency } = body
+    let user = await db.User.findOne({
+      where: { id: userId },
+      attributes: { exclude: ['password'] },
+    })
+    if (!user) {
+      throw new Error('User does not exist.')
+    }
+    if (currency == 'united_states_dollar' || currency == 'saudi_riyal' ) {
+     
+      // remove the old and update the new
+      await db.User.update(
+        { currency: currency },
+        { where: { id: userId } }
+      )
+    } else {
+      throw Error('You can only select united_states_dollar or saudi_riyal.')
+    }
+  },
   logout: async (userId) => {
     return db.User.update({ fcmToken: null }, { where: { id: userId } })
   },
@@ -108,6 +137,12 @@ module.exports = {
       const salt = await bcryptjs.genSalt(10)
       const hashedPassword = await bcryptjs.hash(password, salt)
       const userCode = await helpers.generateUserCode(sex)
+      let currency;
+      if (country === 'saudi_arabia') {
+        currency = 'saudi_riyal';
+      } else {
+        currency = 'united_states_dollar';
+      }
       let userCreated = await db.User.create(
         {
           email,
@@ -118,6 +153,7 @@ module.exports = {
           otpExpiry: new Date(),
           language,
           code: userCode,
+          currency: currency,
         },
         { transaction: t }
       )
@@ -159,19 +195,55 @@ module.exports = {
       await db.NotificationSetting.create({ userId }, { transaction: t })
       await t.commit()
       // welcome email
-      sendMail(
-        process.env.WELCOME_EMAIL_TEMPLATE_ID,
-        email,
-        'Welcome to Mahaba',
-        { nickname: username }
-      )
+
+      const testUser = await db.User.findOne({
+        where: { id: userId },
+        attributes: ['language'],
+      });
+      const activationLink = process.env.BASE_URL_DEV + "/auth/account-activation/" + userCreated.id + "/" + verificationCode
+      const dynamicParams = {
+        link: activationLink
+      }
+
+      
+        sendMail(
+          process.env.WELCOME_EMAIL_TEMPLATE_ID,
+          email,
+          'Welcome to Mahaba',
+          { 
+            nickname: username, 
+            link: activationLink
+          }
+        )
+      
+      // if (country === 'saudi_arabia') {
+      //   sendMail(
+      //     process.env.WELCOME_EMAIL_TEMPLATE_ID_AR,
+      //     email,
+      //     'Welcome to Mahaba',
+      //     { 
+      //       nickname: username, 
+      //       link: activationLink
+      //     }
+      //   )        
+      // } else {
+      //   sendMail(
+      //     process.env.WELCOME_EMAIL_TEMPLATE_ID,
+      //     email,
+      //     'Welcome to Mahaba',
+      //     { 
+      //       nickname: username, 
+      //       link: activationLink
+      //     }
+      //   )
+      // }
       // send OTP or verification link
-      helpers.sendAccountActivationLink(
-        email,
-        userCreated.id,
-        verificationCode,
-        language
-      )
+      // helpers.sendAccountActivationLink(
+      //   email,
+      //   userCreated.id,
+      //   verificationCode,
+      //   language
+      // )
       // auth token
       userCreated = JSON.parse(JSON.stringify(userCreated))
       delete userCreated.password
@@ -185,7 +257,7 @@ module.exports = {
         featureType: constants.featureTypes.ANSWER_QUESTION,
         status: 1,
       }
-
+      let userFeatureCreated = []
       if (sex == constants.gender.MALE) {
         let date = new Date()
         date.setDate(date.getDate() + 2)
@@ -195,14 +267,15 @@ module.exports = {
         userFeature['validityType'] = constants.featureValidity.LIFETIME
         let userFeatureExtraInformation = await db.UserFeature.create({
           userId: userCreated.id,
-          featureId: 13,
+          featureId: 12,
           featureType: constants.featureTypes.EXTRA_INFORMATION_REQUEST,
           status: 1,
           validityType: constants.featureValidity.LIFETIME,
         })
+        
+       userFeatureCreated = await db.UserFeature.create({ ...userFeature })
       }
 
-      let userFeatureCreated = await db.UserFeature.create({ ...userFeature })
 
       return {
         userCreated,
@@ -260,7 +333,7 @@ module.exports = {
         const response = {
           resCheck: {
               key: "user_deactivated_by_own",
-              userId: 6,
+              userId: user.id,
               is_login: false
           }
         };
@@ -311,10 +384,33 @@ module.exports = {
     return user
   },
   activateAccount: async (userId, code) => {
+    
     if (!userId || !code) return { success: false }
-    const user = await db.User.findOne({ where: { id: userId } })
+    var user = await db.User.findOne({ where: { id: userId },     
+      include: [
+      {
+        model: db.Wallet,
+        attributes: ['amount'],
+      },
+      {
+        model: db.UserSetting,
+      },
+      {
+        model: db.Profile,
+      },
+      {
+        model: db.DeactivatedUser,
+      },
+      {
+        model: db.SuspendedUser,
+      },
+    ], })
+    
     if (user && user.otp == Number(code)) {
+      
       if (user.tempEmail) {
+
+        
         // update email case
         await db.User.update(
           {
@@ -337,7 +433,14 @@ module.exports = {
       )
       helpers.giveEmailVerifyReward(userId)
       const updatedUser = await db.User.findOne({ where: { id: userId } })
-      return { success: true, user: updatedUser }
+    
+      user = JSON.parse(JSON.stringify(user))
+      const jwtPayload = { ...user }
+      const authToken = generateJWT(jwtPayload)
+      user['authToken'] = authToken
+
+      user['updatedUser'] = updatedUser
+      return { success: true, user }
     }
     return { success: false, user }
   },
@@ -356,7 +459,18 @@ module.exports = {
     const dynamicParams = {
       link: resetPasswordLink,
     }
-    sendMail(templatedId, email, 'Password Reset Link', dynamicParams)
+
+    const testUser = await db.User.findOne({
+      where: { id: user.id },
+      attributes: ['language'],
+    });
+    if(testUser.dataValues.language == 'en'){
+      sendMail(templatedId, email, 'Password Reset Link', dynamicParams)
+    }else{
+      sendMail(process.env.PASSWORD_RESET_TEMPLATE_ID_AR, email, 'Password Reset Linkzz', dynamicParams)
+    }
+
+    
     return true
   },
   emailConfirm: async (email) => {
@@ -400,6 +514,70 @@ module.exports = {
       }
     }
     return isValidLink
+  },
+  autoVerificationLogin: async (userId, authToken) => {
+    // const { email, password, fcmToken } = body
+    let user = await db.User.findOne({
+      where: { id: userId },
+      include: [
+        {
+          model: db.Wallet,
+          attributes: ['amount'],
+        },
+        {
+          model: db.UserSetting,
+        },
+        {
+          model: db.Profile,
+        },
+        {
+          model: db.DeactivatedUser,
+        },
+        {
+          model: db.SuspendedUser,
+        },
+      ],
+    })
+
+  
+    if (user.status === status.DEACTIVATED) {
+      // deactivated user
+      throw new Error('Your account has been suspended')
+    } else if (user.status === status.SUSPENDED) {
+      let errorMessage = 'Your account has been suspended'
+      if (user.SuspendedUser.duration == 1) {
+        errorMessage += ` for 1 month.`
+      }else if(user.SuspendedUser.duration == 2) {
+        errorMessage += ` for 3 months.`
+      }else{
+        errorMessage += ` for 6 months.`
+      }
+      throw new Error(errorMessage)
+    }
+    const userMatch = await db.Match.findOne({
+      where: {
+        [Op.or]: [
+          { otherUserId: user.id }, // either match b/w user1 or user2
+          { userId: user.id }, // either match b/w user1 or user2
+        ],
+        isCancelled: 0,
+      },
+    })
+    // update fcmToken in db
+    // await db.User.update(
+    //   { fcmToken: fcmToken || null, lastLogin: new Date() },
+    //   { where: { id: user.id } }
+    // )
+    user = JSON.parse(JSON.stringify(user))
+    // delete user['password']
+    // const jwtPayload = { ...user }
+    // delete jwtPayload['Profile']
+    // delete jwtPayload['Wallet']
+    // const authToken = generateJWT(jwtPayload)
+    user['authToken'] = authToken
+    user['userMatch'] = userMatch
+    return user
+    
   },
   changePassword: async (body, userId) => {
     const { oldPassword, password } = body
