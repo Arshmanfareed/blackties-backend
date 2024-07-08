@@ -129,37 +129,37 @@ module.exports = {
         attributes: ['email', 'username', 'code', 'language'], 
       });
 
-      if (requesteeUser) {      
-        const username = requesteeUser.username; 
-        const user = C_user.username; 
-        const message = `Hello ${username}! ${user} requested your contact details`;
+      // if (requesteeUser) {      
+      //   const username = requesteeUser.username; 
+      //   const user = C_user.username; 
+      //   const message = `Hello ${username}! ${user} requested your contact details`;
 
-        const testUser = await db.User.findOne({
-          where: { id: requesteeUserId },
-          attributes: ['language'],
-        });
-        if(testUser.dataValues.language == 'en'){
-          sendMail(
-            process.env.USER_NOTIFICATION_TEMPLATE_ID,
-            requesteeUser.email,
-            'Welcome to Mahabazzz',
-            { message },
-            process.env.MAIL_FROM_NOTIFICATION,
-          );
-        }else{
-          const message = `Hello ${username}! ${user} requested your contact details AR`;
-          const USER_NOTIFICATION_TEMPLATE_ID_AR = process.env.USER_NOTIFICATION_TEMPLATE_ID_AR;
-          sendMail(
-            USER_NOTIFICATION_TEMPLATE_ID_AR,
-            requesteeUser.email,
-            'Welcome to Mahabazzz',
-            { message },
-            process.env.MAIL_FROM_NOTIFICATION,
-          );
-        }
+      //   const testUser = await db.User.findOne({
+      //     where: { id: requesteeUserId },
+      //     attributes: ['language'],
+      //   });
+      //   if(testUser.dataValues.language == 'en'){
+      //     sendMail(
+      //       process.env.USER_NOTIFICATION_TEMPLATE_ID,
+      //       requesteeUser.email,
+      //       'Welcome to Mahabazzz',
+      //       { message },
+      //       process.env.MAIL_FROM_NOTIFICATION,
+      //     );
+      //   }else{
+      //     const message = `Hello ${username}! ${user} requested your contact details AR`;
+      //     const USER_NOTIFICATION_TEMPLATE_ID_AR = process.env.USER_NOTIFICATION_TEMPLATE_ID_AR;
+      //     sendMail(
+      //       USER_NOTIFICATION_TEMPLATE_ID_AR,
+      //       requesteeUser.email,
+      //       'Welcome to Mahabazzz',
+      //       { message },
+      //       process.env.MAIL_FROM_NOTIFICATION,
+      //     );
+      //   }
 
         
-      }
+      // }
 
       // generate notification
       let notification = await db.Notification.create(notificationPayload, {
@@ -173,19 +173,22 @@ module.exports = {
           transaction: t,
         })
       }
-      await t.commit()
+     
       // push notification
       const isToggleOn = await helperFunctions.checkForPushNotificationToggle(
         notificationPayload.userId,
         requesterUserId,
         'contactDetailsRequest'
       )
+      
+      console.log('fcmToken----------------------------------------------------')
       if (isToggleOn) {
         // check for toggles on or off
         const { fcmToken } = await db.User.findOne({
           where: { id: notificationPayload.userId },
           attributes: ['fcmToken'],
         })
+        console.log('fcmToken----------------------------------------------------', fcmToken)
         pushNotification.sendNotificationSingle(
           fcmToken,
           notificationPayload.notificationType,
@@ -219,6 +222,7 @@ module.exports = {
         requesteeUserId,
         notification
       )
+      await t.commit()
       return request
     } catch (error) {
       await t.rollback()
