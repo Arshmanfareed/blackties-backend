@@ -6,6 +6,9 @@
 const { google } = require('googleapis');
 const https = require('https');
 const path = require('path');
+const fcm_credential_file = require('../config/mahaba-2-e9451-firebase-adminsdk-p60dm-ece72f832d.json')
+
+
 
 // const PROJECT_ID = process.env.FCM_PROJECT_ID;
 const PROJECT_ID = 'mahaba-id';
@@ -19,7 +22,7 @@ const SCOPES = [MESSAGING_SCOPE];
  */
 function getAccessToken() {
   return new Promise((resolve, reject) => {
-    const keyPath = path.join(__dirname, '../placeholders/service-account.json');
+    const keyPath = path.join(__dirname, fcm_credential_file);
     const key = require(keyPath);
     const jwtClient = new google.auth.JWT(
       key.client_email,
