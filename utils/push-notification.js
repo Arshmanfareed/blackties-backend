@@ -7,7 +7,7 @@ admin.initializeApp({
 });
 
 const messaging = admin.messaging();
-
+// const fcm = require('../config/firebase')
 const notify_tra = require('../config/notification-trans');
 
 module.exports = {
