@@ -181,14 +181,12 @@ module.exports = {
         'contactDetailsRequest'
       )
       
-      console.log('fcmToken----------------------------------------------------')
       if (isToggleOn) {
         // check for toggles on or off
         const { fcmToken } = await db.User.findOne({
           where: { id: notificationPayload.userId },
           attributes: ['fcmToken'],
         })
-        console.log('fcmToken----------------------------------------------------', fcmToken)
         pushNotification.sendNotificationSingle(
           fcmToken,
           notificationPayload.notificationType,
