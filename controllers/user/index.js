@@ -60,8 +60,7 @@ module.exports = {
     const { id: blockerUserId } = user
 
     const ip = req.body.ip;
-
-  
+      
     const { error } = userValidations.validateBlockUser(body)
     if (error) {
       return responseFunctions._400(res, error.details[0].message)
@@ -144,7 +143,10 @@ module.exports = {
     return responseFunctions._200(res, data, 'Request updated successfully')
   },
   getUserNotifications: async (req, res) => {
+    
     const { id: userId } = req.user
+    // console.log('asdsad', req);
+    // return 'error';
     const { limit, offset, status } = req.query
     const [err, data] = await to(userService.getUserNotifications(userId, Number(limit || 10), Number(offset || 0), status))
     if (err) {
