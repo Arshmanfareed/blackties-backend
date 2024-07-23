@@ -46,7 +46,7 @@ jobs:
           aws_access_key: ${{secrets.ACCESS_KEY_ID}}
           aws_secret_key: ${{secrets.SECRET_ACCESS_KEY}}
           application_name: ${{ secrets.APPLICATION_NAME }}
-          environment_name: ${{ secrets.ENVIRONMENT_NAME }}
+          environment_name: Mahaba-api-dsv-env
           region: me-south-1
           existing_bucket_name: elasticbeanstalk-me-south-1-666564725736
           version_label: 'mahaba-api-${{ steps.format-time.outputs.replaced }}'
