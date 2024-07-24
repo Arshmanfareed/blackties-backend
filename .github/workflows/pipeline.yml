@@ -3,7 +3,7 @@ name: mahaba-app-deploy
 on:
   push:
     branches:
-      - dev
+      # - dev
       - devops/cicd
 
 jobs:

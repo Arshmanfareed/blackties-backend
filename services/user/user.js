@@ -195,10 +195,19 @@ module.exports = {
           requesteeUser
         )
       }
+      
+     
+
+      const userNameAndCode1 = await common.getUserAttributes(
+        notification.resourceId,
+        ['id', 'username', 'code']
+      );
+      request.dataValues['user'] = userNameAndCode1;
+      // Create the socketData object including the updated request object
       const socketData = {
-        request,
-        contactDetailsByFemale,
-      }
+        request: request,
+        contactDetailsByFemale: contactDetailsByFemale,
+      };
       const eventName = isFromFemale
         ? socketEvents.CONTACT_DETAILS_SENT
         : socketEvents.CONTACT_DETAILS_REQUEST
@@ -979,6 +988,7 @@ module.exports = {
           },
         ],
       },
+      group: ['requesteeUserId', 'requesterUserId'],
     })
   },
   getIncomingRequestOfContactDetails: async (userId) => {

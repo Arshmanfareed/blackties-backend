@@ -264,7 +264,7 @@ module.exports = {
       if (body?.description) {
         // add description reward only first time
         if (!descriptionBefore) {
-          await helperFunctions.giveDescriptionAddedReward(userId)
+          // await helperFunctions.giveDescriptionAddedReward(userId)
         }
       }
       if (body?.isFilledAllInfo) {
