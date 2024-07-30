@@ -1050,6 +1050,7 @@ module.exports = {
           },
         ],
       },
+      group: ['requesteeUserId', 'requesterUserId'],
     })
   },
   usersWhoViewedMyPicture: async (userId) => {

@@ -38,11 +38,11 @@ module.exports = {
       status: {
         type: Sequelize.BOOLEAN
       },
-      currency: {
-        type: Sequelize.STRING(50),
-        allowNull: true,
+      // currency: {
+      //   type: Sequelize.STRING(50),
+      //   allowNull: true,
         
-      },
+      // },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE
