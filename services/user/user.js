@@ -988,7 +988,7 @@ module.exports = {
           },
         ],
       },
-      group: ['requesteeUserId', 'requesterUserId'],
+      // group: ['requesteeUserId', 'requesterUserId'],
     })
   },
   getIncomingRequestOfContactDetails: async (userId) => {
@@ -1048,7 +1048,7 @@ module.exports = {
           },
         ],
       },
-      group: ['requesteeUserId', 'requesterUserId'],
+      // group: ['requesteeUserId', 'requesterUserId'],
     })
   },
   usersWhoViewedMyPicture: async (userId) => {
@@ -1098,7 +1098,7 @@ module.exports = {
           },
         ],
       },
-      group: ['requesteeUserId', 'requesterUserId'],
+      // group: ['requesteeUserId', 'requesterUserId'],
     })
   },
   getUsersWhoRejectedMyProfile: async (userId) => {
@@ -2438,7 +2438,7 @@ module.exports = {
           },
         ],
       },
-      group: ['requesteeUserId', 'requesterUserId'],
+      // group: ['requesteeUserId', 'requesterUserId'],
     })
   },
 }
