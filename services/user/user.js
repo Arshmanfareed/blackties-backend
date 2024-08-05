@@ -814,30 +814,27 @@ module.exports = {
   ) => {
     const t = await db.sequelize.transaction()
     try {
-
-      console.log("******************************************************", name, gender, duration, currency, price, productId);
-
-      await db.SubscriptionPlan.update(
-        { productId: productId },
-        { 
-          where: { 
-            name: name, 
-            gender: gender,
-            duration: duration,
-            currency: currency,
-            price: price,
-          } 
-        }
-      );
-
       // await db.SubscriptionPlan.update(
-      //   { price: 3453 },
+      //   { productId: productId },
       //   { 
       //     where: { 
-      //       productId: 'price_1PkVE9C4S2tXm16mdZcEnR9I',           
+      //       name: name, 
+      //       gender: gender,
+      //       duration: duration,
+      //       currency: currency,
+      //       price: price,
       //     } 
       //   }
       // );
+
+      await db.SubscriptionPlan.update(
+        { price: price },
+        { 
+          where: { 
+            productId: productId,           
+          } 
+        }
+      );
 
       await t.commit()
       
