@@ -804,42 +804,46 @@ module.exports = {
   },
 
   updateSubscription: async (
-    // name,
-    // gender,
-    // duration,
-    // currency,
+    name,
+    gender,
+    duration,
+    currency,
     price,
     productId,
     
   ) => {
     const t = await db.sequelize.transaction()
     try {
-      // await db.SubscriptionPlan.update(
-      //   { productId: productId },
-      //   { 
-      //     where: { 
-      //       name: name, 
-      //       gender: gender,
-      //       duration: duration,
-      //       currency: currency
-      //     } 
-      //   }
-      // );
+
+      console.log("******************************************************", name, gender, duration, currency, price, productId);
 
       await db.SubscriptionPlan.update(
-        { price: price },
+        { productId: productId },
         { 
           where: { 
-            productId: productId,           
+            name: name, 
+            gender: gender,
+            duration: duration,
+            currency: currency,
+            price: price,
           } 
         }
       );
 
+      // await db.SubscriptionPlan.update(
+      //   { price: 3453 },
+      //   { 
+      //     where: { 
+      //       productId: 'price_1PkVE9C4S2tXm16mdZcEnR9I',           
+      //     } 
+      //   }
+      // );
+
       await t.commit()
       
-      return 'price_updated';
+      return 'product_id_updated';
     } catch (error) {
-      await t.rollback()
+      // await t.rollback()
       throw new Error(error.message)
     }
   },
