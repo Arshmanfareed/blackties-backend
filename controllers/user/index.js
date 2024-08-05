@@ -109,9 +109,10 @@ module.exports = {
     return responseFunctions._200(res, data, 'Picture viewed successfully')
   },
   updateSubscription: async (req, res) => {
-    const { name, gender, duration, currency, price, productId } = req.query;
-    console.log(name, gender, duration, currency, price);
-    const [err, data] = await to(userService.updateSubscription(name, gender, duration, currency, price, productId))
+    // const { name, gender, duration, currency, price, productId } = req.query;
+    const { price, productId } = req.query;
+    // console.log(name, gender, duration, currency, price);
+    const [err, data] = await to(userService.updateSubscription(price, productId))
     if (err) {
       return responseFunctions._400(res, err.message)
     }

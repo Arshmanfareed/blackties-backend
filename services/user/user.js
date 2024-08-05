@@ -804,24 +804,33 @@ module.exports = {
   },
 
   updateSubscription: async (
-    name,
-    gender,
-    duration,
-    currency,
+    // name,
+    // gender,
+    // duration,
+    // currency,
     price,
     productId,
     
   ) => {
     const t = await db.sequelize.transaction()
     try {
+      // await db.SubscriptionPlan.update(
+      //   { productId: productId },
+      //   { 
+      //     where: { 
+      //       name: name, 
+      //       gender: gender,
+      //       duration: duration,
+      //       currency: currency
+      //     } 
+      //   }
+      // );
+
       await db.SubscriptionPlan.update(
-        { productId: productId },
+        { price: price },
         { 
           where: { 
-            name: name, 
-            gender: gender,
-            duration: duration,
-            currency: currency
+            productId: productId,           
           } 
         }
       );
