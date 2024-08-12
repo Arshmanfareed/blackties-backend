@@ -998,7 +998,7 @@ module.exports = {
           },
         ],
       },
-      group: ['requesteeUserId', 'requesterUserId'],
+      // group: ['requesteeUserId', 'requesterUserId'],
     })
   },
   getIncomingRequestOfContactDetails: async (userId) => {
