@@ -952,13 +952,7 @@ module.exports = {
   },
   getMyRequestOfContactDetails: async (userId) => {
     return db.ContactDetailsRequest.findAll({
-      attributes: ['id', 'status', 'requesterUserId', 'requesteeUserId',
-      [
-        Sequelize.literal(`(SELECT COUNT(*) FROM contactdetailsrequests WHERE requesterUserId = ${userId} AND status != '${requestStatus.REJECTED}')`),
-        'count'
-      ]
-
-      ],
+      attributes: ['id', 'status', 'requesterUserId', 'requesteeUserId'],
       where: {
         requesterUserId: userId,
         status: {
@@ -1024,12 +1018,7 @@ module.exports = {
       whereFilter['isFromFemale'] = true
     }
     return db.ContactDetailsRequest.findAll({
-      attributes: ['id', 'status', 'requesterUserId', 'requesteeUserId',
-      [
-        Sequelize.literal(`(SELECT COUNT(*) FROM contactdetailsrequests WHERE requesteeUserId = ${userId} AND status != '${requestStatus.REJECTED}')`),
-        'count'
-      ]
-      ],
+      attributes: ['id', 'status', 'requesterUserId', 'requesteeUserId'],
       where: whereFilter,
       include: {
         model: db.User,
@@ -1074,12 +1063,7 @@ module.exports = {
   },
   usersWhoViewedMyPicture: async (userId) => {
     return db.PictureRequest.findAll({
-      attributes: ['id', 'requesterUserId', 'requesteeUserId', 'isViewed',
-        [
-          Sequelize.literal(`(SELECT COUNT(*) FROM picturerequests WHERE requesteeUserId = ${userId} AND isViewed = 0 AND imageUrl != 'null')`),
-          'count'
-        ]
-      ],
+      attributes: ['id', 'requesterUserId', 'requesteeUserId', 'isViewed'],
       where: {
         requesteeUserId: userId,
         isViewed: true,
@@ -1129,12 +1113,7 @@ module.exports = {
   },
   getUsersWhoRejectedMyProfile: async (userId) => {
     let rejectedContactDetails = await db.ContactDetailsRequest.findAll({
-      attributes: ['id', 'status', 'requesterUserId', 'requesteeUserId',
-      [
-        Sequelize.literal(`(SELECT COUNT(*) FROM contactdetailsrequests WHERE requesterUserId = ${userId} AND status = 'REJECTED' )`),
-        'count'
-      ],
-      ],
+      attributes: ['id', 'status', 'requesterUserId', 'requesteeUserId'],
       where: {
         requesterUserId: userId,
         status: requestStatus.REJECTED,
@@ -1183,13 +1162,7 @@ module.exports = {
   },
   getProfilesRejectedByMe: async (userId) => {
     let rejectedContactDetails = await db.ContactDetailsRequest.findAll({
-      attributes: ['id', 'status', 'requesterUserId', 'requesteeUserId',
-      [
-        Sequelize.literal(`(SELECT COUNT(*) FROM picturerequests WHERE requesteeUserId = ${userId} AND status = 'REJECTED')`),
-        'count'
-      ]
-
-      ],
+      attributes: ['id', 'status', 'requesterUserId', 'requesteeUserId'],
       where: {
         requesteeUserId: userId,
         status: requestStatus.REJECTED,
@@ -2096,10 +2069,6 @@ module.exports = {
         'requesteeUserId',
         'status',
         'createdAt',
-        [ // Adding the count as a computed attribute
-          Sequelize.literal(`(SELECT COUNT(*) FROM ExtraInfoRequests WHERE requesterUserId = ${userId} AND status != '${requestStatus.REJECTED}')`),
-          'count'
-        ]
       ],     
       include: {
         model: db.User,
@@ -2154,11 +2123,7 @@ module.exports = {
         'id',
         'requesteeUserId',
         'createdAt',
-        'status',
-        [
-          Sequelize.literal(`(SELECT COUNT(*) FROM extrainforequests WHERE requesteeUserId = ${userId} AND status != '${requestStatus.REJECTED}')`),
-          'count'
-        ]
+        'status'
       ],
       include: {
         model: db.User,

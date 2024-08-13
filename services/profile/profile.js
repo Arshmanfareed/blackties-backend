@@ -349,10 +349,6 @@ module.exports = {
         'userId',
         'savedUserId',
         'createdAt',
-        [
-          Sequelize.literal(`(SELECT COUNT(*) FROM savedprofiles WHERE userId = ${userId} )`),
-          'count'
-        ]
       ], 
       include: {
         model: db.User,
@@ -396,11 +392,7 @@ module.exports = {
         'id',
         'savedUserId',
         'userId',
-        'createdAt',        
-        [
-          Sequelize.literal(`(SELECT COUNT(*) FROM savedprofiles WHERE savedUserId = ${userId})`),
-          'count'
-        ]
+        'createdAt',
       ],
       include: {
         model: db.User,
@@ -455,10 +447,6 @@ module.exports = {
           `EXISTS(SELECT 1 FROM SavedProfiles WHERE userId = ${userId} AND savedUserId = user.id)`
         ),
         'isSaved',
-      ],
-      [
-        Sequelize.literal(`(SELECT COUNT(*) FROM matches WHERE userId = ${userId} OR otherUserId = '${userId}' AND isCancelled != 1)`),
-        'count'
       ],
     ]
     let matchesProfiles = await db.Match.findAll({
