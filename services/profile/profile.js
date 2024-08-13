@@ -344,6 +344,16 @@ module.exports = {
   getMySavedProfiles: async (userId) => {
     return db.SavedProfile.findAll({
       where: { userId },
+      attributes: [
+        'id',
+        'userId',
+        'savedUserId',
+        'createdAt',
+        [
+          Sequelize.literal(`(SELECT COUNT(*) FROM savedprofiles WHERE userId = ${userId} )`),
+          'count'
+        ]
+      ], 
       include: {
         model: db.User,
         as: 'savedUser',
@@ -353,7 +363,7 @@ module.exports = {
           'username',
           'language',
           'code',
-          'createdAt',
+          'createdAt',          
         ],
         include: [
           {
@@ -382,6 +392,16 @@ module.exports = {
   getUsersWhoSavedMyProfile: async (userId) => {
     return db.SavedProfile.findAll({
       where: { savedUserId: userId },
+      attributes: [
+        'id',
+        'savedUserId',
+        'userId',
+        'createdAt',        
+        [
+          Sequelize.literal(`(SELECT COUNT(*) FROM savedprofiles WHERE savedUserId = ${userId})`),
+          'count'
+        ]
+      ],
       include: {
         model: db.User,
         as: 'user',
@@ -435,6 +455,10 @@ module.exports = {
           `EXISTS(SELECT 1 FROM SavedProfiles WHERE userId = ${userId} AND savedUserId = user.id)`
         ),
         'isSaved',
+      ],
+      [
+        Sequelize.literal(`(SELECT COUNT(*) FROM matches WHERE userId = ${userId} OR otherUserId = '${userId}' AND isCancelled != 1)`),
+        'count'
       ],
     ]
     let matchesProfiles = await db.Match.findAll({
