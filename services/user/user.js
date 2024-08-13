@@ -952,7 +952,13 @@ module.exports = {
   },
   getMyRequestOfContactDetails: async (userId) => {
     return db.ContactDetailsRequest.findAll({
-      attributes: ['id', 'status', 'requesterUserId', 'requesteeUserId'],
+      attributes: ['id', 'status', 'requesterUserId', 'requesteeUserId',
+      [
+        Sequelize.literal(`(SELECT COUNT(*) FROM contactdetailsrequests WHERE requesterUserId = ${userId} AND status != '${requestStatus.REJECTED}')`),
+        'count'
+      ]
+
+      ],
       where: {
         requesterUserId: userId,
         status: {
@@ -1018,7 +1024,12 @@ module.exports = {
       whereFilter['isFromFemale'] = true
     }
     return db.ContactDetailsRequest.findAll({
-      attributes: ['id', 'status', 'requesterUserId', 'requesteeUserId'],
+      attributes: ['id', 'status', 'requesterUserId', 'requesteeUserId',
+      [
+        Sequelize.literal(`(SELECT COUNT(*) FROM contactdetailsrequests WHERE requesteeUserId = ${userId} AND status != '${requestStatus.REJECTED}')`),
+        'count'
+      ]
+      ],
       where: whereFilter,
       include: {
         model: db.User,
@@ -1063,7 +1074,12 @@ module.exports = {
   },
   usersWhoViewedMyPicture: async (userId) => {
     return db.PictureRequest.findAll({
-      attributes: ['id', 'requesterUserId', 'requesteeUserId', 'isViewed'],
+      attributes: ['id', 'requesterUserId', 'requesteeUserId', 'isViewed',
+        [
+          Sequelize.literal(`(SELECT COUNT(*) FROM picturerequests WHERE requesteeUserId = ${userId} AND isViewed = 0 AND imageUrl != 'null')`),
+          'count'
+        ]
+      ],
       where: {
         requesteeUserId: userId,
         isViewed: true,
@@ -1113,7 +1129,12 @@ module.exports = {
   },
   getUsersWhoRejectedMyProfile: async (userId) => {
     let rejectedContactDetails = await db.ContactDetailsRequest.findAll({
-      attributes: ['id', 'status', 'requesterUserId', 'requesteeUserId'],
+      attributes: ['id', 'status', 'requesterUserId', 'requesteeUserId',
+      [
+        Sequelize.literal(`(SELECT COUNT(*) FROM contactdetailsrequests WHERE requesterUserId = ${userId} AND status = 'REJECTED' )`),
+        'count'
+      ],
+      ],
       where: {
         requesterUserId: userId,
         status: requestStatus.REJECTED,
@@ -1162,7 +1183,13 @@ module.exports = {
   },
   getProfilesRejectedByMe: async (userId) => {
     let rejectedContactDetails = await db.ContactDetailsRequest.findAll({
-      attributes: ['id', 'status', 'requesterUserId', 'requesteeUserId'],
+      attributes: ['id', 'status', 'requesterUserId', 'requesteeUserId',
+      [
+        Sequelize.literal(`(SELECT COUNT(*) FROM picturerequests WHERE requesteeUserId = ${userId} AND status = 'REJECTED')`),
+        'count'
+      ]
+
+      ],
       where: {
         requesteeUserId: userId,
         status: requestStatus.REJECTED,
@@ -2063,6 +2090,17 @@ module.exports = {
           [Op.ne]: requestStatus.REJECTED,
         },
       },
+      attributes: [
+        'id',
+        'requesterUserId',
+        'requesteeUserId',
+        'status',
+        'createdAt',
+        [ // Adding the count as a computed attribute
+          Sequelize.literal(`(SELECT COUNT(*) FROM ExtraInfoRequests WHERE requesterUserId = ${userId} AND status != '${requestStatus.REJECTED}')`),
+          'count'
+        ]
+      ],     
       include: {
         model: db.User,
         as: 'requesteeUser',
@@ -2078,7 +2116,7 @@ module.exports = {
               `EXISTS(SELECT 1 FROM SavedProfiles WHERE userId = ${userId} AND savedUserId = requesteeUser.id)`
             ),
             'isSaved',
-          ],
+          ],         
         ],
         include: [
           {
@@ -2112,6 +2150,16 @@ module.exports = {
           [Op.ne]: requestStatus.REJECTED,
         },
       },
+      attributes:[
+        'id',
+        'requesteeUserId',
+        'createdAt',
+        'status',
+        [
+          Sequelize.literal(`(SELECT COUNT(*) FROM extrainforequests WHERE requesteeUserId = ${userId} AND status != '${requestStatus.REJECTED}')`),
+          'count'
+        ]
+      ],
       include: {
         model: db.User,
         as: 'requesterUser',
