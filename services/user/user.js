@@ -2400,6 +2400,10 @@ module.exports = {
         'isViewed',
         'status',
         'imageUrl',
+        [
+          Sequelize.literal(`(SELECT COUNT(*) FROM picturerequests WHERE requesterUserId = ${userId} AND status != '${requestStatus.REJECTED}')`),
+          'count'
+        ]
       ],
       where: {
         requesterUserId: userId,

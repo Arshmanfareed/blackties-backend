@@ -440,6 +440,7 @@ module.exports = {
     let matchesProfiles = await db.Match.findAll({
       where: {
         [Op.or]: [{ userId }, { otherUserId: userId }],
+        isCancelled: { [Op.ne]: 1 } 
       },
       include: [
         {
