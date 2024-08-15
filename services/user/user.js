@@ -47,21 +47,21 @@ module.exports = {
         status: false,
       }
       // check wheteher requesterUserId have cancelled the match with requesteeUserId before
-      const matchCancelled = await db.Match.findOne({
-        where: {
-          [Op.or]: [
-            { userId: requesterUserId, otherUserId: requesteeUserId }, // either match b/w user1 or user2
-            { userId: requesteeUserId, otherUserId: requesterUserId }, // or match b/w user2 or user1
-          ],
-          isCancelled: true,
-          // cancelledBy: requesteeUserId
-        },
-      })
-      if (matchCancelled && matchCancelled.cancelledBy == requesteeUserId) {
-        throw new Error(
-          'This match has been cancelled, you cannot request contact details again.'
-        )
-      }
+      // const matchCancelled = await db.Match.findOne({
+      //   where: {
+      //     [Op.or]: [
+      //       { userId: requesterUserId, otherUserId: requesteeUserId }, // either match b/w user1 or user2
+      //       { userId: requesteeUserId, otherUserId: requesterUserId }, // or match b/w user2 or user1
+      //     ],
+      //     isCancelled: true,
+      //     // cancelledBy: requesteeUserId
+      //   },
+      // })
+      // if (matchCancelled && matchCancelled.cancelledBy == requesteeUserId) {
+      //   throw new Error(
+      //     'This match has been cancelled, you cannot request contact details again.'
+      //   )
+      // }
 
       // check for already requested
       const alreadyRequested = await db.ContactDetailsRequest.findOne({
