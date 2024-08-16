@@ -12,7 +12,7 @@ module.exports = async (req, res, next) => {
       }
     })
     if (!userFeature) {
-      return responseFunctions._400(res, `You need to unlock 'See who viewed my profile feature.'`)
+      return responseFunctions._400(res, `You need to unlock 'See who viewed my profile' feature.`)
     }
     next()
   } catch (error) {
