@@ -41,7 +41,7 @@ module.exports = {
       phoneNo: Joi.string().min(3).max(30).allow(null, '', 'null').label('phoneNo').required().messages({
         'any.required': `{#label} is Required`,
       }),
-      message: Joi.string().min(3).max(100).allow(null, '', 'null').label('message').required().messages({
+      message: Joi.string().min(3).max(2000).allow(null, '', 'null').label('message').required().messages({
         'any.required': `{#label} is Required`,
       }),
       isFromFemale: Joi.boolean().label('isFromFemale').required().messages({

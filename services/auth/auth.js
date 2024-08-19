@@ -407,6 +407,15 @@ module.exports = {
     ], })
     
     if (user && user.otp == Number(code)) {
+
+      const otpExpiry = moment(user.otpExpiry)
+      const dateNow = moment(Date.now())
+      const DiffInMins = dateNow.diff(otpExpiry, 'minutes')
+      if (DiffInMins > 5) {
+        // check for expiry
+        // throw new Error('OTP is expired.')
+        return { success: false }
+      }
       
       if (user.tempEmail) {
 
