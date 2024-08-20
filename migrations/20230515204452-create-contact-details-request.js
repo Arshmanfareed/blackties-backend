@@ -33,7 +33,7 @@ module.exports = {
         type: Sequelize.STRING(50)
       },
       message: {
-        type: Sequelize.STRING(300)
+        type: Sequelize.STRING(2000)
       },
       status: {
         type: Sequelize.STRING(20)

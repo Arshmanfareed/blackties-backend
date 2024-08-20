@@ -32,7 +32,7 @@ module.exports = {
         type: Sequelize.STRING(20)
       },
       message: {
-        type: Sequelize.STRING(100)
+        type: Sequelize.STRING(2000)
       },
       status: {
         type: Sequelize.BOOLEAN
