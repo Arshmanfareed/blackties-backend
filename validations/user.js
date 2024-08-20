@@ -67,7 +67,7 @@ module.exports = {
       status: Joi.string().label('status').valid(requestStatus.ACCEPTED, requestStatus.REJECTED).required().messages({
         'any.required': `{#label} is Required`,
       }),
-      message: Joi.string().min(3).max(100).allow(null, '', 'null').label('message').required().messages({
+      message: Joi.string().min(3).max(2000).allow(null, '', 'null').label('message').required().messages({
         'any.required': `{#label} is Required`,
       }),
       isFemaleResponding: Joi.boolean().label('isFromFemale').required().messages({
