@@ -107,7 +107,6 @@ module.exports = {
   },
   getCounters: async (req, res) => {
     const { query } = req
-    // console.log('query************************************', query)
     const [err, data] = await to(adminService.getCounters(query))
     if (err) {
       return responseFunctions._400(res, err.message)
