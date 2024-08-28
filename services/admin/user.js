@@ -560,7 +560,7 @@ module.exports = {
     return data
   },
   getCounters: async (query) => {
-    const date = query ? new Date(query.date) : null;
+    const date = query.date ? new Date(query.date) : null;
     
     // End of day date if date is provided
     const endOfDay = date ? new Date(date.setHours(23, 59, 59, 999)) : null;
