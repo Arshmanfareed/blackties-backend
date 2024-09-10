@@ -559,59 +559,105 @@ module.exports = {
 
     return data
   },
-  getCounters: async () => {
+  getCounters: async (query) => {
+    const date = query.date ? new Date(query.date) : null;
+    
+    // End of day date if date is provided
+    const endOfDay = date ? new Date(date.setHours(23, 59, 59, 999)) : null;
+  
+    // Accounts created until the specified date
     const accountsCreated = await db.Profile.count({
+      where: endOfDay ? { createdAt: { [db.Sequelize.Op.lte]: endOfDay } } : {},
       group: ['sex'],
-    })
+    });
+  
     const totalAccountsCreated =
-      accountsCreated[0].count + accountsCreated[1].count
+      (accountsCreated[0]?.count || 0) + (accountsCreated[1]?.count || 0);
+  
     const malesAccountCreated =
-      accountsCreated.filter((item) => item.sex === gender.MALE)[0]?.count || 0
+      accountsCreated.filter((item) => item.sex === gender.MALE)[0]?.count || 0;
+  
     const femalesAccountCreated =
-      accountsCreated.filter((item) => item.sex === gender.FEMALE)[0]?.count ||
-      0
+      accountsCreated.filter((item) => item.sex === gender.FEMALE)[0]?.count || 0;
+  
+    // Active accounts until the specified date
     const activeAccounts = await db.User.count({
-      where: { status: status.ACTIVE, role: roles.USER },
+      where: {
+        status: status.ACTIVE,
+        role: roles.USER,
+        ...(endOfDay && { createdAt: { [db.Sequelize.Op.lte]: endOfDay } }),
+      },
       include: {
         model: db.Profile,
         attributes: ['sex'],
       },
       group: [db.sequelize.col('Profile.sex')],
-    })
+    });
+  
     const totalActiveAccounts =
-      activeAccounts[0].count + activeAccounts[1].count
+      (activeAccounts[0]?.count || 0) + (activeAccounts[1]?.count || 0);
+  
     const maleActiveAccounts =
-      activeAccounts.filter((item) => item.sex === gender.MALE)[0]?.count || 0
+      activeAccounts.filter((item) => item.sex === gender.MALE)[0]?.count || 0;
+  
     const femaleActiveAccounts =
-      activeAccounts.filter((item) => item.sex === gender.FEMALE)[0]?.count || 0
+      activeAccounts.filter((item) => item.sex === gender.FEMALE)[0]?.count || 0;
+  
+    // User membership counts until the specified date
     const userMembership = await db.UserSetting.count({
+      where: endOfDay ? { createdAt: { [db.Sequelize.Op.lte]: endOfDay } } : {},
       group: ['membership'],
-    })
+    });
+  
+    // Online users until the specified date
     const onlineUsers = await db.User.count({
-      where: { role: roles.USER, isOnline: true },
+      where: {
+        role: roles.USER,
+        isOnline: true,
+        ...(endOfDay && { createdAt: { [db.Sequelize.Op.lte]: endOfDay } }),
+      },
       include: {
         model: db.Profile,
         attributes: ['sex'],
       },
       group: [db.sequelize.col('Profile.sex')],
-    })
+    });
+  
     const maleOnlineUsers =
-      onlineUsers.filter((item) => item.sex === gender.MALE)[0]?.count || 0
+      onlineUsers.filter((item) => item.sex === gender.MALE)[0]?.count || 0;
+  
     const femaleOnlineUsers =
-      onlineUsers.filter((item) => item.sex === gender.FEMALE)[0]?.count || 0
-    const lastLogins = await common.getUserCountsBasedOnLastLogin()
+      onlineUsers.filter((item) => item.sex === gender.FEMALE)[0]?.count || 0;
+  
+    // Last logins until the specified date
+    const lastLogins = endOfDay
+      ? await common.getUserCountsBasedOnLastLogin(endOfDay)
+      : await common.getUserCountsBasedOnLastLogin();
+  
+    // Non-verified users until the specified date
     const nonVerifiedUsers = await db.UserSetting.count({
-      where: { isEmailVerified: false },
-    })
+      where: {
+        isEmailVerified: false,
+        ...(endOfDay && { createdAt: { [db.Sequelize.Op.lte]: endOfDay } }),
+      },
+    });
+  
+    // Suspended accounts until the specified date
     const suspendedAccounts = await db.User.count({
       where: {
         role: roles.USER,
         status: status.SUSPENDED,
+        ...(endOfDay && { createdAt: { [db.Sequelize.Op.lte]: endOfDay } }),
       },
-    })
+    });
+  
+    // Deactivated accounts until the specified date
     const deactivatedAccounts = await db.DeactivatedUser.count({
+      where: endOfDay ? { createdAt: { [db.Sequelize.Op.lte]: endOfDay } } : {},
       group: ['reason'],
-    })
+    });
+  
+    // Consolidate counters
     const counters = {
       accountsCreated: totalAccountsCreated,
       malesAccountCreated,
@@ -627,7 +673,10 @@ module.exports = {
       nonVerifiedUsers,
       suspendedAccounts,
       deactivatedAccounts,
-    }
-    return counters
+    };
+  
+    return counters;
   },
+  
+  
 }
