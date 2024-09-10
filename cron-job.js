@@ -5,6 +5,8 @@ const jobs = require('./helpers/jobs')
 // unsuspend users
 cron.schedule(process.env.UNSUSPEND_USER_CRON_EXP, jobs.unsuspendUsers)
 
+cron.schedule(process.env.UNSUSPEND_USER_CRON_EXP, jobs.cancelsRequests)
+
 // delete user from database
 cron.schedule(process.env.UNSUSPEND_USER_CRON_EXP, jobs.deleteUser)
 
