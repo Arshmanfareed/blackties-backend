@@ -32,6 +32,87 @@ module.exports = {
       console.log("Error in unsuspendUsers cron: ", error)
     }
   },
+  cancelsRequests: async () => {
+    const t = await db.sequelize.transaction();
+    try {
+      // Fetch all blocked users
+      const blockedUsers = await db.BlockedUser.findAll();
+  
+      // Calculate the time threshold for 47 hours
+      const cutoffDate = new Date(Date.now() - 47 * 60 * 60 * 1000);
+      console.log("cutoffDate", cutoffDate);
+      console.log("blockedUsers", blockedUsers);
+      // return blockedUsers;
+      // Loop through each blocked user
+      for (const blockedUser of blockedUsers) {
+        const blockedUserId = blockedUser.blockedUserId;
+        const blockerUserId = blockedUser.blockerUserId;
+  
+        // Check ContactDetailsRequest for this blocked user
+        const contactRequests = await db.ContactDetailsRequest.findAll({
+          where: {
+            requesterUserId: blockedUserId,
+            requesteeUserId: blockerUserId,
+            status: {
+              [Op.ne]: 'CANCELLED'
+            },
+            createdAt: {
+              [Op.lte]: cutoffDate  // Created more than 47 hours ago
+            }
+          }
+        });
+  
+        // Cancel each contact request that matches the condition
+        for (const request of contactRequests) {
+          await request.update({ status: 'CANCELLED' }, { transaction: t });
+        }
+  
+        // Check ExtraInfoRequest for this blocked user
+        const extraInfoRequests = await db.ExtraInfoRequest.findAll({
+          where: {
+            requesterUserId: blockedUserId,
+            requesteeUserId: blockerUserId,
+            status: {
+              [Op.ne]: 'CANCELLED'
+            },
+            createdAt: {
+              [Op.lte]: cutoffDate  // Created more than 47 hours ago
+            }
+          }
+        });
+  
+        // Cancel each extra info request that matches the condition
+        for (const request of extraInfoRequests) {
+          await request.update({ status: 'CANCELLED' }, { transaction: t });
+        }
+  
+        // Check PictureRequest for this blocked user
+        const pictureRequests = await db.PictureRequest.findAll({
+          where: {
+            requesterUserId: blockedUserId,
+            requesteeUserId: blockerUserId,
+            status: {
+              [Op.ne]: 'CANCELLED'
+            },
+            createdAt: {
+              [Op.lte]: cutoffDate  // Created more than 47 hours ago
+            }
+          }
+        });
+  
+        // Cancel each picture request that matches the condition
+        for (const request of pictureRequests) {
+          await request.update({ status: 'CANCELLED' }, { transaction: t });
+        }
+      }
+  
+      await t.commit(); // Commit all changes if everything is successful
+    } catch (error) {
+      await t.rollback(); // Rollback if there's an error
+      console.error("Error in cancelsRequests cron: ", error);
+    }
+  },
+  
   deleteUser: async () => {
     const t = await db.sequelize.transaction()
     try {
