@@ -104,6 +104,17 @@ module.exports = {
         for (const request of pictureRequests) {
           await request.update({ status: 'CANCELLED' }, { transaction: t });
         }
+
+        // Remove matches for blocked users
+        await db.Match.destroy({
+          where: {
+            [Op.or]: [
+              { userId: blockedUserId, otherUserId: blockerUserId },
+              { userId: blockerUserId, otherUserId: blockedUserId }
+            ]
+          },
+          transaction: t
+        });
       }
   
       await t.commit(); // Commit all changes if everything is successful
