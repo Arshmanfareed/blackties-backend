@@ -543,7 +543,7 @@ module.exports = {
       }
     }
     let extraInfoRequest = (pictureRequest = contactDetailsRequest = null)
-    const userAttributes = ['id', 'username', 'email', 'code', 'createdAt', 'status']
+    const userAttributes = ['id', 'username', 'email', 'code', 'createdAt', 'status', 'isOnline']
     let includeTables = [
       {
         model: db.Profile,
