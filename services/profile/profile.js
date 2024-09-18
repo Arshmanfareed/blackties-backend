@@ -526,8 +526,18 @@ module.exports = {
     return matchesProfiles
   },
   getUserProfileWithDetails: async (loginUserId, otherUserId) => {
-    if(otherUserId == 3){
+    if(otherUserId == 4){
       return {
+        message: 'Not allowed!',
+        key:'not_allowed',
+      }
+    }
+
+    const existUser = await db.User.findOne({
+      where: { id: otherUserId },
+    })
+    if (!existUser) {
+     return {
         message: 'Not allowed!',
         key:'not_allowed',
       }
