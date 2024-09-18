@@ -526,7 +526,7 @@ module.exports = {
     return matchesProfiles
   },
   getUserProfileWithDetails: async (loginUserId, otherUserId) => {
-    if(otherUserId == 4){
+    if(otherUserId == 3){
       return {
         message: 'Not allowed!',
         key:'not_allowed',
