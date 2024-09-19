@@ -1242,6 +1242,13 @@ module.exports = {
         }
       }
     );
+
+    await db.ExtraInfoRequest.create({
+      requesterUserId: matchExist.userId,
+      requesteeUserId: matchExist.otherUserId,
+      status: requestStatus.REJECTED,
+    })
+
     await db.Notification.create({
       userId: otherUserId,
       resourceId: userId,
