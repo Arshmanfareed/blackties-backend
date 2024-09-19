@@ -1206,6 +1206,7 @@ module.exports = {
         ],
       },
     })
+    console.log("rejectedContactDetails************************************", rejectedContactDetails); 
     return rejectedContactDetails
   },
   cancelMatch: async (userId, otherUserId) => {
@@ -1229,14 +1230,18 @@ module.exports = {
         },
       }
     )
-    await db.ContactDetailsRequest.destroy({
-      where: {
-        [Op.or]: [
-          { requesterUserId: userId, requesteeUserId: otherUserId }, // either match b/w user1 or user2
-          { requesterUserId: otherUserId, requesteeUserId: userId }, // or match b/w user2 or user1
-        ],
-      },
-    })
+ 
+    await db.ContactDetailsRequest.update(
+      { status: 'REJECTED' }, // the values to update
+      {
+        where: {
+          [Op.or]: [
+            { requesterUserId: userId, requesteeUserId: otherUserId }, // match between user1 and user2
+            { requesterUserId: otherUserId, requesteeUserId: userId }, // match between user2 and user1
+          ]
+        }
+      }
+    );
     await db.Notification.create({
       userId: otherUserId,
       resourceId: userId,

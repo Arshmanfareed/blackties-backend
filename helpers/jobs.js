@@ -54,7 +54,7 @@ module.exports = {
             requesterUserId: blockedUserId,
             requesteeUserId: blockerUserId,
             status: {
-              [Op.ne]: 'CANCELLED'
+              [Op.ne]: 'REJECTED'
             },
             createdAt: {
               [Op.lte]: cutoffDate  // Created more than 47 hours ago
@@ -64,7 +64,7 @@ module.exports = {
   
         // Cancel each contact request that matches the condition
         for (const request of contactRequests) {
-          await request.update({ status: 'CANCELLED' }, { transaction: t });
+          await request.update({ status: 'REJECTED' }, { transaction: t });
         }
   
         // Check ExtraInfoRequest for this blocked user
@@ -73,7 +73,7 @@ module.exports = {
             requesterUserId: blockedUserId,
             requesteeUserId: blockerUserId,
             status: {
-              [Op.ne]: 'CANCELLED'
+              [Op.ne]: 'REJECTED'
             },
             createdAt: {
               [Op.lte]: cutoffDate  // Created more than 47 hours ago
@@ -83,7 +83,7 @@ module.exports = {
   
         // Cancel each extra info request that matches the condition
         for (const request of extraInfoRequests) {
-          await request.update({ status: 'CANCELLED' }, { transaction: t });
+          await request.update({ status: 'REJECTED' }, { transaction: t });
         }
   
         // Check PictureRequest for this blocked user
@@ -92,7 +92,7 @@ module.exports = {
             requesterUserId: blockedUserId,
             requesteeUserId: blockerUserId,
             status: {
-              [Op.ne]: 'CANCELLED'
+              [Op.ne]: 'REJECTED'
             },
             createdAt: {
               [Op.lte]: cutoffDate  // Created more than 47 hours ago
@@ -102,7 +102,7 @@ module.exports = {
   
         // Cancel each picture request that matches the condition
         for (const request of pictureRequests) {
-          await request.update({ status: 'CANCELLED' }, { transaction: t });
+          await request.update({ status: 'REJECTED' }, { transaction: t });
         }
 
         // Remove matches for blocked users
