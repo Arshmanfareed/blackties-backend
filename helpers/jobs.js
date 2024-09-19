@@ -115,7 +115,6 @@ module.exports = {
           },
           transaction: t
         });
-
       }
   
       await t.commit(); // Commit all changes if everything is successful
