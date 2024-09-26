@@ -57,19 +57,51 @@ function socketInit(server) {
     })
 
     // disconnect event
+    // socket.on('disconnect', async () => {
+    //   try {
+    //     // set socket id of diconnecting user to null 
+    //     const { id: userId } = socket.user
+    //     console.log("*********** socket disconnected => ", socket.id, " == userId => ", userId);
+    //     if (userId) {
+    //       onlineUsers[userId] = { isOnline: false, socketId: null, lastSeen: new Date() }
+    //       io.emit('is-online', { recipientId: userId, isOnline: false, lastSeen: new Date() });
+    //       await db.User.update({ socketId: null, isOnline: false }, { where: { id: userId } })
+    //       await db.UserSetting.update({ lastSeen: new Date() }, { where: { userId } })
+    //     }
+    //   } catch (error) {
+    //     printErrorLog('disconnect', error.message)
+    //   }
+    // });
+
+
     socket.on('disconnect', async () => {
       try {
-        // set socket id of diconnecting user to null 
-        const { id: userId } = socket.user
+        // Extract the userId from the socket object
+        const { id: userId } = socket.user;
         console.log("*********** socket disconnected => ", socket.id, " == userId => ", userId);
+    
+        // Only proceed if the userId exists
         if (userId) {
-          onlineUsers[userId] = { isOnline: false, socketId: null, lastSeen: new Date() }
-          io.emit('is-online', { recipientId: userId, isOnline: false, lastSeen: new Date() });
-          await db.User.update({ socketId: null, isOnline: false }, { where: { id: userId } })
-          await db.UserSetting.update({ lastSeen: new Date() }, { where: { userId } })
+          // Immediately set the user's socketId to null (you may choose not to update the 'isOnline' status here yet)
+          await db.User.update({ socketId: null }, { where: { id: userId } });
+    
+          // Introduce a delay of 5 minutes (300000 ms)
+          setTimeout(async () => {
+
+          console.log("************************************************************** socket disconnected runnnnn => ", socket.id, " == userId => ", userId);
+            // After 5 minutes, mark the user as offline and update the lastSeen
+            onlineUsers[userId] = { isOnline: false, socketId: null, lastSeen: new Date() };
+            
+            // Emit the 'is-online' event to notify others that the user is offline
+            io.emit('is-online', { recipientId: userId, isOnline: false, lastSeen: new Date() });
+            
+            // Update the user's online status and lastSeen in the database
+            await db.User.update({ isOnline: false }, { where: { id: userId } });
+            await db.UserSetting.update({ lastSeen: new Date() }, { where: { userId } });
+          }, 300000); // 300000 ms = 5 minutes
         }
       } catch (error) {
-        printErrorLog('disconnect', error.message)
+        printErrorLog('disconnect', error.message);
       }
     });
 
