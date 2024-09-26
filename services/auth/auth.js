@@ -206,6 +206,27 @@ module.exports = {
       }
 
       
+        // sendMail(
+        //   process.env.WELCOME_EMAIL_TEMPLATE_ID,
+        //   email,
+        //   'Welcome to Mahaba',
+        //   { 
+        //     nickname: username, 
+        //     link: activationLink
+        //   }
+        // )
+      
+      if (country === 'saudi_arabia' || language === 'ar') {
+        sendMail(
+          process.env.WELCOME_EMAIL_TEMPLATE_ID_AR,
+          email,
+          'Welcome to Mahaba',
+          { 
+            nickname: username, 
+            link: activationLink
+          }
+        )        
+      } else {
         sendMail(
           process.env.WELCOME_EMAIL_TEMPLATE_ID,
           email,
@@ -215,28 +236,7 @@ module.exports = {
             link: activationLink
           }
         )
-      
-      // if (country === 'saudi_arabia') {
-      //   sendMail(
-      //     process.env.WELCOME_EMAIL_TEMPLATE_ID_AR,
-      //     email,
-      //     'Welcome to Mahaba',
-      //     { 
-      //       nickname: username, 
-      //       link: activationLink
-      //     }
-      //   )        
-      // } else {
-      //   sendMail(
-      //     process.env.WELCOME_EMAIL_TEMPLATE_ID,
-      //     email,
-      //     'Welcome to Mahaba',
-      //     { 
-      //       nickname: username, 
-      //       link: activationLink
-      //     }
-      //   )
-      // }
+      }
       // send OTP or verification link
       // helpers.sendAccountActivationLink(
       //   email,
