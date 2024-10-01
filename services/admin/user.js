@@ -374,10 +374,19 @@ module.exports = {
       //   throw new Error('User already suspended.')
       // }
       const { duration, reason } = body
-      await db.User.update(
-        { status: status.SUSPENDED },
-        { where: { id: userId }, transaction: t }
-      )
+      
+      if (!duration) {
+        await db.User.update(
+          { status: status.DEACTIVATED },
+          { where: { id: userId }, transaction: t }
+        )
+      }else{
+        await db.User.update(
+          { status: status.SUSPENDED },
+          { where: { id: userId }, transaction: t }
+        )
+      }
+      
       let suspendEndDate = null
       if (duration) {
         suspendEndDate = moment().add(duration, 'M')

@@ -347,12 +347,12 @@ module.exports = {
     }
     if (user.status === status.DEACTIVATED) {
       // deactivated user
-      throw new Error('Your account has been suspended')
+      throw new Error('Your account has been deactivated')
     } else if (user.status === status.SUSPENDED) {
       let errorMessage = 'Your account has been suspended'
       if (user.SuspendedUser.duration == 1) {
         errorMessage += ` for 1 month.`
-      }else if(user.SuspendedUser.duration == 2) {
+      }else if(user.SuspendedUser.duration == 3) {
         errorMessage += ` for 3 months.`
       }else{
         errorMessage += ` for 6 months.`

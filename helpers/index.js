@@ -352,7 +352,7 @@ const helperFunctions = {
             }
           ],
           where: {
-            blockedUserId: 5,
+            blockedUserId: blockedUserId,
             createdAt: {
               [Op.between]: [moment().subtract(90, 'days').utc(), moment().utc()]
             }
@@ -413,7 +413,7 @@ const helperFunctions = {
       console.log('blocksIn90Days', blocksIn90Days);
 
       let suspendEndDate = null
-      if (user?.status === status.ACTIVE && (blocksIn30Days >= 10 || blocksIn90Days >= 20)) {
+      if (user?.status === status.ACTIVE && (blocksIn30Days >= 2 || blocksIn90Days >= 20)) {
         const { suspendCount: noOfTimesUserPreviouslySuspended } = user.UserSetting; // get it from user setting table
         let period = unit = null;
         if (noOfTimesUserPreviouslySuspended in suspensionCriteria) {
