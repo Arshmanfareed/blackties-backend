@@ -1157,6 +1157,7 @@ module.exports = {
           },
         ],
       },
+      group: ['requesteeUserId', 'requesterUserId'],
     })
     return rejectedContactDetails
   },
@@ -1205,8 +1206,9 @@ module.exports = {
           },
         ],
       },
+      group: ['requesteeUserId', 'requesterUserId'],
     })
-    console.log("rejectedContactDetails************************************", rejectedContactDetails); 
+    // console.log("rejectedContactDetails************************************", rejectedContactDetails); 
     return rejectedContactDetails
   },
   cancelMatch: async (userId, otherUserId) => {
