@@ -41,7 +41,7 @@ module.exports = {
       // Calculate the time threshold for 47 hours
       const cutoffDate = new Date(Date.now() - 47 * 60 * 60 * 1000);
       console.log("cutoffDate", cutoffDate);
-      console.log("blockedUsers", blockedUsers);
+      // console.log("blockedUsers", blockedUsers);
       // return blockedUsers;
       // Loop through each blocked user
       for (const blockedUser of blockedUsers) {
@@ -51,8 +51,8 @@ module.exports = {
         // Check ContactDetailsRequest for this blocked user
         const contactRequests = await db.ContactDetailsRequest.findAll({
           where: {
-            requesterUserId: blockedUserId,
-            requesteeUserId: blockerUserId,
+            requesterUserId: blockerUserId,
+            requesteeUserId: blockedUserId,
             status: {
               [Op.ne]: 'REJECTED'
             },
@@ -61,6 +61,8 @@ module.exports = {
             }
           }
         });
+
+        console.log("contactRequests", contactRequests);
   
         // Cancel each contact request that matches the condition
         for (const request of contactRequests) {
@@ -70,8 +72,8 @@ module.exports = {
         // Check ExtraInfoRequest for this blocked user
         const extraInfoRequests = await db.ExtraInfoRequest.findAll({
           where: {
-            requesterUserId: blockedUserId,
-            requesteeUserId: blockerUserId,
+            requesterUserId: blockerUserId,
+            requesteeUserId: blockedUserId,
             status: {
               [Op.ne]: 'REJECTED'
             },
@@ -89,8 +91,8 @@ module.exports = {
         // Check PictureRequest for this blocked user
         const pictureRequests = await db.PictureRequest.findAll({
           where: {
-            requesterUserId: blockedUserId,
-            requesteeUserId: blockerUserId,
+            requesterUserId: blockerUserId,
+            requesteeUserId: blockedUserId,
             status: {
               [Op.ne]: 'REJECTED'
             },
