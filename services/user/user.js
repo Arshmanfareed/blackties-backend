@@ -80,6 +80,25 @@ module.exports = {
       ) {
         throw new Error('Request already exist.')
       }
+
+      const ifRejected = await db.ContactDetailsRequest.findOne({
+        where: {
+          requesterUserId: requesteeUserId,
+          requesteeUserId: requesterUserId,         
+        },       
+      })
+
+      if(ifRejected && ifRejected.status == 'REJECTED'){
+        await db.ContactDetailsRequest.destroy({ 
+          where: {
+            requesterUserId: requesteeUserId,
+            requesteeUserId: requesterUserId,         
+          },
+          transaction: t 
+        }) 
+        
+      }
+      
       const request = await db.ContactDetailsRequest.create(
         {
           requesterUserId,
