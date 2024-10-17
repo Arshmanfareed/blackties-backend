@@ -118,6 +118,7 @@ module.exports = {
         confirmpassword,      
       } = body
 
+      
       if (password !== confirmpassword) {
         throw new Error('Password and confirm password do not match');
       }
