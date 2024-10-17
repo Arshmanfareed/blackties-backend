@@ -8,7 +8,7 @@ const {
 const moment = require('moment')
 const { Op } = require('sequelize')
 const bcryptjs = require('bcryptjs')
-const sendMail = require('../../utils/sendgrid-mail')
+const sendMail = require('../../utils/send-mail')
 const { generateJWT } = require('../../utils/generate-jwt')
 const helpers = require('../../helpers')
 const { translate } = require('../../utils/translation')
@@ -465,7 +465,7 @@ module.exports = {
     await db.PasswordReset.destroy({ where: { userId: user.id } })
     await db.PasswordReset.create({ userId: user.id })
     const resetPasswordLink =
-      process.env.RESET_PASSWORD_PAGE + '?token=' + jwtToken
+    process.env.RESET_PASSWORD_PAGE + '?token=' + jwtToken
     const templatedId = process.env.PASSWORD_RESET_TEMPLATE_ID
     const dynamicParams = {
       link: resetPasswordLink,
@@ -475,11 +475,13 @@ module.exports = {
       where: { id: user.id },
       attributes: ['language'],
     });
-    if(testUser.dataValues.language == 'en'){
-      sendMail(templatedId, email, 'Password Reset Link', dynamicParams)
-    }else{
-      sendMail(process.env.PASSWORD_RESET_TEMPLATE_ID_AR, email, 'Password Reset Linkzz', dynamicParams)
-    }
+    
+    sendMail(email, 'Password Reset', resetPasswordLink);
+    // if(testUser.dataValues.language == 'en'){
+    //   sendMail(templatedId, email, 'Password Reset Link', dynamicParams)
+    // }else{
+    //   sendMail(process.env.PASSWORD_RESET_TEMPLATE_ID_AR, email, 'Password Reset Linkzz', dynamicParams)
+    // }
 
     
     return true

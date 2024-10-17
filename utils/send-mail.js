@@ -8,33 +8,44 @@ const {
   MAIL_FROM,
 } = process.env
 
-module.exports = (recipient, subject, body) => {
+module.exports = (recipient, subject, resetLink) => {
   try {
     let transporter = nodemailer.createTransport({
-      service: MAIL_SERVICE,
       host: MAIL_HOST,
       port: MAIL_PORT,
-      secure: false,
+      secure: MAIL_PORT == 465, // true for port 465, false for other ports
       auth: {
         user: MAIL_AUTH_USER,
         pass: MAIL_AUTH_PASSWORD,
       },
       tls: {
-        rejectUnauthorized: false,
+        rejectUnauthorized: false, // Set based on your needs
       },
-    })
+    });
+
     let message = {
-      from: MAIL_FROM,
+      from: MAIL_FROM || MAIL_AUTH_USER, // Fallback to the sender email
       to: recipient,
       subject,
-      text: body,
-    }
+      html: `
+        <div style="font-family: Arial, sans-serif; text-align: center; padding: 20px; background-color: #f4f4f4;">
+          <h2 style="color: #333;">Password Reset</h2>
+          <p style="color: #555;">Click the link below to reset your password:</p>
+          <a href="${resetLink}" style="padding: 10px 20px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 5px;">Reset Password</a>
+          <p style="color: #888; font-size: 12px; margin-top: 20px;">If you did not request this password reset, please ignore this email.</p>
+        </div>
+      `,
+    };
+
     transporter.sendMail(message, (err, info) => {
       if (err) {
-        console.log('Mail error occurred: ' + err.message)
+        console.log('Mail error occurred: ' + err.message);
+      } else {
+        console.log('Email sent successfully: ' + info.response);
       }
-    })
+    });
   } catch (error) {
-    console.log('Error sending mail: ', error)
+    console.log('Error sending mail: ', error);
   }
 }
+
