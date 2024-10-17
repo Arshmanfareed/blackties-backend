@@ -122,7 +122,7 @@ module.exports = {
       // tribe: Joi.string().required().allow(null).label('Tribe').messages({
       //   'any.required': `{#label} is Required`,
       // }),
-      fristname: Joi.string().required().min(4).max(16).label('Frist Name').messages({
+      firstname: Joi.string().required().min(4).max(16).label('First Name').messages({
         'any.required': `{#label} is Required`,
         'string.min': `{#label} must be at least 4 characters long`,
         'string.max': `{#label} cannot exceed 16 characters`,

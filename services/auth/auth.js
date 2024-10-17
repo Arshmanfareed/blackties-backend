@@ -110,7 +110,7 @@ module.exports = {
       const verificationCode = Math.floor(100000 + Math.random() * 900000)
       const {
         email,
-        fristname,
+        firstname,
         lastname,
         phoneNo,
         username,
@@ -148,7 +148,7 @@ module.exports = {
           status: status.ACTIVE,
           otp: verificationCode,
           otpExpiry: new Date(),
-          fristname,
+          firstname,
           lastname,
           phoneNo,
           // language,
