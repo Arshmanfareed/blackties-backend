@@ -7,6 +7,7 @@ const fs = require('fs')
 module.exports = {
   signUp: async (req, res) => {
     // validation
+    
     const { body } = req
     const { error } = authValidations.validateCreateProfile(body)
     if (error) {

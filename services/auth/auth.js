@@ -110,39 +110,35 @@ module.exports = {
       const verificationCode = Math.floor(100000 + Math.random() * 900000)
       const {
         email,
+        fristname,
+        lastname,
+        phoneNo,
         username,
-        password,
-        sex,
-        dateOfBirth,
-        height,
-        weight,
-        country,
-        city,
-        nationality,
-        religiosity,
-        education,
-        work,
-        skinColor,
-        ethnicity,
-        maritalStatus,
-        language,
-        tribe,
+        password, 
+        confirmpassword,      
       } = body
+
+      if (password !== confirmpassword) {
+        throw new Error('Password and confirm password do not match');
+      }
       let userExistByEmail = await db.User.findOne({
         where: { email /* [Op.or]: [{ email }, { username }] */ },
       })
       if (userExistByEmail) {
         throw new Error('An account using this email already exists')
       }
+
+
+
       const salt = await bcryptjs.genSalt(10)
       const hashedPassword = await bcryptjs.hash(password, salt)
-      const userCode = await helpers.generateUserCode(sex)
-      let currency;
-      if (country === 'saudi_arabia') {
-        currency = 'saudi_riyal';
-      } else {
-        currency = 'united_states_dollar';
-      }
+      // const userCode = await helpers.generateUserCode(sex)
+      // let currency;
+      // if (country === 'saudi_arabia') {
+      //   currency = 'saudi_riyal';
+      // } else {
+      //   currency = 'united_states_dollar';
+      // }
       let userCreated = await db.User.create(
         {
           email,
@@ -151,9 +147,12 @@ module.exports = {
           status: status.ACTIVE,
           otp: verificationCode,
           otpExpiry: new Date(),
-          language,
-          code: userCode,
-          currency: currency,
+          fristname,
+          lastname,
+          phoneNo,
+          // language,
+          // code: userCode,
+          // currency: currency,
         },
         { transaction: t }
       )
@@ -161,20 +160,20 @@ module.exports = {
       const profileCreated = await db.Profile.create(
         {
           userId,
-          sex,
-          dateOfBirth,
-          height,
-          weight,
-          country,
-          city,
-          nationality,
-          religiosity,
-          education,
-          work,
-          skinColor,
-          ethnicity,
-          maritalStatus,
-          tribe,
+          // sex,
+          // dateOfBirth,
+          // height,
+          // weight,
+          // country,
+          // city,
+          // nationality,
+          // religiosity,
+          // education,
+          // work,
+          // skinColor,
+          // ethnicity,
+          // maritalStatus,
+          // tribe,
         },
         { transaction: t }
       )
@@ -196,10 +195,10 @@ module.exports = {
       await t.commit()
       // welcome email
 
-      const testUser = await db.User.findOne({
-        where: { id: userId },
-        attributes: ['language'],
-      });
+      // const testUser = await db.User.findOne({
+      //   where: { id: userId },
+      //   attributes: ['language'],
+      // });
       const activationLink = process.env.BASE_URL_DEV + "/auth/account-activation/" + userCreated.id + "/" + verificationCode
       const dynamicParams = {
         link: activationLink
@@ -216,27 +215,27 @@ module.exports = {
         //   }
         // )
       
-      if (country === 'saudi_arabia' || language === 'ar') {
-        sendMail(
-          process.env.WELCOME_EMAIL_TEMPLATE_ID_AR,
-          email,
-          'Welcome to Mahaba',
-          { 
-            nickname: username, 
-            link: activationLink
-          }
-        )        
-      } else {
-        sendMail(
-          process.env.WELCOME_EMAIL_TEMPLATE_ID,
-          email,
-          'Welcome to Mahaba',
-          { 
-            nickname: username, 
-            link: activationLink
-          }
-        )
-      }
+      // if (country === 'saudi_arabia' || language === 'ar') {
+      //   sendMail(
+      //     process.env.WELCOME_EMAIL_TEMPLATE_ID_AR,
+      //     email,
+      //     'Welcome to Mahaba',
+      //     { 
+      //       nickname: username, 
+      //       link: activationLink
+      //     }
+      //   )        
+      // } else {
+      //   sendMail(
+      //     process.env.WELCOME_EMAIL_TEMPLATE_ID,
+      //     email,
+      //     'Welcome to Mahaba',
+      //     { 
+      //       nickname: username, 
+      //       link: activationLink
+      //     }
+      //   )
+      // }
       // send OTP or verification link
       // helpers.sendAccountActivationLink(
       //   email,
@@ -249,39 +248,39 @@ module.exports = {
       delete userCreated.password
       const authToken = generateJWT(userCreated)
       userCreated['Wallet'] = wallet
-      userCreated['UserSetting'] = userSetting
+      // userCreated['UserSetting'] = userSetting
 
-      let userFeature = {
-        userId: userCreated.id,
-        featureId: 12,
-        featureType: constants.featureTypes.ANSWER_QUESTION,
-        status: 1,
-      }
-      let userFeatureCreated = []
-      if (sex == constants.gender.MALE) {
-        let date = new Date()
-        date.setDate(date.getDate() + 2)
-        userFeature['validityType'] = constants.featureValidity.DAYS
-        userFeature['expiryDate'] = date
-      } else {
-        userFeature['validityType'] = constants.featureValidity.LIFETIME
-        let userFeatureExtraInformation = await db.UserFeature.create({
-          userId: userCreated.id,
-          featureId: 12,
-          featureType: constants.featureTypes.EXTRA_INFORMATION_REQUEST,
-          status: 1,
-          validityType: constants.featureValidity.LIFETIME,
-        })
+      // let userFeature = {
+      //   userId: userCreated.id,
+      //   featureId: 12,
+      //   featureType: constants.featureTypes.ANSWER_QUESTION,
+      //   status: 1,
+      // }
+      // let userFeatureCreated = []
+      // if (sex == constants.gender.MALE) {
+      //   let date = new Date()
+      //   date.setDate(date.getDate() + 2)
+      //   userFeature['validityType'] = constants.featureValidity.DAYS
+      //   userFeature['expiryDate'] = date
+      // } else {
+      //   userFeature['validityType'] = constants.featureValidity.LIFETIME
+      //   let userFeatureExtraInformation = await db.UserFeature.create({
+      //     userId: userCreated.id,
+      //     featureId: 12,
+      //     featureType: constants.featureTypes.EXTRA_INFORMATION_REQUEST,
+      //     status: 1,
+      //     validityType: constants.featureValidity.LIFETIME,
+      //   })
         
-       userFeatureCreated = await db.UserFeature.create({ ...userFeature })
-      }
+      //  userFeatureCreated = await db.UserFeature.create({ ...userFeature })
+      // }
 
 
       return {
         userCreated,
         profileCreated,
         JWTToken: authToken,
-        userFeature: userFeatureCreated,
+        // userFeature: userFeatureCreated,
       }
     } catch (error) {
       console.log(error)
