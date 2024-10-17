@@ -4,4 +4,6 @@ nohup.out
 package-lock.json
 public/
 test.*
-mahaba-backend.zip
+blackties-backend.zip
+config/mahaba-2-credentials.json
+config/mahaba-2-e9451-firebase-adminsdk-p60dm-ece72f832d.json
