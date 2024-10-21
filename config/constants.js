@@ -87,5 +87,5 @@ module.exports = {
     1: { period: 3, unit: 'M' },
     2: { period: 6, unit: 'M' }
   },
-  apiPrefix: '/dev/mahaba/api/v1',
+  apiPrefix: '/dev/blackties/api/v1',
 }

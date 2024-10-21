@@ -112,10 +112,12 @@ module.exports = (sequelize, DataTypes) => {
   }
   User.init(
     {
-      role: DataTypes.INTEGER,
+      role: DataTypes.INTEGER,      
       email: DataTypes.STRING,
       phoneNo: DataTypes.STRING,
       username: DataTypes.STRING,
+      firstname: DataTypes.STRING,
+      lastname: DataTypes.STRING,
       password: DataTypes.STRING,
       platform: DataTypes.STRING,
       fcmToken: DataTypes.STRING,

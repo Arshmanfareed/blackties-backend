@@ -14,8 +14,8 @@ module.exports = {
     return stripe.checkout.sessions.create({
       ...payload,
       payment_method_types: ['card'],
-      success_url: `http://${hostAddress}/dev/mahaba/api/v1/purchase/stripe-success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `http://${hostAddress}/dev/mahaba/api/v1/purchase/stripe-cancel`,
+      success_url: `http://${hostAddress}/dev/blackties/api/v1/purchase/stripe-success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `http://${hostAddress}/dev/blackties/api/v1/purchase/stripe-cancel`,
     })
   },
   retrieveCheckoutSession: async (sessionId) => {
@@ -24,7 +24,7 @@ module.exports = {
   createBillingPortalSession: async (stripeCustomerId, hostAddress) => {
     return stripe.billingPortal.sessions.create({
       customer: stripeCustomerId,
-      return_url: `http://${hostAddress}/dev/mahaba/api/v1/purchase/stripe-cancel`,
+      return_url: `http://${hostAddress}/dev/blackties/api/v1/purchase/stripe-cancel`,
     })
   },
   getAllPlans: async () => {
