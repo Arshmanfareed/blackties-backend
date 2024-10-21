@@ -30,7 +30,7 @@ module.exports = {
     if (err) {
       return responseFunctions._400(res, err.message)
     }
-    return responseFunctions._200(res, data, 'Your phone number has been successfully updated')
+    return responseFunctions._200(res, data, 'Your email has been successfully verified')
   },
 
   updateLanguage: async (req, res) => {

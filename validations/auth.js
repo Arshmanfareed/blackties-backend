@@ -10,9 +10,9 @@ module.exports = {
         'any.required': `{#label} is Required`,
         'string.email': 'Enter a valid email',
       }),
-      phoneNo: Joi.string().required().label('Phone No').messages({
-        'any.required': `{#label} is Required`,
-      }),
+      // phoneNo: Joi.string().required().label('Phone No').messages({
+      //   'any.required': `{#label} is Required`,
+      // }),
       code: Joi.string().required().label('Code').messages({
         'any.required': `{#label} is Required`,
       }),

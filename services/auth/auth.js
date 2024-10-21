@@ -41,11 +41,12 @@ module.exports = {
       )
       await db.UserSetting.update(
         {
-          isPhoneVerified: true,
+          // isPhoneVerified: true,
+          isEmailVerified: true,
         },
         { where: { userId } }
       )
-      helpers.givePhoneVerifyReward(userId)
+      // helpers.givePhoneVerifyReward(userId)
       return db.UserSetting.findOne({ where: { userId } })
     } else {
       throw Error('Incorrect OTP, please try again')
@@ -204,7 +205,9 @@ module.exports = {
       const dynamicParams = {
         link: activationLink
       }
+        sendMail(email, 'Email Verification', 'emailVerification', verificationCode );
 
+        // sendMail(email, 'Email Verification', verificationCode);
       
         // sendMail(
         //   process.env.WELCOME_EMAIL_TEMPLATE_ID,
@@ -249,7 +252,7 @@ module.exports = {
       delete userCreated.password
       const authToken = generateJWT(userCreated)
       userCreated['Wallet'] = wallet
-      // userCreated['UserSetting'] = userSetting
+      userCreated['UserSetting'] = userSetting
 
       // let userFeature = {
       //   userId: userCreated.id,
@@ -314,14 +317,22 @@ module.exports = {
     })
 
   
-    
+   
     if (!user) {
       throw new Error('Wrong email or password')
     }
+
+    
     const isCorrectPassword = await bcryptjs.compare(password, user.password)
     if (!isCorrectPassword) {
       throw new Error('Wrong email or password')
     }
+
+    // Check if email is verified
+    if (!user.UserSetting.isEmailVerified) {
+      throw new Error('Your email is not verified. Please verify your email before logging in.');
+    }
+
 
     if (user.DeactivatedUser) {
       const createdAt = new Date(user.DeactivatedUser.createdAt);
@@ -476,8 +487,9 @@ module.exports = {
       where: { id: user.id },
       attributes: ['language'],
     });
-    
-    sendMail(email, 'Password Reset', resetPasswordLink);
+    sendMail(email, 'Password Reset', 'resetPassword', resetPasswordLink);
+
+    // sendMail(email, 'Password Reset', resetPasswordLink);
     // if(testUser.dataValues.language == 'en'){
     //   sendMail(templatedId, email, 'Password Reset Link', dynamicParams)
     // }else{
