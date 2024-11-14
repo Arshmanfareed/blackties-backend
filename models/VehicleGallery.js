@@ -9,7 +9,7 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER,
         allowNull: false,
         references: {
-          model: 'Vehicles',
+          model: 'NewVehicles',
           key: 'id',
         },
         onDelete: 'CASCADE',
@@ -21,7 +21,7 @@ module.exports = (sequelize, DataTypes) => {
     });
   
     VehicleGallery.associate = (models) => {
-      VehicleGallery.belongsTo(models.Vehicles, {
+      VehicleGallery.belongsTo(models.NewVehicles, {
         foreignKey: 'vehicleId',
         as: 'vehicle',
       });

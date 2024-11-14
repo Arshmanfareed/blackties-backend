@@ -377,7 +377,7 @@ router.post('/user/:id/unsuspend', auth, isAdmin, adminController.unsuspendUser)
  *         description: ''
  *         headers: {}
  */
-router.post('/sub-admin', auth, isAdmin, adminController.createSubAdmin)
+router.post('/sub-admin', auth, adminController.createSubAdmin)
 
 /**
  * @swagger

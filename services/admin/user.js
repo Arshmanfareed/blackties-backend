@@ -12,82 +12,111 @@ module.exports = {
   addVehicles: async (vehicleData) => {
     try {
       // Start a transaction
-
+  
       // Save image to public folder
       let imagePath = '';
-      // Check if the image is a URL
+      let motCertificatePath = '';
+      let insuranceCertificatePath = '';
+      let vehicleLicencePath = '';
+      let permissionLetterPath = '';
+  
+      // Handle Image Upload
       if (vehicleData.image.startsWith('http')) {
         // If it's a URL, directly use it in your database record
         imagePath = vehicleData.image;
       } else {
-        // If it's Base64, handle it
         const matches = vehicleData.image.match(/^data:image\/([a-zA-Z]+);base64,(.+)$/);
         if (!matches || matches.length !== 3) {
           return [new Error("Invalid base64 image data")];
         }
-
+  
         const extension = matches[1];
         const base64Image = matches[2];
         const fileName = `vehicle_${Date.now()}.${extension}`;
         const uploadDir = path.join(__dirname, '../../public/uploads');
-
+  
         if (!fs.existsSync(uploadDir)) {
           fs.mkdirSync(uploadDir, { recursive: true });
         }
-
+  
         imagePath = path.join(uploadDir, fileName);
         fs.writeFileSync(imagePath, base64Image, { encoding: 'base64' });
         imagePath = `/uploads/${fileName}`; // Store as a relative path
       }
-
-      // return 'asdsdsadsa';
+  
+      // Handle PDF File Upload (Mot Certificate, Insurance Certificate, etc.)
+      const handlePdfFile = (pdfData, fieldName) => {
+        let filePath = '';
+        if (pdfData && pdfData.startsWith('http')) {
+          filePath = pdfData; // If it's a URL, directly use it
+        } else if (pdfData && pdfData.startsWith('data:application/pdf;base64,')) {
+          const matches = pdfData.match(/^data:application\/pdf;base64,(.+)$/);
+          if (!matches || matches.length !== 2) {
+            return new Error(`Invalid base64 PDF data for ${fieldName}`);
+          }
+  
+          const base64Pdf = matches[1];
+          const fileName = `${fieldName}_${Date.now()}.pdf`;
+          const uploadDir = path.join(__dirname, '../../public/uploads/documents');
+  
+          if (!fs.existsSync(uploadDir)) {
+            fs.mkdirSync(uploadDir, { recursive: true });
+          }
+  
+          filePath = path.join(uploadDir, fileName);
+          fs.writeFileSync(filePath, base64Pdf, { encoding: 'base64' });
+          filePath = `/uploads/documents/${fileName}`; // Store as a relative path
+        }
+        return filePath;
+      };
+  
+      // Handle PDF Documents
+      motCertificatePath = handlePdfFile(vehicleData.mot_certificate_document, 'mot_certificate');
+      insuranceCertificatePath = handlePdfFile(vehicleData.insurance_certificate_document, 'insurance_certificate');
+      vehicleLicencePath = handlePdfFile(vehicleData.vehicle_licence_document, 'vehicle_licence');
+      permissionLetterPath = handlePdfFile(vehicleData.permission_letter_document, 'permission_letter');
+  
+      // Perform the database transaction
       const result = await db.sequelize.transaction(async (t) => {
-        // Create Vehicle
-        const newVehicle = await db.Vehicles.create({
-          title: vehicleData.title,
-          status: vehicleData.status,
-          price: vehicleData.price,
-          membershipType: vehicleData.membershipType,
-          carType: vehicleData.carType,
-          image: imagePath,
-          engineType: vehicleData.engineType,
-          sittingCapacity: vehicleData.sittingCapacity,
+        // Create Vehicle record
+        const newVehicle = await db.NewVehicles.create({
+          car_make: vehicleData.car_make,
+          car_model: vehicleData.car_model,
+          vehicle_registration_number: vehicleData.vehicle_registration_number,
+          price_per_week: vehicleData.price_per_week,
+          car_description: vehicleData.car_description,
+          vehicle_type: vehicleData.vehicle_type,
           transmission: vehicleData.transmission,
-          mileage: vehicleData.mileage,
-          description: vehicleData.description,
-          fullyComprehensiveInsurance: vehicleData.fullyComprehensiveInsurance,
-          servicingMaintenance: vehicleData.servicingMaintenance,
-          tyreBrakeReplacement: vehicleData.tyreBrakeReplacement,
-          driverSupport: vehicleData.driverSupport,
-          racBreakdownCover: vehicleData.racBreakdownCover,
-          generousMileageAllowance: vehicleData.generousMileageAllowance,
-          noCreditCheckRentalOption: vehicleData.noCreditCheckRentalOption,
-          rightToBuyRentedVehicle: vehicleData.rightToBuyRentedVehicle,
-          realTimeVehicleMonitoring: vehicleData.realTimeVehicleMonitoring,
+          fuel_type: vehicleData.fuel_type,
+          miles_per_gallon: vehicleData.miles_per_gallon,
+          people: vehicleData.people,
+          mileage_allowance: vehicleData.mileage_allowance,
+          additional_mileage_cost: vehicleData.additional_mileage_cost,
+          reset_period: vehicleData.reset_period,
+          holding_deposit: vehicleData.holding_deposit,
+          insurance_excess: vehicleData.insurance_excess,
+          pcn_fee: vehicleData.pcn_fee,
+          vehicle_gallery: vehicleData.vehicle_gallery,  // Assuming this is a JSON array
+          mot_certificate_document: motCertificatePath,
+          insurance_certificate_document: insuranceCertificatePath,
+          vehicle_licence_document: vehicleLicencePath,
+          permission_letter_document: permissionLetterPath,
+          image: imagePath,
         });
-        
-
-        if (vehicleData.gallery && vehicleData.gallery.length) {
-          // Log the gallery data
-          console.log('Gallery Data:', vehicleData.gallery);
-        
-          // Create the gallery data in the required format
-          const galleryData = vehicleData.gallery.map((image) => {
+  
+        // Handle Vehicle Gallery images
+        if (vehicleData.vehicle_gallery && vehicleData.vehicle_gallery.length) {
+          const galleryData = vehicleData.vehicle_gallery.map((image) => {
             return {
-            vehicleId: newVehicle.id,
-            image: image.split('/').pop(), // Save only the filename
-            }
-            
+              vehicleId: newVehicle.id,
+              image: image.split('/').pop(), // Save only the filename
+            };
           });
-        
-          // Log the mapped gallery data before inserting
-          console.log('Mapped Gallery Data:', galleryData);
-        
+  
           // Bulk insert gallery images
           await db.VehicleGallery.bulkCreate(galleryData);
         }
-        
-        
+  
         return newVehicle;
       });
   
