@@ -106,14 +106,31 @@ module.exports = {
   
         // Handle Vehicle Gallery images
         if (vehicleData.vehicle_gallery && vehicleData.vehicle_gallery.length) {
-          const galleryData = vehicleData.vehicle_gallery.map((image) => {
+          const galleryData = vehicleData.vehicle_gallery.map((imageBase64, index) => {
+            const matches = imageBase64.match(/^data:image\/([a-zA-Z]+);base64,(.+)$/);
+            if (!matches || matches.length !== 3) {
+              throw new Error('Invalid base64 image data for gallery');
+            }
+        
+            const extension = matches[1];
+            const base64Image = matches[2];
+            const fileName = `vehicle_gallery_${newVehicle.id}_${index}_${Date.now()}.${extension}`;
+            const uploadDir = path.join(__dirname, '../../public/uploads/gallery');
+        
+            if (!fs.existsSync(uploadDir)) {
+              fs.mkdirSync(uploadDir, { recursive: true });
+            }
+        
+            const filePath = path.join(uploadDir, fileName);
+            fs.writeFileSync(filePath, base64Image, { encoding: 'base64' });
+        
             return {
               vehicleId: newVehicle.id,
-              image: image.split('/').pop(), // Save only the filename
+              image: `/uploads/gallery/${fileName}`, // Save relative path
             };
           });
-  
-          // Bulk insert gallery images
+        
+          // Bulk insert gallery images into the database
           await db.VehicleGallery.bulkCreate(galleryData);
         }
   
@@ -207,7 +224,7 @@ module.exports = {
   allVehicles: async (body) => {
  
       // Find the existing vehicle record
-      const allVehicle = await db.Vehicles.findAll({
+      const allVehicle = await db.NewVehicles.findAll({
         include: {
           model: db.VehicleGallery,
           as: 'gallery'
