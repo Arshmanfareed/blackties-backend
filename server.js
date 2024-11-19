@@ -18,11 +18,13 @@ const purchaseRoutes = require('./routes/v1/purchase')
 const dashboardRoutes = require('./routes/v1/dashboard')
 const adminRoutes = require('./routes/v1/admin')
 const { socketInit } = require('./socket')
+const bodyParser = require('body-parser');
 require("./cron-job")
 
 app.use(cors({
   origin: process.env.CORS_ORIGIN
 }))
+app.use(bodyParser.json({ limit: '100mb' }));
 app.use(express.static('public'))
 app.use('/public', express.static('public'))
 

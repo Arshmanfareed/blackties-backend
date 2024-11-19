@@ -2,12 +2,26 @@ const router = require('express').Router()
 const { adminController } = require('../../controllers')
 const isAdmin = require('../../middlewares/isAdmin')
 const auth = require('../../middlewares/auth')
+const multer = require('multer');
+const upload = multer({ dest: 'uploads/' });
 
 
 // BLACKTIES APIS START
 
 
-router.post('/add-vehicle', auth, adminController.addVehicles)
+router.post(
+    '/add-vehicle',
+    auth, // Authentication middleware
+    upload.fields([
+      { name: 'vehicle_gallery[]', maxCount: 10 }, // Handle multiple images
+      { name: 'mot_certificate_document', maxCount: 1 },
+      { name: 'insurance_certificate_document', maxCount: 1 },
+      { name: 'vehicle_licence_document', maxCount: 1 },
+      { name: 'permission_letter_document', maxCount: 1 },
+    ]),
+    adminController.addVehicles
+  );
+  
 router.get('/all-vehicles', auth, adminController.allVehicles)
 router.get('/vehicle-details/:id', auth, adminController.vehiclesDetails)
 router.put('/edit-vehicle/:id', auth, adminController.editVehicle);

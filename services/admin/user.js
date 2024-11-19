@@ -9,10 +9,32 @@ const path = require('path');
 
 module.exports = {
 
-  addVehicles: async (vehicleData) => {
-    try {
-      // Start a transaction
+  saveBase64File: async (base64Data, directory, filePrefix) => {
+    const matches = base64Data.match(/^data:(.+);base64,(.+)$/);
+    if (!matches || matches.length !== 3) {
+      throw new Error('Invalid base64 data');
+    }
   
+    const fileType = matches[1].split('/')[1]; // Extract file extension
+    const fileContent = matches[2]; // Extract base64 content
+    const fileName = `${filePrefix}_${Date.now()}.${fileType}`;
+    const uploadDir = path.join(__dirname, '../public', directory);
+  
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true });
+    }
+  
+    const filePath = path.join(uploadDir, fileName);
+    fs.writeFileSync(filePath, fileContent, { encoding: 'base64' });
+  
+    return `/uploads/${directory}/${fileName}`; // Return relative path
+  },
+
+  addVehicles: async (vehicleData) => {
+
+      // Start a transaction
+     
+      // return responseFunctions._200(res, vehicleData, 'Vehicle added successfully');
       // Save image to public folder
       let imagePath = '';
       let motCertificatePath = '';
@@ -21,28 +43,28 @@ module.exports = {
       let permissionLetterPath = '';
   
       // Handle Image Upload
-      if (vehicleData.image.startsWith('http')) {
-        // If it's a URL, directly use it in your database record
-        imagePath = vehicleData.image;
-      } else {
-        const matches = vehicleData.image.match(/^data:image\/([a-zA-Z]+);base64,(.+)$/);
-        if (!matches || matches.length !== 3) {
-          return [new Error("Invalid base64 image data")];
-        }
+      // if (vehicleData.image.startsWith('http')) {
+      //   // If it's a URL, directly use it in your database record
+      //   imagePath = vehicleData.image;
+      // } else {
+      //   const matches = vehicleData.image.match(/^data:image\/([a-zA-Z]+);base64,(.+)$/);
+      //   if (!matches || matches.length !== 3) {
+      //     return [new Error("Invalid base64 image data")];
+      //   }
   
-        const extension = matches[1];
-        const base64Image = matches[2];
-        const fileName = `vehicle_${Date.now()}.${extension}`;
-        const uploadDir = path.join(__dirname, '../../public/uploads');
+      //   const extension = matches[1];
+      //   const base64Image = matches[2];
+      //   const fileName = `vehicle_${Date.now()}.${extension}`;
+      //   const uploadDir = path.join(__dirname, '../../public/uploads');
   
-        if (!fs.existsSync(uploadDir)) {
-          fs.mkdirSync(uploadDir, { recursive: true });
-        }
+      //   if (!fs.existsSync(uploadDir)) {
+      //     fs.mkdirSync(uploadDir, { recursive: true });
+      //   }
   
-        imagePath = path.join(uploadDir, fileName);
-        fs.writeFileSync(imagePath, base64Image, { encoding: 'base64' });
-        imagePath = `/uploads/${fileName}`; // Store as a relative path
-      }
+      //   imagePath = path.join(uploadDir, fileName);
+      //   fs.writeFileSync(imagePath, base64Image, { encoding: 'base64' });
+      //   imagePath = `/uploads/${fileName}`; // Store as a relative path
+      // }
   
       // Handle PDF File Upload (Mot Certificate, Insurance Certificate, etc.)
       const handlePdfFile = (pdfData, fieldName) => {
@@ -77,6 +99,14 @@ module.exports = {
       permissionLetterPath = handlePdfFile(vehicleData.permission_letter_document, 'permission_letter');
   
       // Perform the database transaction
+      
+      let newVehicles = await db.NewVehicles.findOne({
+        where: { vehicle_registration_number:vehicleData.vehicle_registration_number  },        
+      })           
+      if (newVehicles) {
+        throw new Error('Vehicle registration number must be unique')
+      }
+
       const result = await db.sequelize.transaction(async (t) => {
         // Create Vehicle record
         const newVehicle = await db.NewVehicles.create({
@@ -101,35 +131,61 @@ module.exports = {
           insurance_certificate_document: insuranceCertificatePath,
           vehicle_licence_document: vehicleLicencePath,
           permission_letter_document: permissionLetterPath,
-          image: imagePath,
+          // image: imagePath,
         });
   
         // Handle Vehicle Gallery images
         if (vehicleData.vehicle_gallery && vehicleData.vehicle_gallery.length) {
-          const galleryData = vehicleData.vehicle_gallery.map((imageBase64, index) => {
-            const matches = imageBase64.match(/^data:image\/([a-zA-Z]+);base64,(.+)$/);
+          const galleryData = vehicleData.vehicle_gallery.map((image, index) => {
+            // Assuming `image` contains the file path or base64 string
+            if (!image.startsWith('data:image/')) {
+              // If it's a valid file path, we assume the file extension is part of the path
+              const fileExtension = ".jpg";  // Extract the file extension (.jpg, .png, etc.)
+              
+              const originalPath = path.join(__dirname, '../../', image);  // Temporary upload path
+              const uploadDir = path.join(__dirname, '../../public/uploads/gallery');
+              
+              // Create the gallery directory if it doesn't exist
+              if (!fs.existsSync(uploadDir)) {
+                fs.mkdirSync(uploadDir, { recursive: true });
+              }
+
+              const fileName = `vehicle_gallery_${newVehicle.id}_${index}_${Date.now()}${fileExtension}`; // Ensure extension is included
+              const finalPath = path.join(uploadDir, fileName);
+
+              // Move the file to the gallery directory
+              fs.renameSync(originalPath, finalPath);
+
+              return {
+                vehicleId: newVehicle.id,
+                image: `/uploads/gallery/${fileName}`,  // Save the relative path
+              };
+            }
+
+            // Process base64 image data
+            const matches = image.match(/^data:image\/([a-zA-Z]+);base64,(.+)$/);
             if (!matches || matches.length !== 3) {
               throw new Error('Invalid base64 image data for gallery');
             }
-        
+
             const extension = matches[1];
             const base64Image = matches[2];
             const fileName = `vehicle_gallery_${newVehicle.id}_${index}_${Date.now()}.${extension}`;
             const uploadDir = path.join(__dirname, '../../public/uploads/gallery');
-        
+
             if (!fs.existsSync(uploadDir)) {
               fs.mkdirSync(uploadDir, { recursive: true });
             }
-        
+
             const filePath = path.join(uploadDir, fileName);
             fs.writeFileSync(filePath, base64Image, { encoding: 'base64' });
-        
+
             return {
               vehicleId: newVehicle.id,
               image: `/uploads/gallery/${fileName}`, // Save relative path
             };
           });
-        
+
           // Bulk insert gallery images into the database
           await db.VehicleGallery.bulkCreate(galleryData);
         }
@@ -137,10 +193,8 @@ module.exports = {
         return newVehicle;
       });
   
-      return [null, result];
-    } catch (err) {
-      return [err];
-    }
+     
+   
   },
   
   editVehicle: async (vehicleId, vehicleData) => {

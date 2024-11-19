@@ -5,41 +5,48 @@ const { userValidations } = require('../../validations')
 
 module.exports = {
   addVehicles: async (req, res) => {
-      const { body } = req;
-      const { limit, offset, date } = req.query;
-
+    try {
+      console.log('req.body:', req.body); // Log text fields
+      console.log('req.files:', req.files); // Log uploaded files
+  
       const vehiclePayload = {
-        car_make: body.car_make,
-        car_model: body.car_model,
-        vehicle_registration_number: body.vehicle_registration_number,
-        price_per_week: body.price_per_week,
-        car_description: body.car_description,
-        vehicle_type: body.vehicle_type,
-        transmission: body.transmission,
-        fuel_type: body.fuel_type,
-        miles_per_gallon: body.miles_per_gallon,
-        people: body.people,
-        image: body.image,
-        mileage_allowance: body.mileage_allowance,
-        additional_mileage_cost: body.additional_mileage_cost,
-        reset_period: body.reset_period,
-        holding_deposit: body.holding_deposit,
-        insurance_excess: body.insurance_excess,
-        pcn_fee: body.pcn_fee,
-        vehicle_gallery: body.vehicle_gallery,  // Assuming this is an array of image URLs or filenames
-        mot_certificate_document: body.mot_certificate_document,
-        insurance_certificate_document: body.insurance_certificate_document,
-        vehicle_licence_document: body.vehicle_licence_document,
-        permission_letter_document: body.permission_letter_document,
+        car_make: req.body.car_make,
+        car_model: req.body.car_model,
+        vehicle_registration_number: req.body.vehicle_registration_number,
+        price_per_week: req.body.price_per_week,
+        car_description: req.body.car_description,
+        vehicle_type: req.body.vehicle_type,
+        transmission: req.body.transmission,
+        fuel_type: req.body.fuel_type,
+        miles_per_gallon: req.body.miles_per_gallon,
+        people: req.body.people,
+        mileage_allowance: req.body.mileage_allowance,
+        additional_mileage_cost: req.body.additional_mileage_cost,
+        reset_period: req.body.reset_period,
+        holding_deposit: req.body.holding_deposit,
+        insurance_excess: req.body.insurance_excess,
+        pcn_fee: req.body.pcn_fee,
+        vehicle_gallery: req.files['vehicle_gallery[]']?.map((file) => file.path), // Store file paths
+        mot_certificate_document: req.body.mot_certificate_document,
+        insurance_certificate_document: req.body.insurance_certificate_document,
+        vehicle_licence_document: req.body.vehicle_licence_document,
+        permission_letter_document: req.body.permission_letter_document,
       };
-
+  
+      console.log('vehiclePayload:', vehiclePayload);
+  
       const [err, data] = await to(adminService.addVehicles(vehiclePayload));
-
+  
       if (err) {
         return responseFunctions._400(res, err.message);
       }
       return responseFunctions._200(res, data, 'Vehicle added successfully');
+    } catch (error) {
+      console.error('Error in addVehicles:', error);
+      return responseFunctions._500(res, error.message);
+    }
   },
+  
 
   editVehicle: async (req, res) => {
     const { body } = req;

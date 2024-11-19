@@ -5,6 +5,7 @@ nohup.out
 staging-env
 package-lock.json
 public/
+uploads/
 test.*
 blackties-backend.zip
 config/mahaba-2-credentials.json
