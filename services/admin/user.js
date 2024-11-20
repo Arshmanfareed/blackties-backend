@@ -293,13 +293,13 @@ module.exports = {
   vehiclesDetails: async (vehicleId) => {
 
       // Find the existing vehicle record
-      const existingVehicle = await db.Vehicles.findByPk(vehicleId);
+      const existingVehicle = await db.NewVehicles.findByPk(vehicleId);
       if (!existingVehicle) {
         throw new Error('Vehicle not found');
       }
  
       // Find the existing vehicle record
-      const vehiclesDetails = await db.Vehicles.findAll({
+      const vehiclesDetails = await db.NewVehicles.findAll({
         where: { id: vehicleId },
         include: {
           model: db.VehicleGallery,
