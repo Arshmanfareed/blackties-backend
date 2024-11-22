@@ -294,17 +294,6 @@ module.exports = {
   },
   login: async (body) => {
     const { email, password, fcmToken } = body
-
-    let adminUser = await db.User.findOne({
-      where: { id:4 },     
-    })
-
-    if(adminUser){
-      const adminAuthToken = generateJWT(jwtPayload)
-      user['adminAuthToken'] = adminAuthToken
-      return user
-    }
-
     let user = await db.User.findOne({
       where: { email },
       include: [
