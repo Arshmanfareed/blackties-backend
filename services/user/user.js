@@ -13,7 +13,8 @@ const bcryptjs = require('bcryptjs')
 const common = require('../../helpers/common')
 const { to } = require('../../utils/error-handler')
 const sendSms = require('../../utils/send-sms')
-const sendMail = require('../../utils/sendgrid-mail')
+// const sendMail = require('../../utils/sendgrid-mail')
+const sendMail = require('../../utils/send-mail')
 const { readFileFromS3 } = require('../../utils/read-file')
 const csvtojsonV2 = require('csvtojson')
 
@@ -2216,33 +2217,36 @@ module.exports = {
       // send verification email to user.
       const verificationCode = Math.floor(100000 + Math.random() * 900000)
       await db.User.update(
-        { tempEmail: email, otp: verificationCode },
+        { tempEmail: email, otp: verificationCode, otpExpiry: new Date() },
         { where: { id: userId } }
       )
-      const activationLink =
-        process.env.BASE_URL_DEV +
-        '/auth/account-activation/' +
-        userId +
-        '/' +
-        verificationCode
+      sendMail(email, 'Email Verification', 'emailVerification', verificationCode );
 
 
-      const CHANGE_EMAIL_TEMPLATE_ID_EN = process.env.CHANGE_EMAIL_TEMPLATE_ID_EN
-      const CHANGE_EMAIL_TEMPLATE_ID_AR = process.env.CHANGE_EMAIL_TEMPLATE_ID_AR
-      const dynamicParams = {
-        link: activationLink
-      }
+      // const activationLink =
+      //   process.env.BASE_URL_DEV +
+      //   '/auth/account-activation/' +
+      //   userId +
+      //   '/' +
+      //   verificationCode
 
-      const user = await db.User.findOne({
-        where: { id: userId },
-        attributes: ['language'],
-      });
+
+      // const CHANGE_EMAIL_TEMPLATE_ID_EN = process.env.CHANGE_EMAIL_TEMPLATE_ID_EN
+      // const CHANGE_EMAIL_TEMPLATE_ID_AR = process.env.CHANGE_EMAIL_TEMPLATE_ID_AR
+      // const dynamicParams = {
+      //   link: activationLink
+      // }
+
+      // const user = await db.User.findOne({
+      //   where: { id: userId },
+      //   attributes: ['language'],
+      // });
       
-      if(user.dataValues.language == 'ar'){
-        sendMail(CHANGE_EMAIL_TEMPLATE_ID_AR, email, 'Verification Link', dynamicParams)
-      }else{      
-        sendMail(CHANGE_EMAIL_TEMPLATE_ID_EN, email, 'Verification Link', dynamicParams)
-      }
+      // if(user.dataValues.language == 'ar'){
+      //   sendMail(CHANGE_EMAIL_TEMPLATE_ID_AR, email, 'Verification Link', dynamicParams)
+      // }else{      
+      //   sendMail(CHANGE_EMAIL_TEMPLATE_ID_EN, email, 'Verification Link', dynamicParams)
+      // }
       // send activation link on email of user
       // helperFunctions.sendAccountActivationLink(
       //   email,
@@ -2250,7 +2254,7 @@ module.exports = {
       //   verificationCode,
       //   user.language
       // )
-      return { activationLink }
+      return 'check your email for verifcation.'
     }
     if (phoneNo) {
       // check for phone number already exist or not

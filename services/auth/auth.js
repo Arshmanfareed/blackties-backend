@@ -36,7 +36,7 @@ module.exports = {
       }
       // remove the code and update the phoneNo
       await db.User.update(
-        { otp: null, otpExpiry: null, phoneNo },
+        { otp: null, otpExpiry: null, phoneNo, email:user.tempEmail, tempEmail: null },
         { where: { id: user.id } }
       )
       await db.UserSetting.update(
