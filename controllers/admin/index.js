@@ -2,6 +2,8 @@ const adminService = require('../../services/admin')
 const { to } = require('../../utils/error-handler')
 const responseFunctions = require('../../utils/responses')
 const { userValidations } = require('../../validations')
+const db = require('../../models')
+
 
 module.exports = {
   addVehicles: async (req, res) => {
@@ -120,6 +122,24 @@ module.exports = {
       return responseFunctions._400(res, err.message);
     }
     return responseFunctions._200(res, data, 'Vehicles fetched successfully');
+  },
+
+  updateUserImage: async (req, res) => {
+    
+    const userId = req.params.id;
+    console.log(userId);
+       
+    const imagePath = `/uploads/${req.file.filename}`;
+        
+    const result = await db.User.update(
+      { image: imagePath }, // Fields to update
+      { where: { id: userId } } // Condition
+    );
+
+    if (result[0] === 0) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    return responseFunctions._200(res, imagePath, 'Data fetched successfully')    
   },
   
   getUsers: async (req, res) => {
