@@ -129,7 +129,7 @@ module.exports = {
     const userId = req.params.id;
     console.log(userId);
        
-    const imagePath = `/uploads/${req.file.filename}`;
+    const imagePath = `/public/uploads/user/${req.file.filename}`;
         
     const result = await db.User.update(
       { image: imagePath }, // Fields to update

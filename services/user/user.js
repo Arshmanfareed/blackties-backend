@@ -2201,19 +2201,26 @@ module.exports = {
   },
   updateUser: async (userId, body) => {
     const { email, phoneNo, password } = body
+
     // check if password is correct or not
     const user = await db.User.findOne({ where: { id: userId } })
+    console.log("***********************************************", userId)
+
     const isCorrectPassword = await bcryptjs.compare(password, user.password)
     if (!isCorrectPassword) {
+     
       throw new Error('Incorrect password')
     }
+    
     const verificationCode = Math.floor(100000 + Math.random() * 900000)
     if (email) {
+      
       // check if updating email not exist before or used by someone else
       const userExist = await db.User.findOne({ where: { email } })
       if (userExist && userExist.id !== userId) {
         throw new Error('This email is already used by another user')
       }
+      
       // send verification email to user.
       const verificationCode = Math.floor(100000 + Math.random() * 900000)
       await db.User.update(
@@ -2256,7 +2263,10 @@ module.exports = {
       // )
       return 'check your email for verifcation.'
     }
+    
     if (phoneNo) {
+
+      
       // check for phone number already exist or not
       const phoneNumberExist = await db.User.findOne({ where: { phoneNo } })
       if (phoneNumberExist) {
@@ -2268,13 +2278,14 @@ module.exports = {
         { where: { id: userId } }
       )
       // send otp to user on phoneNo if user verify otp then we need to add/update phoneNo
-      const message =
-        user.language === 'en'
-          ? `Mahaba OTP ${verificationCode}`
-          : `محبة ${verificationCode} OTP`
-      sendSms(phoneNo, message)
+      // const message =
+      //   user.language === 'en'
+      //     ? `Mahaba OTP ${verificationCode}`
+      //     : `محبة ${verificationCode} OTP`
+      // sendSms(phoneNo, message)
+      sendMail(user.email, 'Email Verification', 'emailVerification', verificationCode );
     }
-    return { verificationCode }
+    return 'check your email for verifcation.'
   },
   getNotificationToggles: async (userId) => {
     return db.NotificationSetting.findOne({
