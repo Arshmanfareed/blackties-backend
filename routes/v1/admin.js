@@ -341,7 +341,7 @@ router.post('/users/list', auth, isAdmin, adminController.listAllUsers)
  *         description: ''
  *         headers: {}
  */
-router.post('/user/:id/suspend', auth, isAdmin, adminController.suspendUser)
+router.post('/user/:id/suspend', auth, adminController.suspendUser)
 
 /**
  * @swagger

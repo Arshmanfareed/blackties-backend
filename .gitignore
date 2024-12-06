@@ -1,5 +1,6 @@
 node_modules/
 node_modules.zip
+public.zip
 nohup.out
 .env
 staging-env
