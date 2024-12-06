@@ -40,6 +40,40 @@ router.post('/verify-code', authController.verifyCode)
 // verify otp 
 /**
  * @swagger
+ * /auth/resend-otp:
+ *   post:
+ *     summary: resend otp
+ *     consumes:
+ *      - application/json
+ *     produces:
+ *      - application/json
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               userId:
+ *                 type: integer
+ *               phoneNo:
+ *                 type: string
+ *               code:
+ *                 type: string
+ *     tags:
+ *     - Auth
+ *     operationId: resendOTP
+ *     deprecated: false
+ *     responses:
+ *       '200':
+ *         description: ''
+ *         headers: {}
+ */
+router.post('/resend-otp', authController.resendOTP)
+
+// verify otp 
+/**
+ * @swagger
  * /auth/find-email:
  *   post:
  *     summary: find email

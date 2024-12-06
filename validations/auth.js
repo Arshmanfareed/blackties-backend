@@ -19,6 +19,23 @@ module.exports = {
     })
     return schema.validate(obj, { allowUnknown: true })
   },
+  validateresendOTP: function (obj) {
+    console.log("adasdas", obj)
+    const schema = Joi.object({
+      
+      userId: Joi.number().required().label('userId').messages({
+        'any.required': `{#label} is Required`,
+        'string.email': 'Enter a valid email',
+      }),
+      // phoneNo: Joi.string().required().label('Phone No').messages({
+      //   'any.required': `{#label} is Required`,
+      // }),
+      // code: Joi.string().required().label('Code').messages({
+      //   'any.required': `{#label} is Required`,
+      // }),
+    })
+    return schema.validate(obj, { allowUnknown: true })
+  },
   validatefindEmail: function (obj) {
     const schema = Joi.object({
       email: Joi.string().required().label('email').messages({

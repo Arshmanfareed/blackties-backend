@@ -19,6 +19,20 @@ module.exports = {
     }
     return responseFunctions._201(res, data, 'Profile created successfully')
   },
+  resendOTP: async (req, res) => {
+    // validation
+    const { body } = req
+    const { error } = authValidations.validateresendOTP(body)
+    if (error) {
+      return responseFunctions._400(res, error.details[0].message)
+    }
+    const [err, data] = await to(authService.resendOTP(body))
+    if (err) {
+      return responseFunctions._400(res, err.message)
+    }
+    return responseFunctions._200(res, data, 'An email has been sent to your email successfully')
+  },
+
   verifyCode: async (req, res) => {
     // validation
     const { body } = req

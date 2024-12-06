@@ -73,6 +73,26 @@ module.exports = {
       throw Error('You can only select EN or AR.')
     }
   },
+  resendOTP: async (body) => {
+    const { userId } = body
+    const verificationCode = Math.floor(100000 + Math.random() * 900000)
+    let user = await db.User.findOne({
+      where: { id: userId },
+      attributes: { exclude: ['password'] },
+    })
+    if (!user) {
+      throw new Error('User does not exist.')
+    }
+    
+    // remove the old and update the new
+    await db.User.update(
+      { otp: verificationCode, otpExpiry: new Date()},
+      { where: { id: user.id } }
+    )
+
+    sendMail(user.email, 'Email Verification', 'emailVerification', verificationCode );
+        
+  },
   findEmail: async (body) => {
     const { email } = body
     let userExistByEmail = await db.User.findOne({
