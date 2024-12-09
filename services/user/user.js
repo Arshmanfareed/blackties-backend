@@ -2274,7 +2274,7 @@ module.exports = {
       }
       // generate otp
       await db.User.update(
-        { otp: verificationCode, otpExpiry: new Date() },
+        { otp: verificationCode, phoneNo:phoneNo, otpExpiry: new Date() },
         { where: { id: userId } }
       )
       // send otp to user on phoneNo if user verify otp then we need to add/update phoneNo
