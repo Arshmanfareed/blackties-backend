@@ -34,11 +34,20 @@ module.exports = {
         // check for expiry
         throw new Error('OTP is expired.')
       }
-      // remove the code and update the phoneNo
-      await db.User.update(
-        { otp: null, otpExpiry: null, phoneNo, email:user.tempEmail, tempEmail: null },
-        { where: { id: user.id } }
-      )
+
+      if(phoneNo){
+        await db.User.update(
+          { otp: null, otpExpiry: null, phoneNo },
+          { where: { id: user.id } }
+        )
+      }else{
+        // remove the code and update the phoneNo
+        await db.User.update(
+          { otp: null, otpExpiry: null, email:user.tempEmail, tempEmail: null },
+          { where: { id: user.id } }
+        )
+      }
+      
       await db.UserSetting.update(
         {
           // isPhoneVerified: true,

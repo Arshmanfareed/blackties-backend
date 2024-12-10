@@ -2227,7 +2227,7 @@ module.exports = {
         { tempEmail: email, otp: verificationCode, otpExpiry: new Date() },
         { where: { id: userId } }
       )
-      sendMail(email, 'Email Verification', 'emailVerification', verificationCode );
+      sendMail(user.email, 'Email Verification', 'emailVerification', verificationCode );
 
 
       // const activationLink =
