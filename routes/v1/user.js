@@ -7,6 +7,10 @@ const contactDetailsRequest = require('../../middlewares/contactDetailsRequest')
 const extraInformationRequest = require('../../middlewares/extraInformationRequest')
 const answerQuestion = require('../../middlewares/answerQuestion')
 
+// * /user/application-process:
+router.post('/application-process', auth, userController.applicationAndAccidentProcess)
+
+
 
 /**
  * @swagger

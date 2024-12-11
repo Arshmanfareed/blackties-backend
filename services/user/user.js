@@ -19,6 +19,54 @@ const { readFileFromS3 } = require('../../utils/read-file')
 const csvtojsonV2 = require('csvtojson')
 
 module.exports = {
+  applicationAndAccidentProcess: async (userId, body) => {
+    try {
+        // Insert application data
+        const applicationData = {
+            user_id: userId,
+            driving_license_number: body.drivingLicenseNumber,
+            driver_license_expiry_date: body.driverLicenseExpiryDate,
+            driving_license_file: body.drivingLicenseFile,
+            dvla_check_code_1: body.dvlaCheckCode1,
+            dvla_check_code_2: body.dvlaCheckCode2,
+            national_insurance_number: body.nationalInsuranceNumber,
+            pco_license_number: body.pcoLicenseNumber,
+            pco_license_expiry_date: body.pcoLicenseExpiryDate,
+            pco_paper_copy_file: body.pcoPaperCopyFile,
+            pco_badge_file: body.pcoBadgeFile,
+            bank_statement: body.bankStatement,
+            pco_license_first_obtained: body.pcoLicenseFirstObtained, // New field added here
+        };
+
+        const userApplication = await db.UserApplication.create(applicationData);
+
+        // Insert multiple accidents if they are provided
+        let accidents = [];
+        if (body.accidents && Array.isArray(body.accidents)) {
+            // Loop through all accidents in the array
+            for (const accident of body.accidents) {
+                if (accident.dateOfAccident && accident.accidentDetails && accident.faultStatus) {
+                    const accidentData = {
+                        user_id: userId,
+                        user_application_id: userApplication.id, // Link to the user application
+                        date_of_accident: accident.dateOfAccident,
+                        fault_status: accident.faultStatus,
+                        details: accident.accidentDetails,
+                    };
+                    const newAccident = await db.Accident.create(accidentData);
+                    accidents.push(newAccident);
+                }
+            }
+        }
+
+        return [null, { userApplication, accidents }];
+    } catch (err) {
+        return [err, null]; // Handle errors
+    }
+  },
+
+ 
+
   requestContactDetails: async (
     requesterUserId,
     requesteeUserId,

@@ -5,6 +5,23 @@ const { userValidations } = require('../../validations')
 const { requestStatus } = require('../../config/constants')
 
 module.exports = {
+  applicationAndAccidentProcess: async (req, res) => {
+    const { id: userId } = req.user;
+    const { body } = req;
+
+    // Validation for both application and accident data
+    const { error } = userValidations.validateApplicationAndAccident(body);
+    if (error) {
+        return responseFunctions._400(res, error.details[0].message); // Validation error
+    }
+
+    const [err, data] = await to(userService.applicationAndAccidentProcess(userId, body));
+    if (err) {
+        return responseFunctions._400(res, err.message); // Error in service
+    }
+
+    return responseFunctions._200(res, data, 'Application and Accident processed successfully');
+  },
   requestContactDetails: async (req, res) => {
     const { id: requesteeUserId } = req.params
     const { id: requesterUserId, countBasedFeature } = req.user

@@ -21,6 +21,33 @@ module.exports = {
     })
     return schema.validate(obj, { allowUnknown: true })
   },
+  validateApplicationAndAccident: function (obj) {
+    const schema = Joi.object({
+        // Application-specific fields
+        drivingLicenseNumber: Joi.string().min(5).max(30).label('Driving License Number').required(),
+        driverLicenseExpiryDate: Joi.date().label('Driver License Expiry Date').required(),
+        drivingLicenseFile: Joi.string().uri().label('Driving License File').required(),
+        dvlaCheckCode1: Joi.string().allow(null, '').label('DVLA Check Code 1'),
+        dvlaCheckCode2: Joi.string().allow(null, '').label('DVLA Check Code 2'),
+        nationalInsuranceNumber: Joi.string().min(5).max(20).label('National Insurance Number').required(),
+        pcoLicenseNumber: Joi.string().label('PCO License Number').required(),
+        pcoLicenseExpiryDate: Joi.date().label('PCO License Expiry Date').required(),
+        pcoPaperCopyFile: Joi.string().uri().label('PCO Paper Copy File'),
+        pcoBadgeFile: Joi.string().uri().label('PCO Badge File'),
+        bankStatement: Joi.string().uri().label('Bank Statement'),
+        
+        // New field for first PCO license obtained date
+        pcoLicenseFirstObtained: Joi.date().label('First Obtained PCO License Date').allow(null),
+
+        // Accident-specific fields
+        dateOfAccident: Joi.date().label('Date of Accident').allow(null),
+        faultStatus: Joi.string().valid('Fault', 'Non-Fault', 'Pending').label('Fault Status').allow(null),
+        accidentDetails: Joi.string().min(10).max(2000).label('Accident Details').allow(null),
+
+    });
+
+    return schema.validate(obj, { allowUnknown: true });
+},
   validateRequestContactDetails: function (obj) {
     const schema = Joi.object({
       requesterName: Joi.string().min(3).max(30).allow(null, '', 'null').label('requesterName').required().messages({
