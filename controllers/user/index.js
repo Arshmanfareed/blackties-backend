@@ -3,25 +3,64 @@ const { to } = require('../../utils/error-handler')
 const responseFunctions = require('../../utils/responses')
 const { userValidations } = require('../../validations')
 const { requestStatus } = require('../../config/constants')
+const fs = require('fs');
+const path = require('path');
 
 module.exports = {
   applicationAndAccidentProcess: async (req, res) => {
     const { id: userId } = req.user;
     const { body } = req;
+    const files = req.files;
 
-    // Validation for both application and accident data
-    const { error } = userValidations.validateApplicationAndAccident(body);
-    if (error) {
-        return responseFunctions._400(res, error.details[0].message); // Validation error
+    // Define the base upload directory
+    const uploadDir = path.join(__dirname, '../../public/uploads/applications');
+    if (!fs.existsSync(uploadDir)) {
+        fs.mkdirSync(uploadDir, { recursive: true });
     }
 
-    const [err, data] = await to(userService.applicationAndAccidentProcess(userId, body));
-    if (err) {
-        return responseFunctions._400(res, err.message); // Error in service
-    }
+    try {
+        // Helper function to rename and save files
+        const processFile = (file, fieldName) => {
+            const fileName = `${fieldName}_${Date.now()}.jpeg`;
+            const filePath = path.join(uploadDir, fileName);
 
-    return responseFunctions._200(res, data, 'Application and Accident processed successfully');
-  },
+            // Move the file and rename with .jpeg extension
+            fs.renameSync(file.path, filePath);
+
+            // Return relative path for storing in the database
+            return `/uploads/applications/${fileName}`;
+        };
+
+        // Process each file if it exists
+        if (files.drivingLicenseFile) {
+            body.drivingLicenseFile = processFile(files.drivingLicenseFile[0], 'drivingLicenseFile');
+        }
+        if (files.pcoPaperCopyFile) {
+            body.pcoPaperCopyFile = processFile(files.pcoPaperCopyFile[0], 'pcoPaperCopyFile');
+        }
+        if (files.pcoBadgeFile) {
+            body.pcoBadgeFile = processFile(files.pcoBadgeFile[0], 'pcoBadgeFile');
+        }
+        if (files.bankStatement) {
+            body.bankStatement = processFile(files.bankStatement[0], 'bankStatement');
+        }
+        // Validate data
+        const { error } = userValidations.validateApplicationAndAccident(body);
+        if (error) {
+            return responseFunctions._400(res, error.details[0].message); // Validation error
+        }
+
+        // Process the application and accident
+        const [err, data] = await to(userService.applicationAndAccidentProcess(userId, body));
+        if (err) {
+            return responseFunctions._400(res, err.message); // Error in service
+        }
+
+        return responseFunctions._200(res, data, 'Application and Accident processed successfully');
+    } catch (err) {
+        return responseFunctions._400(res, err.message);
+    }
+},
   requestContactDetails: async (req, res) => {
     const { id: requesteeUserId } = req.params
     const { id: requesterUserId, countBasedFeature } = req.user

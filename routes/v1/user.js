@@ -6,9 +6,13 @@ const pictureRequest = require('../../middlewares/pictureRequest')
 const contactDetailsRequest = require('../../middlewares/contactDetailsRequest')
 const extraInformationRequest = require('../../middlewares/extraInformationRequest')
 const answerQuestion = require('../../middlewares/answerQuestion')
+const multer = require('multer');
+const upload = multer({ dest: 'uploads/' });
 
 // * /user/application-process:
-router.post('/application-process', auth, userController.applicationAndAccidentProcess)
+router.post('/application-process', auth, upload.fields([
+    { name: 'drivingLicenseFile', maxCount: 1 },
+  ]), userController.applicationAndAccidentProcess)
 
 
 
