@@ -36,6 +36,14 @@ module.exports = {
         type: DataTypes.STRING,
         allowNull: false,
       },
+      more_than_six_points: {
+        type: DataTypes.STRING,
+        defaultValue: 'yes',     
+      },
+      any_accidents: {
+        type: DataTypes.STRING,
+        defaultValue: 'no',
+      },
       pco_license_first_obtained: {
         type: DataTypes.DATE,
         allowNull: false,

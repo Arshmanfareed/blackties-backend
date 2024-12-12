@@ -34,6 +34,8 @@ module.exports = {
         pcoLicenseExpiryDate: Joi.date().label('PCO License Expiry Date').required(),
         pcoPaperCopyFile: Joi.string().uri().label('PCO Paper Copy File'),
         pcoBadgeFile: Joi.string().uri().label('PCO Badge File'),
+        more_than_six_points: Joi.string().uri().label('Have you got more than 6 Points on your License?'),
+        any_accidents: Joi.string().uri().label('Have you been in any accidents in the last three years?'),
         bankStatement: Joi.string().uri().label('Bank Statement'),
         
         // New field for first PCO license obtained date

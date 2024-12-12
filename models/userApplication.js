@@ -62,6 +62,12 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING, // Path to uploaded file
         allowNull: true,
       },
+      more_than_six_points: {
+        type: DataTypes.STRING,        
+      },
+      any_accidents: {
+        type: DataTypes.STRING,       
+      },
       bank_statement: {
         type: DataTypes.STRING, // Path to bank statement file
         allowNull: true,

@@ -34,6 +34,8 @@ module.exports = {
             pco_license_expiry_date: body.pcoLicenseExpiryDate,
             pco_paper_copy_file: body.pcoPaperCopyFile,
             pco_badge_file: body.pcoBadgeFile,
+            more_than_six_points: body.more_than_six_points,
+            any_accidents: body.any_accidents,
             bank_statement: body.bankStatement,
             pco_license_first_obtained: body.pcoLicenseFirstObtained, // New field added here
         };
