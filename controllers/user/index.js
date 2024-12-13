@@ -49,7 +49,7 @@ module.exports = {
         if (error) {
             return responseFunctions._400(res, error.details[0].message); // Validation error
         }
-
+        
         // Process the application and accident
         const [err, data] = await to(userService.applicationAndAccidentProcess(userId, body));
         if (err) {
