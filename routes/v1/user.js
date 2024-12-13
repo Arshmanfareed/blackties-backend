@@ -12,6 +12,9 @@ const upload = multer({ dest: 'uploads/' });
 // * /user/application-process:
 router.post('/application-process', auth, upload.fields([
     { name: 'drivingLicenseFile', maxCount: 1 },
+    { name: 'pcoPaperCopyFile', maxCount: 1 },
+    { name: 'pcoBadgeFile', maxCount: 1 },
+    { name: 'bankStatement', maxCount: 1 },
   ]), userController.applicationAndAccidentProcess)
 
 

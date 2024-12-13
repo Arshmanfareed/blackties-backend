@@ -26,17 +26,17 @@ module.exports = {
         // Application-specific fields
         drivingLicenseNumber: Joi.string().min(5).max(30).label('Driving License Number').required(),
         driverLicenseExpiryDate: Joi.date().label('Driver License Expiry Date').required(),
-        drivingLicenseFile: Joi.string().uri().label('Driving License File').required(),
+        // drivingLicenseFile: Joi.string().uri().label('Driving License File').required(),
         dvlaCheckCode1: Joi.string().allow(null, '').label('DVLA Check Code 1'),
         dvlaCheckCode2: Joi.string().allow(null, '').label('DVLA Check Code 2'),
         nationalInsuranceNumber: Joi.string().min(5).max(20).label('National Insurance Number').required(),
         pcoLicenseNumber: Joi.string().label('PCO License Number').required(),
         pcoLicenseExpiryDate: Joi.date().label('PCO License Expiry Date').required(),
-        pcoPaperCopyFile: Joi.string().uri().label('PCO Paper Copy File'),
-        pcoBadgeFile: Joi.string().uri().label('PCO Badge File'),
+        // pcoPaperCopyFile: Joi.string().uri().label('PCO Paper Copy File'),
+        // pcoBadgeFile: Joi.string().uri().label('PCO Badge File'),
         more_than_six_points: Joi.string().uri().label('Have you got more than 6 Points on your License?'),
         any_accidents: Joi.string().uri().label('Have you been in any accidents in the last three years?'),
-        bankStatement: Joi.string().uri().label('Bank Statement'),
+        // bankStatement: Joi.string().uri().label('Bank Statement'),
         
         // New field for first PCO license obtained date
         pcoLicenseFirstObtained: Joi.date().label('First Obtained PCO License Date').allow(null),
