@@ -42,24 +42,34 @@ module.exports = {
 
         const userApplication = await db.UserApplication.create(applicationData);
 
-        // Insert multiple accidents if they are provided
-        let accidents = [];
-        if (body.accidents && Array.isArray(body.accidents)) {
-            // Loop through all accidents in the array
-            for (const accident of body.accidents) {
-                if (accident.dateOfAccident && accident.accidentDetails && accident.faultStatus) {
-                    const accidentData = {
-                        user_id: userId,
-                        user_application_id: userApplication.id, // Link to the user application
-                        date_of_accident: accident.dateOfAccident,
-                        fault_status: accident.faultStatus,
-                        details: accident.accidentDetails,
-                    };
-                    const newAccident = await db.Accident.create(accidentData);
-                    accidents.push(newAccident);
-                }
+        // Parse accidents field if it's a string
+        let accidentDataArray = [];
+        if (body.accidents) {
+            try {
+                accidentDataArray = JSON.parse(body.accidents); // Convert string to array
+            } catch (error) {
+                console.error('Invalid accidents data format:', error);
+                throw new Error('Invalid accidents data format'); // Handle invalid JSON error
             }
         }
+
+      // Insert multiple accidents if they are provided
+      let accidents = [];
+      if (Array.isArray(accidentDataArray)) {
+          for (const accident of accidentDataArray) {
+              if (accident.date && accident.details && accident.faultStatus) {
+                  const accidentData = {
+                      user_id: userId,
+                      user_application_id: userApplication.id, // Link to the user application
+                      date_of_accident: accident.date,
+                      fault_status: accident.faultStatus,
+                      details: accident.details,
+                  };
+                  const newAccident = await db.Accident.create(accidentData);
+                  accidents.push(newAccident);
+              }
+          }
+      }
 
         return [null, { userApplication, accidents }];
     } catch (err) {
