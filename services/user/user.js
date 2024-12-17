@@ -209,37 +209,6 @@ module.exports = {
         attributes: ['email', 'username', 'code', 'language'], 
       });
 
-      // if (requesteeUser) {      
-      //   const username = requesteeUser.username; 
-      //   const user = C_user.username; 
-      //   const message = `Hello ${username}! ${user} requested your contact details`;
-
-      //   const testUser = await db.User.findOne({
-      //     where: { id: requesteeUserId },
-      //     attributes: ['language'],
-      //   });
-      //   if(testUser.dataValues.language == 'en'){
-      //     sendMail(
-      //       process.env.USER_NOTIFICATION_TEMPLATE_ID,
-      //       requesteeUser.email,
-      //       'Welcome to Mahabazzz',
-      //       { message },
-      //       process.env.MAIL_FROM_NOTIFICATION,
-      //     );
-      //   }else{
-      //     const message = `Hello ${username}! ${user} requested your contact details AR`;
-      //     const USER_NOTIFICATION_TEMPLATE_ID_AR = process.env.USER_NOTIFICATION_TEMPLATE_ID_AR;
-      //     sendMail(
-      //       USER_NOTIFICATION_TEMPLATE_ID_AR,
-      //       requesteeUser.email,
-      //       'Welcome to Mahabazzz',
-      //       { message },
-      //       process.env.MAIL_FROM_NOTIFICATION,
-      //     );
-      //   }
-
-        
-      // }
 
       // generate notification
       let notification = await db.Notification.create(notificationPayload, {
@@ -1469,37 +1438,7 @@ module.exports = {
           attributes: ['email', 'username'], 
         });
 
-        // if (requesteeUser) {          
-        //   const username = requesteeUser.username; 
-        //   const user = C_user.username; 
-        //   const message = `Hello ${username}! ${user} have asked you questions`;
-
-        //   const testUser = await db.User.findOne({
-        //     where: { id: requesteeUserId },
-        //     attributes: ['language'],
-        //   });
-        //   if(testUser.dataValues.language == 'en'){
-        //     sendMail(
-        //       process.env.USER_NOTIFICATION_TEMPLATE_ID,
-        //       requesteeUser.email,
-        //       'Welcome to Mahaba',
-        //       { message } ,
-        //       process.env.MAIL_FROM_NOTIFICATION,
-        //     );
-        //   }else{
-        //     const message = `Hello ${username}! ${user} have asked you questions AR`;
-        //     const USER_NOTIFICATION_TEMPLATE_ID_AR = process.env.USER_NOTIFICATION_TEMPLATE_ID_AR;
-        //     sendMail(
-        //       USER_NOTIFICATION_TEMPLATE_ID_AR,
-        //       requesteeUser.email,
-        //       'Welcome to Mahaba',
-        //       { message } ,
-        //       process.env.MAIL_FROM_NOTIFICATION,
-        //     );
-        //   }
-
-         
-        // }
+       
       }
       // create notification
       let notification = await db.Notification.create(
@@ -2009,37 +1948,6 @@ module.exports = {
       attributes: ['email', 'username'], 
     });
 
-    // if (seenProfile) {
-    //   const username = seenProfile.username; 
-    //   const user = C_user.username; 
-    //   const message = `Hello ${username}! ${user} saw your profile`;
-
-    //   const testUser = await db.User.findOne({
-    //     where: { id: viewedId },
-    //     attributes: ['language'],
-    //   });
-    //   if(testUser.dataValues.language == 'en'){
-    //     sendMail(
-    //       process.env.USER_NOTIFICATION_TEMPLATE_ID,
-    //       seenProfile.email,
-    //       'Welcome to Mahaba',
-    //       { message },
-    //       process.env.MAIL_FROM_NOTIFICATION,
-    //     );
-    //   }else{
-    //     const message = `Hello ${username}! ${user} saw your profile AR`;
-    //     const USER_NOTIFICATION_TEMPLATE_ID_AR = process.env.USER_NOTIFICATION_TEMPLATE_ID_AR;
-    //     sendMail(
-    //       USER_NOTIFICATION_TEMPLATE_ID_AR,
-    //       seenProfile.email,
-    //       'Welcome to Mahaba',
-    //       { message },
-    //       process.env.MAIL_FROM_NOTIFICATION,
-    //     );
-    //   }
-
-      
-    // }
     return true
   },
   userDataEmpty: async (userId) => {

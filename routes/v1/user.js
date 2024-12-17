@@ -449,7 +449,7 @@ router.patch('/update/subscription', userController.updateSubscription)
  *         description: ''
  *         headers: {}
  */
-router.patch('/request/:id', auth, uploadUserMedia.single('media'), userController.updatePictureRequest)
+// router.patch('/request/:id', auth, uploadUserMedia.single('media'), userController.updatePictureRequest)
 
 /**
  * @swagger

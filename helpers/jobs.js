@@ -201,23 +201,7 @@ module.exports = {
           where: { id: user.id },
           attributes: ['language'],
         });
-        if(testUser.dataValues.language == 'en'){
-          sendMail(
-            process.env.MONTHLY_ACTIVITY_TEMPLATE_ID_EN,
-            user.email,
-            'Welcome to Mahaba',
-            { message },
-            process.env.MAIL_FROM_NOTIFICATION,
-          );
-        }else{
-          sendMail(
-            process.env.MONTHLY_ACTIVITY_TEMPLATE_ID_AR,
-            user.email,
-            'Welcome to Mahaba',
-            { message },
-            process.env.MAIL_FROM_NOTIFICATION,
-          );
-        }
+     
 
       }
       
