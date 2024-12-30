@@ -1,4 +1,4 @@
-# Mahaba Api's
+# Blackties Api's
 
 # Pre-requisites
 
